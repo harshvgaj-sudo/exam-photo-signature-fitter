@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1f6feb">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Photo%20%26%20Signature%20Fitter%22%2C%22short_name%22%3A%22Photo%20Fitter%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230e1116%22%2C%22theme_color%22%3A%22%231f6feb%22%7D">
+<title>Photo &amp; Signature Fitter</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6feb'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'%3EPF%3C/text%3E%3C/svg%3E">
+<style>
+/* Photo & Signature Fitter — minimal, mobile-first.
+   Two themes via CSS variables; the theme is a data attribute on <html>. */
+
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f0f2f5;
+  --border: #d6dae1;
+  --text: #14181f;
+  --muted: #5b6472;
+  --accent: #1f6feb;
+  --accent-text: #ffffff;
+  --ok-bg: #e7f6ec; --ok-br: #2f9e5f; --ok-tx: #14532d;
+  --warn-bg: #fff5e6; --warn-br: #c47f17; --warn-tx: #6b4406;
+  --bad-bg: #fdecec; --bad-br: #d64545; --bad-tx: #7a1c1c;
+  --radius: 10px;
+}
+
+[data-theme="dark"] {
+  --bg: #0e1116;
+  --surface: #161a21;
+  --surface-2: #1d222b;
+  --border: #2b323d;
+  --text: #e8ecf1;
+  --muted: #9aa4b2;
+  --accent: #4c8dff;
+  --accent-text: #06101f;
+  --ok-bg: #10261a; --ok-br: #2f9e5f; --ok-tx: #a7e8c2;
+  --warn-bg: #2a2113; --warn-br: #c47f17; --warn-tx: #f3d79a;
+  --bad-bg: #2a1414; --bad-br: #d64545; --bad-tx: #f7b4b4;
+}
+
+* { box-sizing: border-box; }
+
+/* A class that sets `display` (e.g. .grid4) outranks the UA rule for [hidden],
+   so the attribute silently stops working. Make it authoritative. */
+[hidden] { display: none !important; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; color: var(--muted); }
+
+/* ---------------------------------------------------------------- topbar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 20;
+}
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.brand-mark {
+  flex: none; width: 38px; height: 38px; border-radius: 9px;
+  background: var(--accent); color: var(--accent-text);
+  display: grid; place-items: center; font-weight: 700; letter-spacing: .5px;
+}
+.brand strong { display: block; font-size: 16px; }
+.brand-sub { display: block; font-size: 12.5px; color: var(--muted); }
+
+/* ------------------------------------------------------------------ main */
+main { max-width: 760px; margin: 0 auto; padding: 18px; display: grid; gap: 16px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+.card h2 { margin: 0 0 14px; font-size: 17px; display: flex; align-items: center; gap: 10px; }
+.step {
+  width: 24px; height: 24px; flex: none; border-radius: 50%;
+  background: var(--surface-2); border: 1px solid var(--border);
+  display: grid; place-items: center; font-size: 13px; font-weight: 600; color: var(--muted);
+}
+
+.hint { margin: 10px 0 0; font-size: 13.5px; color: var(--muted); }
+
+.row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.grow { flex: 1 1 220px; }
+
+.field { display: grid; gap: 6px; font-size: 13.5px; color: var(--muted); }
+.field > span { font-weight: 500; }
+
+select, input[type="text"], input[type="number"], input[type="file"] {
+  width: 100%; padding: 11px 12px; font: inherit; font-size: 15px;
+  color: var(--text); background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 8px;
+}
+select:focus-visible, input:focus-visible, button:focus-visible, .crop-box:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+input[type="file"] { padding: 12px; border-style: dashed; }
+
+.grid4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin: 14px 0 0; }
+.grid4 legend { font-size: 13px; color: var(--muted); padding: 0 6px; }
+@media (min-width: 620px) { .grid4 { grid-template-columns: repeat(4, 1fr); } }
+
+button { font: inherit; cursor: pointer; border-radius: 8px; }
+.primary {
+  width: 100%; padding: 14px 18px; font-size: 16px; font-weight: 600;
+  background: var(--accent); color: var(--accent-text); border: 1px solid transparent;
+}
+.primary:hover { filter: brightness(1.07); }
+.primary:disabled { opacity: .55; cursor: not-allowed; filter: none; }
+.ghost-btn {
+  padding: 9px 14px; font-size: 14px;
+  background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+}
+.ghost-btn:hover { border-color: var(--accent); }
+
+/* ----------------------------------------------------------- provenance */
+.provenance { margin-top: 14px; padding: 12px 14px; border-radius: 8px; font-size: 13.5px; border: 1px solid var(--border); background: var(--surface-2); }
+.provenance.warn { background: var(--warn-bg); border-color: var(--warn-br); color: var(--warn-tx); }
+.provenance b { display: block; margin-bottom: 4px; }
+
+/* ---------------------------------------------------------------- stage */
+.stage {
+  position: relative; margin: 14px 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 8px;
+  overflow: hidden;
+  display: grid; place-items: center;
+  min-height: 220px;
+}
+/* NOTE: touch-action is deliberately NOT set on .stage. Doing so would stop the
+   page scrolling whenever a finger landed on the image, which traps the user on
+   a phone. Only the draggable frame opts out of native gestures. */
+.stage img { display: block; max-width: 100%; user-select: none; -webkit-user-drag: none; }
+.crop-box {
+  position: absolute; border: 2px solid var(--accent);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, .48);
+  cursor: grab; touch-action: none;
+}
+.crop-box:active { cursor: grabbing; }
+.crop-box::after {
+  content: ""; position: absolute; inset: 33.333% 0; border-top: 1px solid rgba(255,255,255,.55); border-bottom: 1px solid rgba(255,255,255,.55);
+}
+
+.preview-wrap { display: grid; place-items: center; margin-bottom: 14px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+.preview { max-width: 100%; height: auto; border: 1px solid var(--border); background: #fff; }
+
+/* --------------------------------------------------------------- status */
+.status { margin-top: 14px; padding: 13px 15px; border-radius: 8px; font-size: 14.5px; border: 1px solid var(--border); background: var(--surface-2); }
+.status.ok { background: var(--ok-bg); border-color: var(--ok-br); color: var(--ok-tx); }
+.status.warn { background: var(--warn-bg); border-color: var(--warn-br); color: var(--warn-tx); }
+.status.bad { background: var(--bad-bg); border-color: var(--bad-br); color: var(--bad-tx); }
+.status b { display: block; margin-bottom: 3px; }
+
+.report { margin: 16px 0 0; padding: 0; display: grid; gap: 8px; }
+.report > div { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 7px; border-bottom: 1px dashed var(--border); }
+.report dt { color: var(--muted); font-size: 13.5px; margin: 0; }
+.report dd { margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13.5px; }
+
+.foot { color: var(--muted); font-size: 13px; padding: 4px 2px 28px; }
+.foot p { margin: 0 0 8px; }
+.foot strong { color: var(--text); }
+
+/* ------------------------------------------------------ channel / branding */
+.topbar-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+
+.sub-btn {
+  display: inline-block; padding: 9px 14px; font-size: 14px; font-weight: 600;
+  text-decoration: none; white-space: nowrap;
+  background: #e62117; color: #fff; border: 1px solid transparent; border-radius: 8px;
+}
+.sub-btn:hover { filter: brightness(1.08); }
+
+.share-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 12px; }
+.share-row a { text-decoration: none; display: inline-block; }
+
+.linkrow { margin-top: 14px; align-items: center; }
+.linkrow .mono { flex: 1 1 200px; word-break: break-all; }
+
+/* --------------------------------------------------- live-capture warning */
+.banner-warn {
+  margin-top: 14px; padding: 13px 15px; border-radius: 8px; font-size: 14px;
+  background: var(--bad-bg); border: 1px solid var(--bad-br); color: var(--bad-tx);
+}
+.banner-warn b { display: block; margin-bottom: 4px; }
+/* A caution is not a refusal. Amber, not red, so the two never read the same. */
+.banner-warn.caution {
+  background: var(--warn-bg); border-color: var(--warn-br); color: var(--warn-tx);
+}
+
+/* ------------------------------------------------ rules from the source doc */
+.rules {
+  margin-top: 14px; padding: 13px 15px; border-radius: 8px; font-size: 13.5px;
+  background: var(--surface-2); border: 1px solid var(--border);
+}
+.rules strong { display: block; margin-bottom: 8px; font-size: 13.5px; }
+.rules ul { margin: 0; padding-left: 20px; }
+.rules li { margin: 0 0 5px; }
+.rules li:last-child { margin-bottom: 0; }
+
+/* --------------------------------------------------- declaration, verbatim */
+.declaration {
+  margin-top: 14px; padding: 13px 15px; border-radius: 8px; font-size: 13.5px;
+  background: var(--surface-2); border: 1px solid var(--border);
+}
+.declaration strong { display: block; margin-bottom: 8px; }
+.declaration p { margin: 0; font-size: 14.5px; line-height: 1.6; }
+
+/* ------------------------------------------- switch to the larger reading */
+#preferLargerRow { margin-top: 14px; }
+#preferLargerBtn {
+  border-color: var(--warn-br); background: var(--warn-bg); color: var(--warn-tx);
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------ small phones */
+@media (max-width: 400px) {
+  main { padding: 14px; }
+  .card { padding: 15px; }
+  .brand-sub { display: none; }
+  .topbar { padding: 12px 14px; gap: 10px; }
+  .report dd { font-size: 12.5px; }
+  .foot { font-size: 12.5px; }
+}
+
+/* Touch targets. Material asks for 48dp and Apple for 44pt; the defaults here
+   come out around 38px, which is small enough to mis-tap. Applies to any coarse
+   pointer, and to narrow screens as a fallback. */
+@media (max-width: 480px), (pointer: coarse) {
+  .ghost-btn, .sub-btn, .linkrow a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .share-row a { min-height: 44px; display: inline-flex; align-items: center; }
+  .field > span { font-size: 14px; }
+  select, input[type="text"], input[type="number"], input[type="file"] { min-height: 46px; }
+  /* A range input is a hard drag target on a phone; give it room. */
+  input[type="range"] { height: 32px; }
+}
+
+/* Keep the crop stage usable in landscape on a phone, where height is scarce. */
+@media (max-height: 480px) and (orientation: landscape) {
+  .stage { min-height: 150px; }
+  .topbar { position: static; }
+}
+
+/* Respect a user who has asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* Print: people do print checklists of requirements. */
+@media print {
+  .topbar, .share-row, .linkrow, #processCard, #cropCard { display: none !important; }
+  body { background: #fff; color: #000; }
+}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">PF</span>
+    <div>
+      <strong>Photo &amp; Signature Fitter</strong>
+      <span class="brand-sub">Runs entirely in your browser. Nothing is uploaded.</span>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <a id="subscribeBtn" class="sub-btn" target="_blank" rel="noopener">Subscribe</a>
+    <button id="themeToggle" class="ghost-btn" type="button" aria-label="Switch theme">Theme</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- STEP 1 ------------------------------------------------------------ -->
+  <section class="card" aria-labelledby="h-req">
+    <h2 id="h-req"><span class="step">1</span> Choose the requirement</h2>
+
+    <div class="row">
+      <label class="field">
+        <span>Preset</span>
+        <select id="presetSelect"></select>
+      </label>
+    </div>
+
+    <div id="provenance" class="provenance" role="status"></div>
+
+    <div id="liveCaptureWarn" class="banner-warn" role="alert" hidden></div>
+
+    <div id="presetWarning" class="banner-warn" role="alert" hidden></div>
+
+    <div id="preferLargerRow" class="row" hidden>
+      <button id="preferLargerBtn" class="ghost-btn" type="button"></button>
+    </div>
+
+    <div id="presetRules" class="rules" hidden>
+      <strong>Rules from the source document</strong>
+      <ul id="presetRulesList"></ul>
+    </div>
+
+    <div id="declarationBox" class="declaration" hidden>
+      <strong>Write exactly this text, by hand, in English</strong>
+      <p id="declarationText"></p>
+    </div>
+
+    <div class="row linkrow">
+      <button id="copyLink" class="ghost-btn" type="button">Copy link to this tool</button>
+      <span class="mono" id="copyStatus" role="status"></span>
+    </div>
+
+    <fieldset id="customFields" class="grid4" hidden>
+      <legend>Custom requirement</legend>
+      <label class="field"><span>Width (px)</span><input type="number" id="cw" min="1" max="10000" value="600"></label>
+      <label class="field"><span>Height (px)</span><input type="number" id="ch" min="1" max="10000" value="600"></label>
+      <label class="field"><span>Min size (KB)</span><input type="number" id="cmin" min="1" max="20000" value="10"></label>
+      <label class="field"><span>Max size (KB)</span><input type="number" id="cmax" min="1" max="20000" value="100"></label>
+    </fieldset>
+  </section>
+
+  <!-- STEP 2 ------------------------------------------------------------ -->
+  <section class="card" aria-labelledby="h-img">
+    <h2 id="h-img"><span class="step">2</span> Add the image</h2>
+    <input type="file" id="fileInput" accept="image/*">
+    <p class="hint" id="fileInfo">JPEG or PNG. iPhone photos are usually HEIC &mdash; convert to JPEG first.</p>
+  </section>
+
+  <!-- STEP 3 ------------------------------------------------------------ -->
+  <section class="card" id="cropCard" aria-labelledby="h-crop" hidden>
+    <h2 id="h-crop"><span class="step">3</span> Frame it</h2>
+    <p class="hint">Drag the frame to position it. Use the slider to zoom. The frame is locked to the required shape, so the picture can never be stretched.</p>
+
+    <div id="stage" class="stage">
+      <img id="stageImg" alt="Your image">
+      <div id="cropBox" class="crop-box" tabindex="0" role="application" aria-label="Crop frame. Use arrow keys to move."></div>
+    </div>
+
+    <div class="row">
+      <label class="field grow">
+        <span>Zoom</span>
+        <input type="range" id="zoom" min="0" max="100" value="100">
+      </label>
+    </div>
+
+    <div class="row">
+      <button id="resetCrop" class="ghost-btn" type="button">Reset frame</button>
+      <span class="mono" id="cropReadout"></span>
+    </div>
+  </section>
+
+  <!-- STEP 4 ------------------------------------------------------------ -->
+  <section class="card" id="processCard" aria-labelledby="h-out" hidden>
+    <h2 id="h-out"><span class="step">4</span> Fit and check</h2>
+
+    <div class="preview-wrap">
+      <canvas id="preview" class="preview" aria-label="Result preview"></canvas>
+    </div>
+
+    <button id="processBtn" class="primary" type="button">Fit to requirement</button>
+
+    <div id="status" class="status" role="alert" hidden></div>
+
+    <dl id="report" class="report" hidden>
+      <div><dt>Dimensions</dt><dd id="rDims"></dd></div>
+      <div><dt>File size</dt><dd id="rSize"></dd></div>
+      <div><dt>Format</dt><dd id="rFormat"></dd></div>
+      <div><dt>Quality used</dt><dd id="rQuality"></dd></div>
+      <div><dt>Checks run</dt><dd id="rEncodes"></dd></div>
+    </dl>
+
+    <button id="downloadBtn" class="primary" type="button" hidden>Download</button>
+  </section>
+
+  <footer class="foot">
+    <p><strong>What this tool does not do.</strong> It prepares a file to match stated numeric requirements. It cannot log in for you, cannot replace a mandatory live webcam capture, and cannot guarantee that a portal will accept a file. Confirm on the official upload page before you rely on it.</p>
+
+    <div class="share-row">
+      <a id="shareWhatsapp" class="ghost-btn" target="_blank" rel="noopener">Share on WhatsApp</a>
+      <a id="shareTelegram" class="ghost-btn" target="_blank" rel="noopener">Share on Telegram</a>
+      <a id="walkthroughLink" class="ghost-btn" target="_blank" rel="noopener" hidden>Watch the walkthrough</a>
+      <a id="channelLink" class="ghost-btn" target="_blank" rel="noopener"></a>
+    </div>
+
+    <p id="presetNote" class="mono"></p>
+  </footer>
+
+</main>
+
+<script>
+/* Bundled single-file build. Source of truth: reference-tool/.
+   Edit the modules there and re-run this script; do not edit this file. */
+
+(function () {
+
+'use strict';
+
+/**
+ * config.js — the only file that needs editing when channel details change.
+ *
+ * Keeping this separate means the tool code never contains a hard-coded
+ * handle, and changing the channel is a one-line edit rather than a search
+ * across the project.
+ */
+const CHANNEL = {
+  name: 'Tech Tips Dhanwala MH',
+  handle: '@TechTipsDhanwalaMH',
+  // ?sub_confirmation=1 makes YouTube show the confirmation prompt directly.
+  subscribeUrl: 'https://www.youtube.com/@TechTipsDhanwalaMH?sub_confirmation=1',
+  channelUrl: 'https://www.youtube.com/@TechTipsDhanwalaMH',
+
+  // Set this to the video that walks through this tool. Until it is set, the
+  // "watch the walkthrough" link is hidden rather than pointing nowhere.
+  walkthroughUrl: '',
+
+  // Shown in the share text.
+  shareText: 'Free tool to resize exam photos and signatures to the exact required size. Runs in your browser, nothing is uploaded.',
+};
+
+/** WhatsApp / Telegram share targets for the current page. */
+function shareLinks(url, text = CHANNEL.shareText) {
+  const u = encodeURIComponent(url);
+  const t = encodeURIComponent(text);
+  return {
+    whatsapp: `https://wa.me/?text=${t}%20${u}`,
+    telegram: `https://t.me/share/url?url=${u}&text=${t}`,
+  };
+}
+
+
+/**
+ * specs.js — the requirement registry.
+ *
+ * WHY THIS FILE EXISTS
+ * The previous version hard-coded exam requirements as loose numbers in prose and
+ * then never enforced most of them. Requirements are data, so they live in data,
+ * and every entry carries its PROVENANCE.
+ *
+ * status meanings
+ *   'VERIFIED'   — read directly from an official source document, with a date.
+ *   'UNVERIFIED' — taken from secondary sources / notes. The UI must say so and
+ *                  must not tell the user the file is "approved".
+ *   'CUSTOM'     — numbers entered by the user; no preset claim is made.
+ *
+ * feasibility meanings — this is a claim about whether the pixel box can hold the
+ * size window. _verify/check_specs.mjs MEASURES it in a real browser and fails if
+ * the claim is wrong. Do not guess these.
+ *
+ *   'comfortable' — EVERY input on the declared sweep clears the minimum with
+ *                   room to spare (>= 1.15x the floor).
+ *   'marginal'    — SOME inputs clear it and some fall below. Input-dependent by
+ *                   definition, so `riskNote` is mandatory: it must say which
+ *                   inputs fail, and `preferLarger` must offer a way out.
+ *   'unreachable' — NO input on the sweep reaches the minimum. Must not ship.
+ *
+ * WHY 'marginal' IS DECIDED BY A SWEEP AND NOT ONE IMAGE
+ * A single measurement cannot separate 'marginal' from 'comfortable', because the
+ * thing that actually breaks a preset is input variation: one viewer's signature
+ * is compact, the next one's is elaborate. Measuring one fixture and calling the
+ * answer the truth is the same mistake as claiming success for a file that fails
+ * its own checks — it just moves the error one level up.
+ *
+ * WHY THE MEASUREMENT IS DONE IN A BROWSER
+ * It was originally done in Node, with a re-implementation of the pipeline. That
+ * model said the 140x60 box reached 10.22 KB; real Chrome, given the same
+ * document, produced 8.88 KB and refused. The model overstated the achievable
+ * size by 14% — see _verify/probe_gap_cause.mjs. At a boundary like 10 KB that
+ * flips the answer, so the browser is the only acceptable authority.
+ *
+ * Other fields
+ *   measuredOver — the exact grid of realistic inputs the feasibility claim was
+ *     measured over. This is the evidence, so it is declared, not implied.
+ *     _verify/browser_truth.mjs builds exactly this grid; check_specs.mjs fails
+ *     if the claim drifts from what the grid measures.
+ *   measuredOn / measuredWith — when and how, for reproducibility.
+ *   riskNote — mandatory when feasibility is 'marginal'. Says which inputs fail.
+ *   liveCaptureOnly: true — the portal requires a live webcam capture and no
+ *     prepared file can satisfy it. The tool must refuse and explain, never
+ *     produce a file that is guaranteed to be rejected.
+ *   preferLarger — id of a documented larger-box reading of the same requirement,
+ *     offered when this box cannot hold the window.
+ *   noLargerReading — the explicit statement that no larger reading is documented.
+ *     Accepted in place of preferLarger. Inventing a dimension just to satisfy a
+ *     check would be worse than admitting the gap.
+ *   warning — a caveat the UI must show prominently for this preset.
+ *   rules — human rules from the source, shown next to the numbers.
+ *
+ * PRIMARY SOURCE (supplied by the channel owner, 2026-09-14):
+ *   "Guidelines for scanning and Upload of Documents" — the official SSC guideline
+ *   PDF, 4 pages. This SUPERSEDES the earlier secondary web sources and is the
+ *   only entry here with status VERIFIED.
+ *
+ * SECONDARY SOURCES (still UNVERIFIED):
+ *   gov_portals_master_research.txt            Part B — exam photo/signature specs
+ *   ssc_live_photo_signature_battle_sheet.txt  [0:45-2:00] — SSC scrutiny rules
+ */
+
+/** Pixel dimensions derived from a printed size, given an assumed scan resolution. */
+function pxFromCm(cm, dpi) {
+  return Math.round((cm / 2.54) * dpi);
+}
+
+const SSC_PDF = 'SSC "Guidelines for scanning and Upload of Documents" (official PDF, 4 pages)';
+const SSC_PDF_DATE = '2026-09-14';
+const MEASURED_ON = '2026-09-14';
+const MEASURED_WITH = 'Chrome 152, _verify/browser_truth.mjs';
+
+/*
+ * The sweep grids. `grain` is scan noise (0 = flat perfect scan, 32 = noisy phone
+ * photo); `density` is how much ink is on the page. Two independent axes, because
+ * a dense signature on clean paper and a sparse one on noisy paper are both
+ * ordinary documents and they land at opposite ends of the size range.
+ */
+const SCAN_SWEEP = { fixture: 'scan', grain: [0, 4, 8, 12, 16, 24, 32], density: [1, 2, 4, 6] };
+const THUMB_SWEEP = { fixture: 'thumb', grain: [0, 4, 8, 12, 16, 24, 32] };
+const TEXT_SWEEP = { fixture: 'text', grain: [0, 4, 8, 12, 16, 24, 32] };
+const PHOTO_SWEEP = { fixture: 'photo', grain: [12] };
+
+/** Shown verbatim for the declaration preset — candidates must copy it by hand. */
+const DECLARATION_TEXT =
+  'I, __________ (Name of the candidate), hereby declare that all the information ' +
+  'submitted by me in the application form is correct, true and valid. I will present ' +
+  'the supporting documents as and when required.';
+
+const SPECS = [
+  /* ------------------------------------------------------------------- SSC */
+  {
+    id: 'ssc-signature',
+    label: 'SSC — Signature',
+    group: 'SSC',
+    document: 'Signature',
+    width: 140,
+    height: 60,
+    minKB: 10,
+    maxKB: 20,
+    format: 'image/jpeg',
+    status: 'VERIFIED',
+    source: SSC_PDF,
+    verifiedOn: SSC_PDF_DATE,
+    measuredOver: SCAN_SWEEP,
+    measuredOn: MEASURED_ON,
+    measuredWith: MEASURED_WITH,
+    // MEASURED, not assumed. 28 combinations of scan noise x ink density, in real
+    // Chrome, through the shipped pipeline:
+    //   best achievable at q=1.0 ranges from 8.3 KB (compact signature, clean
+    //   scan) to 13.4 KB (large elaborate signature, density 2).
+    // 3 of 12 sampled combinations reached the 10 KB floor; the rest fell short.
+    feasibility: 'marginal',
+    preferLarger: 'ssc-signature-large',
+    riskNote:
+      'Measured over 28 scan-noise x ink-density combinations: a large, elaborate signature ' +
+      'reaches about 13.4 KB and passes, while a compact signature on clean paper reaches about ' +
+      '8.8 KB and falls under the 10 KB minimum. The deciding factor is how much INK is on the ' +
+      'page — not how clean the scan is. So if this preset refuses, the fix is a larger box or a ' +
+      'denser signature, never a further size reduction.',
+    rules: [
+      'Sign on plain white paper with a BLACK ink pen.',
+      'NOT in capital letters — block capitals are rejected.',
+      'Must be your own signature, and must match the one you sign at the exam.',
+    ],
+    note:
+      'The official pixel box is 140 x 60 and the official window is 10-20 KB. These two pull ' +
+      'against each other: at 8,400 pixels the floor demands 1.22 bytes per pixel, which only a ' +
+      'dense signature reaches. The practical risk here is being UNDER 10 KB, not over 20 KB — ' +
+      'every "reduce your file size" tutorial has this backwards.',
+  },
+  {
+    id: 'ssc-signature-large',
+    label: 'SSC — Signature (larger box, 6.0 x 2.0 cm)',
+    group: 'SSC',
+    document: 'Signature',
+    width: pxFromCm(6.0, 200), // 472
+    height: pxFromCm(2.0, 200), // 157
+    minKB: 10,
+    maxKB: 20,
+    format: 'image/jpeg',
+    status: 'UNVERIFIED',
+    source: 'ssc.gov.in candidate portal (OTR), via the channel owner — not in the official PDF',
+    verifiedOn: null,
+    measuredOver: SCAN_SWEEP,
+    measuredOn: MEASURED_ON,
+    measuredWith: MEASURED_WITH,
+    // 33.0-55.9 KB at q=1.0 over the same 28 combinations — every input clears the
+    // 10 KB floor by at least 3.3x, and the search only needs quality 0.93-1.00 to
+    // bring the result under the 20 KB ceiling. Comfortable on both bounds.
+    feasibility: 'comfortable',
+    rules: [
+      'Sign on plain white paper with a BLACK ink pen.',
+      'NOT in capital letters — block capitals are rejected.',
+    ],
+    note:
+      'The official PDF gives NO printed size for the signature, only 140 x 60 pixels. This ' +
+      'entry is the 6.0 cm x 2.0 cm figure quoted on the portal, read at a 200 dpi scan. Note ' +
+      'the aspect ratio differs from the official box (3.0:1 against 2.33:1), so the crop is not ' +
+      'identical. This is the preset to use when the official box cannot hold 10 KB.',
+  },
+  {
+    id: 'ssc-photo',
+    label: 'SSC — Photograph',
+    group: 'SSC',
+    document: 'Photo',
+    width: 200,
+    height: 230,
+    minKB: 20,
+    maxKB: 50,
+    format: 'image/jpeg',
+    status: 'VERIFIED',
+    source: SSC_PDF,
+    verifiedOn: SSC_PDF_DATE,
+    measuredOver: PHOTO_SWEEP,
+    measuredOn: MEASURED_ON,
+    measuredWith: MEASURED_WITH,
+    // 25.7 KB at q=1.0, i.e. 1.29x the 20 KB floor. Comfortable.
+    feasibility: 'comfortable',
+    preferLarger: 'ssc-photo-large',
+    // SSC requires the photograph to be captured live through a webcam or the
+    // MySSC app. No prepared file can satisfy that, so the tool must refuse
+    // rather than quietly produce something that will be rejected.
+    liveCaptureOnly: true,
+    rules: [
+      'Plain light-coloured background, preferably white.',
+      'No caps, no masks, and no spectacles — even if you wear them daily.',
+      'Captured LIVE through the portal webcam, or the MySSC mobile app.',
+    ],
+    note:
+      'The official PDF states 4.5 cm x 3.5 cm AND "200 x 230 pixels (preferred)". ' +
+      '4.5 x 3.5 cm is landscape and 200 x 230 px is portrait, so the two figures disagree — the ' +
+      'same contradiction appears in the IBPS notes. Both pixel figures in the PDF carry the word ' +
+      '"(preferred)". Separately, the PDF mandates a LIVE capture for the photograph, so this ' +
+      'preset exists to tell the truth about that requirement, not to produce a file.',
+  },
+  {
+    id: 'ssc-photo-large',
+    label: 'SSC — Photograph (larger box, 3.5 x 4.5 cm)',
+    group: 'SSC',
+    document: 'Photo',
+    width: pxFromCm(3.5, 300), // 413
+    height: pxFromCm(4.5, 300), // 531
+    minKB: 20,
+    maxKB: 50,
+    format: 'image/jpeg',
+    status: 'UNVERIFIED',
+    source: 'the same PDF figure read as a printed size at 300 dpi',
+    verifiedOn: null,
+    measuredOver: PHOTO_SWEEP,
+    measuredOn: MEASURED_ON,
+    measuredWith: MEASURED_WITH,
+    // 151.2 KB at q=1.0 against a 20-50 KB window: clears the floor by 7.6x, and
+    // reaches the ceiling at quality 0.945, so legibility is not at risk.
+    feasibility: 'comfortable',
+    rules: ['Print quality only — the portal still requires a LIVE capture.'],
+    note:
+      'The printed-size reading of the photograph requirement. Portrait, matching the 200 x 230 ' +
+      'orientation. Kept for completeness and for print use; it does NOT get around the live ' +
+      'capture rule.',
+  },
+  {
+    id: 'ssc-lti',
+    label: 'SSC — Left thumb impression',
+    group: 'SSC',
+    document: 'Thumb impression',
+    width: 240,
+    height: 240,
+    minKB: 20,
+    maxKB: 50,
+    format: 'image/jpeg',
+    status: 'VERIFIED',
+    source: SSC_PDF,
+    verifiedOn: SSC_PDF_DATE,
+    measuredOver: THUMB_SWEEP,
+    measuredOn: MEASURED_ON,
+    measuredWith: MEASURED_WITH,
+    // 26.2-34.7 KB at q=1.0, i.e. 1.31x-1.74x the 20 KB floor. Comfortable.
+    feasibility: 'comfortable',
+    rules: [
+      'Left thumb, on white paper, black or blue ink.',
+      '240 x 240 px at 200 dpi, i.e. 3 cm x 3 cm.',
+      'No left thumb? Use the right. No thumbs? A left-hand finger from the forefinger. ' +
+        'No fingers? A left toe. In every such case write the finger and hand on the document.',
+    ],
+    note:
+      'This one is internally consistent: 240 px at 200 dpi is 3.05 cm, which matches the stated ' +
+      '3 cm x 3 cm. Square 1:1 crop.',
+  },
+  {
+    id: 'ssc-declaration',
+    label: 'SSC — Handwritten declaration',
+    group: 'SSC',
+    document: 'Declaration',
+    width: 800,
+    height: 400,
+    minKB: 50,
+    maxKB: 100,
+    format: 'image/jpeg',
+    status: 'VERIFIED',
+    source: SSC_PDF,
+    verifiedOn: SSC_PDF_DATE,
+    measuredOver: TEXT_SWEEP,
+    measuredOn: MEASURED_ON,
+    measuredWith: MEASURED_WITH,
+    // 180.8-323.5 KB at q=1.0. Clears the 50 KB floor by 3.6x; reaches the 100 KB
+    // ceiling at quality 0.915-0.985, so the writing stays sharp.
+    feasibility: 'comfortable',
+    rules: [
+      'Written in ENGLISH, in your own handwriting, with black ink.',
+      'NOT in capital letters.',
+      'If written by anybody else, or in any other language, the application is INVALID.',
+      'Cannot write? Get it typed, put your left thumb impression below it, then upload.',
+    ],
+    note:
+      'This one is also internally consistent: 800 x 400 px at 200 dpi is 10.16 x 5.08 cm, ' +
+      'matching the stated 10 cm x 5 cm. Text must stay legible, so check it by eye as well as ' +
+      'by size. The tool copies the exact wording into the page so you can copy it by hand.',
+  },
+
+  /* ------------------------------------------------------------------ IBPS */
+  {
+    id: 'ibps-signature',
+    label: 'IBPS — Signature',
+    group: 'IBPS',
+    document: 'Signature',
+    width: 140,
+    height: 60,
+    minKB: 10,
+    maxKB: 20,
+    format: 'image/jpeg',
+    status: 'UNVERIFIED',
+    source: 'gov_portals_master_research.txt (Part B)',
+    verifiedOn: null,
+    measuredOver: SCAN_SWEEP,
+    measuredOn: MEASURED_ON,
+    measuredWith: MEASURED_WITH,
+    // Identical box and window to the SSC signature, so identical measurement:
+    // 8.3-13.4 KB across 28 combinations, some above the floor and some below.
+    feasibility: 'marginal',
+    // No larger reading is documented for IBPS, so none is offered. Saying so
+    // explicitly is required, rather than inventing a dimension to satisfy a
+    // check. See _verify/check_specs.mjs.
+    noLargerReading:
+      'The research note records only the 140x60 pixel box for IBPS. No printed size is given, ' +
+      'so there is no documented larger reading to offer. If the IBPS portal states one, add it ' +
+      'here and link it with preferLarger.',
+    riskNote:
+      'Identical pixel box and size window to the SSC signature, and therefore the identical ' +
+      'measured problem: an elaborate signature clears 10 KB, a compact one does not. There is ' +
+      'no documented larger reading for IBPS, so the only lever here is a denser signature.',
+    rules: ['Black ink only.', 'Block capitals are rejected.'],
+    warning:
+      'This figure comes from your own research notes, not from an official IBPS document. It is ' +
+      'IDENTICAL to the SSC signature spec, which suggests the note copied the SSC template. ' +
+      'Check the live IBPS upload screen before presenting this as fact.',
+    note:
+      'Same pixel box as the SSC signature, and the same measured problem: at 140 x 60 the 10 KB ' +
+      'floor needs more ink than a compact signature puts on the page.',
+  },
+  {
+    id: 'ibps-photo',
+    label: 'IBPS — Photograph (as stated in the notes)',
+    group: 'IBPS',
+    document: 'Photo',
+    width: 200,
+    height: 230,
+    minKB: 20,
+    maxKB: 50,
+    format: 'image/jpeg',
+    status: 'UNVERIFIED',
+    source: 'gov_portals_master_research.txt (Part B4)',
+    verifiedOn: null,
+    measuredOver: PHOTO_SWEEP,
+    measuredOn: MEASURED_ON,
+    measuredWith: MEASURED_WITH,
+    // 25.7 KB at q=1.0, 1.29x the floor. Comfortable.
+    feasibility: 'comfortable',
+    preferLarger: 'ibps-photo-cm',
+    rules: ['Passport-style colour photograph.', 'Beyond the size, the notes carry no detail — check the portal.'],
+    warning:
+      'The note states "4.5cm x 3.5cm, 20-50 KB, 200x230 pixels". 4.5 x 3.5 cm is LANDSCAPE and ' +
+      '200 x 230 px is PORTRAIT. They cannot both be right. This entry is the pixel reading.',
+    note:
+      'The identical contradiction appears in the official SSC PDF, so this is standard ' +
+      'boilerplate confusion rather than a one-off typo. See the cm reading below.',
+  },
+  {
+    id: 'ibps-photo-cm',
+    label: 'IBPS — Photograph (cm reading)',
+    group: 'IBPS',
+    document: 'Photo',
+    width: pxFromCm(4.5, 300), // 531
+    height: pxFromCm(3.5, 300), // 413
+    minKB: 20,
+    maxKB: 50,
+    format: 'image/jpeg',
+    status: 'UNVERIFIED',
+    source: 'same note, 4.5 cm x 3.5 cm interpreted at 300 dpi',
+    verifiedOn: null,
+    measuredOver: PHOTO_SWEEP,
+    measuredOn: MEASURED_ON,
+    measuredWith: MEASURED_WITH,
+    // 127.3 KB at q=1.0 against a 20-50 KB window; reaches the ceiling at 0.965.
+    feasibility: 'comfortable',
+    rules: ['Landscape, matching the 4.5 x 3.5 cm reading.', 'Beyond the size, the notes carry no detail — check the portal.'],
+    warning:
+      'The other reading of the same contradictory note. One of the two is the real requirement.',
+    note:
+      'Read as a printed size rather than a pixel box. This is landscape, matching 4.5 x 3.5 cm. ' +
+      'The upload screen decides which reading is correct.',
+  },
+  {
+    id: 'ibps-lti',
+    label: 'IBPS — Left thumb impression',
+    group: 'IBPS',
+    document: 'Thumb impression',
+    width: 240,
+    height: 240,
+    minKB: 20,
+    maxKB: 50,
+    format: 'image/jpeg',
+    status: 'UNVERIFIED',
+    source: 'gov_portals_master_research.txt (Part B)',
+    verifiedOn: null,
+    measuredOver: THUMB_SWEEP,
+    measuredOn: MEASURED_ON,
+    measuredWith: MEASURED_WITH,
+    // 26.2-34.7 KB at q=1.0, 1.31x-1.74x the floor. Comfortable.
+    feasibility: 'comfortable',
+    rules: ['Left thumb impression on white paper.', 'Beyond the size, the notes carry no detail — check the portal.'],
+    warning:
+      'This figure is identical to the SSC thumb-impression spec in the official PDF, which ' +
+      'suggests the note copied the SSC template. Verify independently.',
+    note: 'Square 1:1 crop.',
+  },
+  {
+    id: 'ibps-declaration',
+    label: 'IBPS — Handwritten declaration',
+    group: 'IBPS',
+    document: 'Declaration',
+    width: 800,
+    height: 400,
+    minKB: 50,
+    maxKB: 100,
+    format: 'image/jpeg',
+    status: 'UNVERIFIED',
+    source: 'gov_portals_master_research.txt (Part B)',
+    verifiedOn: null,
+    measuredOver: TEXT_SWEEP,
+    measuredOn: MEASURED_ON,
+    measuredWith: MEASURED_WITH,
+    // 180.8-323.5 KB at q=1.0; reaches the 100 KB ceiling at 0.915-0.985.
+    feasibility: 'comfortable',
+    rules: ['Handwritten, in English, NOT in capital letters.', 'Beyond the size, the notes carry no detail — check the portal.'],
+    warning:
+      'Identical to the SSC declaration spec in the official PDF. Verify independently.',
+    note: 'Text must stay legible — check by eye as well as by size.',
+  },
+
+  /* ------------------------------------------------------------------ UPSC */
+  {
+    id: 'upsc-photo',
+    label: 'UPSC — Photograph',
+    group: 'UPSC',
+    document: 'Photo',
+    width: 500,
+    height: 500,
+    minKB: 20,
+    maxKB: 300,
+    format: 'image/jpeg',
+    status: 'UNVERIFIED',
+    source: 'gov_portals_master_research.txt (Part B2)',
+    verifiedOn: null,
+    measuredOver: PHOTO_SWEEP,
+    measuredOn: MEASURED_ON,
+    measuredWith: MEASURED_WITH,
+    // 165.2 KB at q=1.0, inside the 20-300 KB window at quality 1.0.
+    feasibility: 'comfortable',
+    rules: ['Name and date of the photograph must be printed at the bottom of the photo.'],
+    note:
+      'The source gives 20-300 KB and a 350x350 to 1000x1000 range. 500x500 is a chosen ' +
+      'mid-point inside that range, NOT a requirement — any size in the stated range is valid. ' +
+      'The name-and-date overlay is not implemented in this tool yet.',
+  },
+
+  /* ---------------------------------------------------------------- Custom */
+  {
+    id: 'custom',
+    label: 'Custom requirement',
+    group: 'Custom',
+    document: 'Any',
+    width: 600,
+    height: 600,
+    minKB: 10,
+    maxKB: 100,
+    format: 'image/jpeg',
+    status: 'CUSTOM',
+    source: 'entered by the user',
+    verifiedOn: null,
+    rules: [],
+    note: 'No preset claims. The tool only checks the numbers the user supplies.',
+  },
+];
+
+const getSpec = (id) => SPECS.find((s) => s.id === id);
+
+
+/**
+ * core.js — pure processing logic. No DOM access, no globals.
+ *
+ * Kept free of browser APIs on purpose: every function here can be run under
+ * Node in a test harness, so the algorithm is verified by execution rather than
+ * by inspection. See ../../_verify/test_core.mjs.
+ *
+ * Design rule that the previous implementation broke:
+ *   DIMENSIONS ARE A HARD CONSTRAINT. FILE SIZE IS A RANGE.
+ * Dimensions are fixed first; only JPEG quality is searched afterwards.
+ */
+
+/** Aspect-preserving crop rectangle (centre-anchored) that exactly covers target dims.
+ *  Returns exact floats. Rounding here would reintroduce a small stretch when the
+ *  crop is resampled to the target size, so rounding happens only for display. */
+function coverRect(srcW, srcH, dstW, dstH) {
+  const srcAspect = srcW / srcH;
+  const dstAspect = dstW / dstH;
+  let w, h;
+  if (srcAspect > dstAspect) {
+    h = srcH;
+    w = srcH * dstAspect;
+  } else {
+    w = srcW;
+    h = srcW / dstAspect;
+  }
+  return { x: (srcW - w) / 2, y: (srcH - h) / 2, width: w, height: h };
+}
+
+/** Clamp a crop rectangle so it always stays inside the source image. */
+function clampCrop(crop, srcW, srcH) {
+  const width = Math.min(crop.width, srcW);
+  const height = Math.min(crop.height, srcH);
+  return {
+    x: Math.max(0, Math.min(srcW - width, crop.x)),
+    y: Math.max(0, Math.min(srcH - height, crop.y)),
+    width,
+    height,
+  };
+}
+
+/**
+ * Largest JPEG quality whose encoded size stays within [minBytes, maxBytes].
+ *
+ * @param {(q:number) => Promise<number>} measure  resolves to encoded byte length
+ * @param {number} minBytes  inclusive lower bound (spec minimum)
+ * @param {number} maxBytes  inclusive upper bound (spec maximum)
+ * @param {number} maxIterations hard cap — guarantees termination
+ *
+ * Never reports success for a file that fails the stated checks.
+ */
+async function searchQuality({ measure, minBytes, maxBytes, maxIterations = 12 }) {
+  if (!(maxBytes > 0) || !(minBytes > 0) || minBytes > maxBytes) {
+    return { ok: false, reason: 'INVALID_WINDOW', encodes: 0 };
+  }
+
+  let lo = 0.05;
+  let hi = 1.0;
+  let bestBytes = null;
+  let bestQuality = null;
+  let encodes = 0;
+
+  const atMax = await measure(1.0);
+  encodes++;
+  if (atMax <= maxBytes) {
+    bestBytes = atMax;
+    bestQuality = 1.0;
+  } else {
+    for (let i = 0; i < maxIterations; i++) {
+      const mid = (lo + hi) / 2;
+      const bytes = await measure(mid);
+      encodes++;
+      if (bytes <= maxBytes) {
+        bestBytes = bytes;
+        bestQuality = mid;
+        lo = mid;
+      } else {
+        hi = mid;
+      }
+    }
+  }
+
+  if (bestBytes === null) {
+    return { ok: false, reason: 'CANNOT_REACH_MAX', encodes };
+  }
+  if (bestBytes < minBytes) {
+    // Physically impossible without altering the document. Say so.
+    return { ok: false, reason: 'BELOW_MINIMUM', bytes: bestBytes, quality: bestQuality, encodes };
+  }
+  return { ok: true, reason: 'MEETS_SPEC', bytes: bestBytes, quality: bestQuality, encodes };
+}
+
+/**
+ * How much room does a pixel box have above the minimum size?
+ *
+ * This exists because "it fits the window" is not the same as "it will keep
+ * fitting". JPEG quality 1.0 uses near-lossless quantisation tables, so almost
+ * any pixel box can be forced into almost any window at maximum quality. A box
+ * that only clears the floor at quality 1.000 has no headroom: the next image,
+ * from a cleaner scan, will fall under it.
+ *
+ * The floor is the only real risk, because lowering quality only makes a file
+ * smaller. So the test is: how far above the minimum does the BEST achievable
+ * file sit?
+ *
+ * @param {number} bestBytes best achievable encoded size (measured at quality 1.0)
+ * @param {number} minBytes  spec minimum
+ * @returns {'comfortable'|'marginal'|'unreachable'|'unknown'}
+ */
+const HEADROOM_COMFORTABLE = 1.15;
+
+function classifyHeadroom(bestBytes, minBytes) {
+  if (!(bestBytes > 0) || !(minBytes > 0)) return 'unknown';
+  const ratio = bestBytes / minBytes;
+  if (ratio < 1) return 'unreachable';
+  if (ratio < HEADROOM_COMFORTABLE) return 'marginal';
+  return 'comfortable';
+}
+
+/**
+ * Classify a box+window from a SWEEP of realistic inputs rather than one image.
+ *
+ * A single measurement cannot separate 'marginal' from 'comfortable', because the
+ * thing that actually breaks a preset is input variation: one viewer's phone
+ * produces a cleaner, more compressible scan than the next. Measuring one fixture
+ * and calling the answer the truth is the same mistake as claiming success for a
+ * file that fails its own checks — it just moves the error one level up.
+ *
+ * So the sweep is the basis:
+ *   every sample below the floor          -> unreachable (never a valid box)
+ *   some samples below, or some within    -> marginal    (input-dependent; warn)
+ *   every sample clears the floor by 1.15x -> comfortable
+ *
+ * @param {number[]} samples  best achievable bytes at q=1.0, one per realistic input
+ * @param {number} minBytes   spec minimum
+ */
+function classifySweep(samples, minBytes) {
+  const usable = (samples || []).filter((b) => Number.isFinite(b) && b > 0);
+  if (!usable.length || !(minBytes > 0)) return 'unknown';
+  const floor = minBytes * HEADROOM_COMFORTABLE;
+  const below = usable.filter((b) => b < minBytes).length;
+  const tight = usable.filter((b) => b >= minBytes && b < floor).length;
+  if (below === usable.length) return 'unreachable';
+  if (below > 0 || tight > 0) return 'marginal';
+  return 'comfortable';
+}
+
+/** Re-check a finished file against the spec. The UI must call this before claiming success. */
+function verify(spec, actual) {
+  const problems = [];
+  if (actual.width !== spec.width || actual.height !== spec.height) {
+    problems.push(`dimensions ${actual.width}x${actual.height}, required ${spec.width}x${spec.height}`);
+  }
+  const kb = actual.bytes / 1024;
+  if (kb < spec.minKB) problems.push(`size ${kb.toFixed(2)} KB is below the ${spec.minKB} KB minimum`);
+  if (kb > spec.maxKB) problems.push(`size ${kb.toFixed(2)} KB exceeds the ${spec.maxKB} KB maximum`);
+  if (spec.format && actual.mime !== spec.format) {
+    problems.push(`format ${actual.mime}, required ${spec.format}`);
+  }
+  return { pass: problems.length === 0, problems };
+}
+
+/** Human-readable failure text. Never a bare "Success!". */
+function explainFailure(result, spec, largerSpec) {
+  switch (result.reason) {
+    case 'BELOW_MINIMUM': {
+      const base =
+        `This image cannot reach ${spec.minKB} KB at ${spec.width}x${spec.height} ` +
+        `even at maximum quality (best achieved: ${(result.bytes / 1024).toFixed(2)} KB). ` +
+        `The picture content is too simple to compress into that window. ` +
+        `Try a sharper, higher-contrast capture, or a larger allowed dimension if the ` +
+        `requirement permits one.`;
+      if (largerSpec) {
+        return (
+          base +
+          ` The source document also gives a larger reading of this same requirement — ` +
+          `${largerSpec.width}x${largerSpec.height} px (${largerSpec.label}) — where the window ` +
+          `is comfortable. Use the button below to switch to it.`
+        );
+      }
+      return base;
+    }
+    case 'CANNOT_REACH_MAX':
+      return `This image cannot be brought under ${spec.maxKB} KB at the required dimensions.`;
+    case 'INVALID_WINDOW':
+      return 'The size window is invalid: the minimum must be greater than zero and not exceed the maximum.';
+    default:
+      return 'The file did not meet the stated requirements.';
+  }
+}
+
+
+/**
+ * app.js — UI wiring only. All decision logic lives in core.js.
+ *
+ * Flow: pick requirement -> load image -> frame it -> fit -> VERIFY -> offer download.
+ * The download button only ever appears after verify() passes.
+ */
+
+
+
+/* ------------------------------------------------------------------ theme */
+const root = document.documentElement;
+
+// localStorage throws on some file:// origins and in private mode. A theme
+// preference is not worth breaking the page for, so every access is guarded.
+const store = {
+  get(key) { try { return localStorage.getItem(key); } catch { return null; } },
+  set(key, value) { try { localStorage.setItem(key, value); } catch { /* ignore */ } },
+};
+
+root.dataset.theme = store.get('psf-theme')
+  || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  store.set('psf-theme', root.dataset.theme);
+});
+
+/* --------------------------------------------------------------- branding */
+document.getElementById('subscribeBtn').href = CHANNEL.subscribeUrl;
+document.getElementById('channelLink').href = CHANNEL.channelUrl;
+document.getElementById('channelLink').textContent = CHANNEL.handle;
+if (CHANNEL.walkthroughUrl) {
+  const w = document.getElementById('walkthroughLink');
+  w.href = CHANNEL.walkthroughUrl;
+  w.hidden = false;
+}
+
+function paintShareLinks() {
+  const s = shareLinks(location.href);
+  document.getElementById('shareWhatsapp').href = s.whatsapp;
+  document.getElementById('shareTelegram').href = s.telegram;
+}
+
+/* ------------------------------------------------------------- deep links */
+/**
+ * A video description must be able to open the exact tool and preset, e.g.
+ *   /?preset=ssc-signature-200
+ * Without this the viewer lands on a default and has to work out which
+ * requirement they need, which is where they leave.
+ */
+const presetFromUrl = () => new URL(location.href).searchParams.get('preset');
+
+function syncUrl(specId) {
+  const url = new URL(location.href);
+  if (specId && specId !== 'custom') url.searchParams.set('preset', specId);
+  else url.searchParams.delete('preset');
+  history.replaceState(null, '', url.toString());
+  paintShareLinks();
+}
+
+/* ------------------------------------------------------------------- refs */
+const els = {
+  preset: document.getElementById('presetSelect'),
+  provenance: document.getElementById('provenance'),
+  customFields: document.getElementById('customFields'),
+  cw: document.getElementById('cw'), ch: document.getElementById('ch'),
+  cmin: document.getElementById('cmin'), cmax: document.getElementById('cmax'),
+  file: document.getElementById('fileInput'),
+  fileInfo: document.getElementById('fileInfo'),
+  cropCard: document.getElementById('cropCard'),
+  processCard: document.getElementById('processCard'),
+  stage: document.getElementById('stage'),
+  stageImg: document.getElementById('stageImg'),
+  cropBox: document.getElementById('cropBox'),
+  zoom: document.getElementById('zoom'),
+  resetCrop: document.getElementById('resetCrop'),
+  cropReadout: document.getElementById('cropReadout'),
+  preview: document.getElementById('preview'),
+  processBtn: document.getElementById('processBtn'),
+  status: document.getElementById('status'),
+  report: document.getElementById('report'),
+  rDims: document.getElementById('rDims'), rSize: document.getElementById('rSize'),
+  rFormat: document.getElementById('rFormat'), rQuality: document.getElementById('rQuality'),
+  rEncodes: document.getElementById('rEncodes'),
+  download: document.getElementById('downloadBtn'),
+  presetNote: document.getElementById('presetNote'),
+  liveCaptureWarn: document.getElementById('liveCaptureWarn'),
+  presetWarning: document.getElementById('presetWarning'),
+  preferLargerRow: document.getElementById('preferLargerRow'),
+  preferLargerBtn: document.getElementById('preferLargerBtn'),
+  presetRules: document.getElementById('presetRules'),
+  presetRulesList: document.getElementById('presetRulesList'),
+  declarationBox: document.getElementById('declarationBox'),
+  declarationText: document.getElementById('declarationText'),
+  copyLink: document.getElementById('copyLink'),
+  copyStatus: document.getElementById('copyStatus'),
+};
+
+const state = { spec: null, img: null, imgW: 0, imgH: 0, crop: null, result: null, displayScale: 1, busy: false };
+
+/* ------------------------------------------------------- requirement pick */
+function populatePresets() {
+  const groups = new Map();
+  for (const s of SPECS) {
+    if (!groups.has(s.group)) groups.set(s.group, []);
+    groups.get(s.group).push(s);
+  }
+  for (const [group, items] of groups) {
+    const og = document.createElement('optgroup');
+    og.label = group;
+    for (const s of items) {
+      const o = document.createElement('option');
+      o.value = s.id;
+      o.textContent = s.label;
+      og.appendChild(o);
+    }
+    els.preset.appendChild(og);
+  }
+}
+
+function resolveSpec() {
+  const base = getSpec(els.preset.value);
+  if (base.id !== 'custom') return base;
+  return {
+    ...base,
+    label: 'Custom requirement',
+    width: clampInt(els.cw.value, 1, 10000, 600),
+    height: clampInt(els.ch.value, 1, 10000, 600),
+    minKB: clampInt(els.cmin.value, 1, 20000, 10),
+    maxKB: clampInt(els.cmax.value, 1, 20000, 100),
+  };
+}
+const clampInt = (v, lo, hi, fallback) => {
+  const n = parseInt(v, 10);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(lo, Math.min(hi, n));
+};
+
+function applySpec() {
+  state.spec = resolveSpec();
+  const isCustom = state.spec.id === 'custom';
+  els.customFields.hidden = !isCustom;
+
+  if (isCustom) {
+    els.provenance.className = 'provenance';
+    els.provenance.innerHTML =
+      '<b>Custom requirement</b>Only the numbers you entered are checked. ' +
+      'This tool cannot confirm that they match any real portal.';
+  } else if (state.spec.status === 'VERIFIED') {
+    els.provenance.className = 'provenance';
+    els.provenance.innerHTML =
+      `<b>Read from the official source document on ${state.spec.verifiedOn}</b>Source: ${state.spec.source}`;
+  } else {
+    els.provenance.className = 'provenance warn';
+    els.provenance.innerHTML =
+      '<b>This preset is not yet verified against a live portal</b>' +
+      `Source: ${state.spec.source}.<br>${state.spec.note}`;
+  }
+
+  els.presetNote.textContent =
+    `${state.spec.label} — ${state.spec.width}x${state.spec.height} px, ${state.spec.minKB}-${state.spec.maxKB} KB, ` +
+    `JPEG. Status: ${state.spec.status}. ` +
+    (state.spec.feasibility
+      ? `Measured fit: ${state.spec.feasibility}${state.spec.measuredOn ? ` (${state.spec.measuredOn})` : ''}.`
+      : 'Measured fit: not classified.');
+
+  /* ------------------------------------------------- warnings the user must see */
+  // Two different things belong here: the preset's own provenance caveat, and the
+  // measured fact that this pixel box is tight for this size window. Both are
+  // things the user would otherwise only discover at the upload screen.
+  const warns = [];
+  if (state.spec.warning) warns.push(state.spec.warning);
+
+  if (state.spec.feasibility === 'marginal') {
+    warns.push(
+      `This pixel box and this size window do not agree. Measured over a grid of realistic ` +
+      `documents, the largest file this tool can produce at ${state.spec.width}x${state.spec.height} ` +
+      `sometimes clears the ${state.spec.minKB} KB minimum and sometimes does not. The usual risk ` +
+      `is being too SMALL, not too large — so never shrink this file further.`
+    );
+  }
+  if (state.spec.feasibility === 'unreachable') {
+    warns.push(
+      `Measured: no document can reach ${state.spec.minKB} KB at ` +
+      `${state.spec.width}x${state.spec.height}. This preset cannot produce a valid file.`
+    );
+  }
+  // riskNote is mandatory for a marginal box and says WHICH inputs fail, which is
+  // the part the user cannot work out for themselves.
+  if (state.spec.riskNote) warns.push(state.spec.riskNote);
+
+  if (warns.length) {
+    els.presetWarning.hidden = false;
+    els.presetWarning.className = 'banner-warn caution';
+    els.presetWarning.innerHTML =
+      '<b>Read this before you rely on this preset</b>' + warns.join('<br><br>');
+  } else {
+    els.presetWarning.hidden = true;
+  }
+
+  /* ------------------------------------------- the documented larger reading */
+  const larger = state.spec.preferLarger ? getSpec(state.spec.preferLarger) : null;
+  if (larger) {
+    els.preferLargerRow.hidden = false;
+    els.preferLargerBtn.textContent = state.spec.feasibility === 'marginal'
+      ? `This box may fail — use the larger box instead: ${larger.width}x${larger.height} px`
+      : `Tight? Switch to the larger box: ${larger.width}x${larger.height} px`;
+  } else {
+    els.preferLargerRow.hidden = true;
+  }
+
+  /* --------------------------------------------- rules from the source document */
+  const rules = state.spec.rules || [];
+  els.presetRules.hidden = rules.length === 0;
+  els.presetRulesList.innerHTML = '';
+  for (const r of rules) {
+    const li = document.createElement('li');
+    li.textContent = r;
+    els.presetRulesList.appendChild(li);
+  }
+
+  /* ------------------------------------------------ the declaration, verbatim */
+  const isSscDeclaration =
+    state.spec.document === 'Declaration' && state.spec.status === 'VERIFIED';
+  els.declarationBox.hidden = !isSscDeclaration;
+  if (isSscDeclaration) els.declarationText.textContent = `\u201C${DECLARATION_TEXT}\u201D`;
+
+  // A live-capture requirement cannot be satisfied by any file we could produce.
+  // Refuse before the user invests any effort, rather than after.
+  if (state.spec.liveCaptureOnly) {
+    els.liveCaptureWarn.hidden = false;
+    els.liveCaptureWarn.innerHTML =
+      '<b>This requirement cannot be met with a prepared file</b>' +
+      'SSC requires the photograph to be captured <em>live</em> — through the webcam on the ' +
+      'portal, or by scanning the QR code to open the capture page on your phone. No uploaded ' +
+      'image can satisfy that, so this tool will not produce one. Use the live capture step on ' +
+      'the portal itself.';
+  } else {
+    els.liveCaptureWarn.hidden = true;
+  }
+  if (!state.busy) els.processBtn.disabled = Boolean(state.spec.liveCaptureOnly);
+
+  syncUrl(state.spec.id);
+
+  if (state.img) {
+    resetCrop();
+    refresh();
+  }
+
+  // Changing the requirement invalidates any previous result. A stale
+  // "matches these requirements" banner next to a different spec would be a lie.
+  state.result = null;
+  els.status.hidden = true;
+  els.report.hidden = true;
+  els.download.hidden = true;
+}
+
+/* ------------------------------------------------------------ image load */
+els.file.addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  els.fileInfo.textContent = `Reading ${file.name} (${(file.size / 1024).toFixed(0)} KB)...`;
+  try {
+    state.img = await loadBitmap(file);
+    state.imgW = state.img.width;
+    state.imgH = state.img.height;
+    els.stageImg.src = state.img instanceof HTMLImageElement ? state.img.src : '';
+    if (!(state.img instanceof HTMLImageElement)) {
+      // ImageBitmap cannot be a src; draw once into an offscreen canvas and reuse that.
+      const oc = document.createElement('canvas');
+      oc.width = state.imgW; oc.height = state.imgH;
+      oc.getContext('2d').drawImage(state.img, 0, 0);
+      state.img = oc;
+      els.stageImg.src = oc.toDataURL('image/jpeg', 0.9);
+    }
+    els.fileInfo.textContent = `${file.name} — ${state.imgW}x${state.imgH} px, ${(file.size / 1024).toFixed(0)} KB.`;
+    els.cropCard.hidden = false;
+    els.processCard.hidden = false;
+    els.report.hidden = true;
+    els.download.hidden = true;
+    els.status.hidden = true;
+    resetCrop();
+    refresh();
+  } catch (err) {
+    // A file the browser cannot decode is an EXPECTED input — HEIC, a truncated
+    // download, a renamed file — not an application error. Logging it at error
+    // level made "the console is clean" impossible to test, and told anyone who
+    // opened devtools that something was broken when nothing was. Warn instead:
+    // the diagnostic detail is still there, classified correctly.
+    console.warn('Could not decode the chosen file:', (err && err.message) || err);
+    els.fileInfo.textContent = '';
+    showStatus('bad', 'That file could not be opened',
+      'This tool reads JPEG and PNG. iPhone photos are usually HEIC, which browsers other than Safari cannot open — convert it to JPEG first. A truncated or renamed file gives this same message.');
+  }
+});
+
+/**
+ * Decode with EXIF orientation applied. This is the single most common cause of
+ * "my photo came out sideways" on phones.
+ */
+async function loadBitmap(file) {
+  if ('createImageBitmap' in window) {
+    try {
+      return await createImageBitmap(file, { imageOrientation: 'from-image' });
+    } catch { /* fall through */ }
+  }
+  return await new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const im = new Image();
+    im.onload = () => { URL.revokeObjectURL(url); resolve(im); };
+    im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('decode failed')); };
+    im.src = url;
+  });
+}
+
+/* ---------------------------------------------------------------- framing */
+function maxCrop() {
+  const r = coverRect(state.imgW, state.imgH, state.spec.width, state.spec.height);
+  return { w: r.width, h: r.height };
+}
+
+function resetCrop() {
+  const m = maxCrop();
+  const r = coverRect(state.imgW, state.imgH, state.spec.width, state.spec.height);
+  state.crop = { x: r.x, y: r.y, width: m.w, height: m.h };
+  els.zoom.value = 100;
+}
+
+function applyZoom() {
+  const m = maxCrop();
+  const f = Math.max(0.15, Number(els.zoom.value) / 100);
+  const cx = state.crop.x + state.crop.width / 2;
+  const cy = state.crop.y + state.crop.height / 2;
+  const width = m.w * f;
+  const height = m.h * f;
+  state.crop = clampCrop({ x: cx - width / 2, y: cy - height / 2, width, height }, state.imgW, state.imgH);
+}
+
+function layout() {
+  const availW = els.stage.clientWidth || 320;
+  const availH = Math.max(200, Math.min(window.innerHeight * 0.5, 460));
+  state.displayScale = Math.min(availW / state.imgW, availH / state.imgH, 3);
+  els.stageImg.style.width = Math.round(state.imgW * state.displayScale) + 'px';
+  els.stageImg.style.height = Math.round(state.imgH * state.displayScale) + 'px';
+}
+
+function paintCropBox() {
+  const s = state.displayScale;
+  const ox = els.stageImg.offsetLeft;
+  const oy = els.stageImg.offsetTop;
+  const b = els.cropBox;
+  b.style.left = Math.round(ox + state.crop.x * s) + 'px';
+  b.style.top = Math.round(oy + state.crop.y * s) + 'px';
+  b.style.width = Math.round(state.crop.width * s) + 'px';
+  b.style.height = Math.round(state.crop.height * s) + 'px';
+  els.cropReadout.textContent = `source crop ${Math.round(state.crop.width)}x${Math.round(state.crop.height)} px`;
+}
+
+function refresh() {
+  if (!state.img) return;
+  layout();
+  paintCropBox();
+  renderPreview();
+}
+
+function renderPreview() {
+  const c = els.preview;
+  c.width = state.spec.width;
+  c.height = state.spec.height;
+  const g = c.getContext('2d');
+  g.imageSmoothingEnabled = true;
+  g.imageSmoothingQuality = 'high';
+  g.fillStyle = '#ffffff';
+  g.fillRect(0, 0, c.width, c.height);
+  g.drawImage(state.img, state.crop.x, state.crop.y, state.crop.width, state.crop.height, 0, 0, c.width, c.height);
+}
+
+/* ------------------------------------------------------------ drag + keys */
+let drag = null;
+els.cropBox.addEventListener('pointerdown', (e) => {
+  drag = { x: e.clientX, y: e.clientY, cx: state.crop.x, cy: state.crop.y };
+  els.cropBox.setPointerCapture(e.pointerId);
+});
+els.cropBox.addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  const dx = (e.clientX - drag.x) / state.displayScale;
+  const dy = (e.clientY - drag.y) / state.displayScale;
+  state.crop = clampCrop({ ...state.crop, x: drag.cx + dx, y: drag.cy + dy }, state.imgW, state.imgH);
+  paintCropBox();
+  renderPreview();
+});
+const endDrag = () => { drag = null; };
+els.cropBox.addEventListener('pointerup', endDrag);
+els.cropBox.addEventListener('pointercancel', endDrag);
+
+els.cropBox.addEventListener('keydown', (e) => {
+  const step = Math.max(1, Math.round(state.crop.width * 0.02));
+  const map = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+  const d = map[e.key];
+  if (!d) return;
+  e.preventDefault();
+  state.crop = clampCrop({ ...state.crop, x: state.crop.x + d[0], y: state.crop.y + d[1] }, state.imgW, state.imgH);
+  paintCropBox();
+  renderPreview();
+});
+
+els.zoom.addEventListener('input', () => { applyZoom(); paintCropBox(); renderPreview(); });
+els.resetCrop.addEventListener('click', () => { resetCrop(); refresh(); });
+window.addEventListener('resize', refresh);
+
+/* ---------------------------------------------------------------- process */
+function showStatus(kind, title, body) {
+  els.status.hidden = false;
+  els.status.className = 'status ' + kind;
+  els.status.innerHTML = '';
+  const b = document.createElement('b');
+  b.textContent = title;
+  els.status.append(b, document.createTextNode(body));
+}
+
+const toBlob = (canvas, q) =>
+  new Promise((resolve) => canvas.toBlob((b) => resolve(b), 'image/jpeg', q));
+
+els.processBtn.addEventListener('click', async () => {
+  const spec = state.spec;
+  if (!state.img || !spec) return;
+  if (spec.liveCaptureOnly) {
+    showStatus('bad', 'Not produced',
+      'This requirement needs a live webcam capture on the portal. No prepared file can satisfy it.');
+    return;
+  }
+
+  state.busy = true;
+  els.processBtn.disabled = true;
+  els.download.hidden = true;
+  els.report.hidden = true;
+  showStatus('', 'Fitting...', 'Measuring candidate qualities.');
+
+  try {
+    renderPreview(); // guarantees the canvas holds the current crop at exact spec dimensions
+
+    const minBytes = spec.minKB * 1024;
+    const maxBytes = spec.maxKB * 1024;
+
+    const result = await searchQuality({
+      measure: async (q) => {
+        const b = await toBlob(els.preview, q);
+        return b ? b.size : Number.MAX_SAFE_INTEGER;
+      },
+      minBytes,
+      maxBytes,
+    });
+
+    state.result = null;
+
+    if (!result.ok) {
+      const largerSpec = spec.preferLarger ? getSpec(spec.preferLarger) : null;
+      showStatus('bad', 'Not produced', explainFailure(result, spec, largerSpec));
+      return;
+    }
+
+    const blob = await toBlob(els.preview, result.quality);
+    if (!blob) throw new Error('encoder returned nothing');
+
+    // Defence in depth: never trust the pipeline, re-check the artefact.
+    const check = verify(spec, {
+      width: els.preview.width,
+      height: els.preview.height,
+      bytes: blob.size,
+      mime: blob.type,
+    });
+
+    els.rDims.textContent = `${els.preview.width} x ${els.preview.height} px`;
+    els.rSize.textContent = `${(blob.size / 1024).toFixed(2)} KB`;
+    els.rFormat.textContent = blob.type;
+    els.rQuality.textContent = `JPEG quality ${(result.quality * 100).toFixed(1)}`;
+    els.rEncodes.textContent = `${result.encodes} encode(s) measured`;
+    els.report.hidden = false;
+
+    if (!check.pass) {
+      showStatus('bad', 'Produced, but it failed its own check', check.problems.join('; '));
+      return;
+    }
+
+    state.result = { blob, spec };
+    showStatus(
+      'ok',
+      'Matches these file requirements',
+      ` ${els.preview.width}x${els.preview.height} px, ${(blob.size / 1024).toFixed(2)} KB, within the ` +
+      `${spec.minKB}-${spec.maxKB} KB window. Still confirm on the official upload page.`
+    );
+    els.download.hidden = false;
+  } catch (err) {
+    console.error(err);
+    showStatus('bad', 'Something went wrong', err.message || 'Unknown error.');
+  } finally {
+    state.busy = false;
+    els.processBtn.disabled = Boolean(state.spec && state.spec.liveCaptureOnly);
+  }
+});
+
+els.download.addEventListener('click', () => {
+  if (!state.result) return;
+  const { blob, spec } = state.result;
+  const name = `${spec.id}_${spec.width}x${spec.height}.jpg`;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+/* -------------------------------------------------------------- copy link */
+els.copyLink.addEventListener('click', async () => {
+  const url = location.href;
+  try {
+    await navigator.clipboard.writeText(url);
+    els.copyStatus.textContent = 'Copied. Paste this into the video description.';
+  } catch {
+    // Clipboard access is blocked on file:// in some browsers, and on http origins.
+    els.copyStatus.textContent = url;
+  }
+  setTimeout(() => { els.copyStatus.textContent = ''; }, 6000);
+});
+
+/* ------------------------------------------------------------------ start */
+els.preset.addEventListener('change', applySpec);
+[els.cw, els.ch, els.cmin, els.cmax].forEach((el) => el.addEventListener('input', applySpec));
+
+// Switching to the documented larger reading of the same requirement. Offered
+// when the official pixel box is too tight to hold the official size window.
+els.preferLargerBtn.addEventListener('click', () => {
+  const next = state.spec && state.spec.preferLarger;
+  if (!next || !getSpec(next)) return;
+  els.preset.value = next;
+  applySpec();
+});
+
+populatePresets();
+
+// A link from a video description should open the exact requirement, not a default.
+const requested = presetFromUrl();
+els.preset.value = requested && getSpec(requested) ? requested : 'ssc-signature';
+applySpec();
+paintShareLinks();
+
+
+})();
+</script>
+</body>
+</html>

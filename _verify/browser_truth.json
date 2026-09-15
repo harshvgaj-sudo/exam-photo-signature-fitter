@@ -1,0 +1,2818 @@
+{
+  "meta": {
+    "measuredAt": "2026-09-14T05:54:38.589Z",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36",
+    "chrome": "Chrome/152.0.0.0",
+    "pageErrors": []
+  },
+  "records": [
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 0,
+      "density": 1,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9050,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9050,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 0,
+      "density": 1,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 33825,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 20475,
+      "quality": 0.9948974609375,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 0,
+      "density": 1,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9029,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9029,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 0,
+      "density": 2,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 13419,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13419,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 0,
+      "density": 2,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 58699,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 20028,
+      "quality": 0.9148803710937499,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 0,
+      "density": 2,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 13568,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13568,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 0,
+      "density": 4,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9105,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9105,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 0,
+      "density": 4,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 29469,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 19560,
+      "quality": 0.9948974609375,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 0,
+      "density": 4,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9480,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9480,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 0,
+      "density": 6,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 6413,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 6413,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 0,
+      "density": 6,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 13674,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13674,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 0,
+      "density": 6,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 6728,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 6728,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 4,
+      "density": 1,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 8543,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 8543,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 4,
+      "density": 1,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 41667,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 19611,
+      "quality": 0.9749511718750001,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 4,
+      "density": 1,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 8480,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 8480,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 4,
+      "density": 2,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 13253,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13253,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 4,
+      "density": 2,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 63865,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 20093,
+      "quality": 0.9148803710937499,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 4,
+      "density": 2,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 13294,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13294,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 4,
+      "density": 4,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 8958,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 8958,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 4,
+      "density": 4,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 31746,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 18179,
+      "quality": 0.98492431640625,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 4,
+      "density": 4,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9297,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9297,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 4,
+      "density": 6,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 6278,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 6278,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 4,
+      "density": 6,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 15564,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 15564,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 4,
+      "density": 6,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 6537,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 6537,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 8,
+      "density": 1,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 8842,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 8842,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 8,
+      "density": 1,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 46331,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 19456,
+      "quality": 0.96497802734375,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 8,
+      "density": 1,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 8700,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 8700,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 8,
+      "density": 2,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 13414,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13414,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 8,
+      "density": 2,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 66225,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 19847,
+      "quality": 0.9049072265624999,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 8,
+      "density": 2,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 13441,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13441,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 8,
+      "density": 4,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9103,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9103,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 8,
+      "density": 4,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 32893,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 19196,
+      "quality": 0.98492431640625,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 8,
+      "density": 4,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9400,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9400,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 8,
+      "density": 6,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 6410,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 6410,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 8,
+      "density": 6,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 16689,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 16689,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 8,
+      "density": 6,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 6647,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 6647,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 12,
+      "density": 1,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 8967,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 8967,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 12,
+      "density": 1,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 49480,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 19014,
+      "quality": 0.95477294921875,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 12,
+      "density": 1,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 8916,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 8916,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 12,
+      "density": 2,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 13452,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13452,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 12,
+      "density": 2,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 67766,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 19405,
+      "quality": 0.8949340820312499,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 12,
+      "density": 2,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 13541,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13541,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 12,
+      "density": 4,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9151,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9151,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 12,
+      "density": 4,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 33680,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 20103,
+      "quality": 0.98492431640625,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 12,
+      "density": 4,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9494,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9494,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 12,
+      "density": 6,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 6444,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 6444,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 12,
+      "density": 6,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 17426,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 17426,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 12,
+      "density": 6,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 6702,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 6702,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 16,
+      "density": 1,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9120,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9120,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 16,
+      "density": 1,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 51936,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 18706,
+      "quality": 0.9447998046875,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 16,
+      "density": 1,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9067,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9067,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 16,
+      "density": 2,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 13571,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13571,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 16,
+      "density": 2,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 68973,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 20022,
+      "quality": 0.8949340820312499,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 16,
+      "density": 2,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 13660,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13660,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 16,
+      "density": 4,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9249,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9249,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 16,
+      "density": 4,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 34263,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 18356,
+      "quality": 0.9749511718750001,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 16,
+      "density": 4,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9566,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9566,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 16,
+      "density": 6,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 6537,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 6537,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 16,
+      "density": 6,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 17999,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 17999,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 16,
+      "density": 6,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 6752,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 6752,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 24,
+      "density": 1,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9328,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9328,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 24,
+      "density": 1,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 55384,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 19435,
+      "quality": 0.93482666015625,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 24,
+      "density": 1,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9271,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9271,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 24,
+      "density": 2,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 13694,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13694,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 24,
+      "density": 2,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 70551,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 20222,
+      "quality": 0.8849609375,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 24,
+      "density": 2,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 13769,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13769,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 24,
+      "density": 4,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9296,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9296,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 24,
+      "density": 4,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 35022,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 19419,
+      "quality": 0.9749511718750001,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 24,
+      "density": 4,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9653,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9653,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 24,
+      "density": 6,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 6626,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 6626,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 24,
+      "density": 6,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 18773,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 18773,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 24,
+      "density": 6,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 6870,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 6870,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 32,
+      "density": 1,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9459,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9459,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 32,
+      "density": 1,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 57231,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 19553,
+      "quality": 0.924853515625,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 32,
+      "density": 1,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9449,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9449,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 32,
+      "density": 2,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 13736,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13736,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 32,
+      "density": 2,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 71612,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 19988,
+      "quality": 0.87498779296875,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 32,
+      "density": 2,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 13862,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 13862,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 32,
+      "density": 4,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9384,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9384,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 32,
+      "density": 4,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 35677,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 20133,
+      "quality": 0.9749511718750001,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 32,
+      "density": 4,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 9701,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 9701,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature",
+      "fixture": "scan",
+      "grain": 32,
+      "density": 6,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 6667,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 6667,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-signature-large",
+      "fixture": "scan",
+      "grain": 32,
+      "density": 6,
+      "specWidth": 472,
+      "specHeight": 157,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 798
+      },
+      "atMax": 19350,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 19350,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-signature",
+      "fixture": "scan",
+      "grain": 32,
+      "density": 6,
+      "specWidth": 140,
+      "specHeight": 60,
+      "minBytes": 10240,
+      "maxBytes": 20480,
+      "decoded": {
+        "w": 2400,
+        "h": 1400
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1029
+      },
+      "atMax": 6902,
+      "ok": false,
+      "reason": "BELOW_MINIMUM",
+      "bytes": 6902,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-photo",
+      "fixture": "photo",
+      "grain": 12,
+      "density": null,
+      "specWidth": 200,
+      "specHeight": 230,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 4032,
+        "h": 3024
+      },
+      "crop": {
+        "w": 2630,
+        "h": 3024
+      },
+      "atMax": 26273,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 26273,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-photo-large",
+      "fixture": "photo",
+      "grain": 12,
+      "density": null,
+      "specWidth": 413,
+      "specHeight": 531,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 4032,
+        "h": 3024
+      },
+      "crop": {
+        "w": 2352,
+        "h": 3024
+      },
+      "atMax": 154832,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 46433,
+      "quality": 0.9447998046875,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-photo",
+      "fixture": "photo",
+      "grain": 12,
+      "density": null,
+      "specWidth": 200,
+      "specHeight": 230,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 4032,
+        "h": 3024
+      },
+      "crop": {
+        "w": 2630,
+        "h": 3024
+      },
+      "atMax": 26273,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 26273,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-photo-cm",
+      "fixture": "photo",
+      "grain": 12,
+      "density": null,
+      "specWidth": 531,
+      "specHeight": 413,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 4032,
+        "h": 3024
+      },
+      "crop": {
+        "w": 3888,
+        "h": 3024
+      },
+      "atMax": 130386,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 48995,
+      "quality": 0.96497802734375,
+      "encodes": 13
+    },
+    {
+      "id": "upsc-photo",
+      "fixture": "photo",
+      "grain": 12,
+      "density": null,
+      "specWidth": 500,
+      "specHeight": 500,
+      "minBytes": 20480,
+      "maxBytes": 307200,
+      "decoded": {
+        "w": 4032,
+        "h": 3024
+      },
+      "crop": {
+        "w": 3024,
+        "h": 3024
+      },
+      "atMax": 169184,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 169184,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-lti",
+      "fixture": "thumb",
+      "grain": 0,
+      "density": null,
+      "specWidth": 240,
+      "specHeight": 240,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 1200,
+        "h": 1200
+      },
+      "crop": {
+        "w": 1200,
+        "h": 1200
+      },
+      "atMax": 26805,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 26805,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-lti",
+      "fixture": "thumb",
+      "grain": 0,
+      "density": null,
+      "specWidth": 240,
+      "specHeight": 240,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 1200,
+        "h": 1200
+      },
+      "crop": {
+        "w": 1200,
+        "h": 1200
+      },
+      "atMax": 26805,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 26805,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-lti",
+      "fixture": "thumb",
+      "grain": 4,
+      "density": null,
+      "specWidth": 240,
+      "specHeight": 240,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 1200,
+        "h": 1200
+      },
+      "crop": {
+        "w": 1200,
+        "h": 1200
+      },
+      "atMax": 30631,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 30631,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-lti",
+      "fixture": "thumb",
+      "grain": 4,
+      "density": null,
+      "specWidth": 240,
+      "specHeight": 240,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 1200,
+        "h": 1200
+      },
+      "crop": {
+        "w": 1200,
+        "h": 1200
+      },
+      "atMax": 30631,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 30631,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-lti",
+      "fixture": "thumb",
+      "grain": 8,
+      "density": null,
+      "specWidth": 240,
+      "specHeight": 240,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 1200,
+        "h": 1200
+      },
+      "crop": {
+        "w": 1200,
+        "h": 1200
+      },
+      "atMax": 31942,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 31942,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-lti",
+      "fixture": "thumb",
+      "grain": 8,
+      "density": null,
+      "specWidth": 240,
+      "specHeight": 240,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 1200,
+        "h": 1200
+      },
+      "crop": {
+        "w": 1200,
+        "h": 1200
+      },
+      "atMax": 31942,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 31942,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-lti",
+      "fixture": "thumb",
+      "grain": 12,
+      "density": null,
+      "specWidth": 240,
+      "specHeight": 240,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 1200,
+        "h": 1200
+      },
+      "crop": {
+        "w": 1200,
+        "h": 1200
+      },
+      "atMax": 32842,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 32842,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-lti",
+      "fixture": "thumb",
+      "grain": 12,
+      "density": null,
+      "specWidth": 240,
+      "specHeight": 240,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 1200,
+        "h": 1200
+      },
+      "crop": {
+        "w": 1200,
+        "h": 1200
+      },
+      "atMax": 32842,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 32842,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-lti",
+      "fixture": "thumb",
+      "grain": 16,
+      "density": null,
+      "specWidth": 240,
+      "specHeight": 240,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 1200,
+        "h": 1200
+      },
+      "crop": {
+        "w": 1200,
+        "h": 1200
+      },
+      "atMax": 33502,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 33502,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-lti",
+      "fixture": "thumb",
+      "grain": 16,
+      "density": null,
+      "specWidth": 240,
+      "specHeight": 240,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 1200,
+        "h": 1200
+      },
+      "crop": {
+        "w": 1200,
+        "h": 1200
+      },
+      "atMax": 33502,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 33502,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-lti",
+      "fixture": "thumb",
+      "grain": 24,
+      "density": null,
+      "specWidth": 240,
+      "specHeight": 240,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 1200,
+        "h": 1200
+      },
+      "crop": {
+        "w": 1200,
+        "h": 1200
+      },
+      "atMax": 34512,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 34512,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-lti",
+      "fixture": "thumb",
+      "grain": 24,
+      "density": null,
+      "specWidth": 240,
+      "specHeight": 240,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 1200,
+        "h": 1200
+      },
+      "crop": {
+        "w": 1200,
+        "h": 1200
+      },
+      "atMax": 34512,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 34512,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-lti",
+      "fixture": "thumb",
+      "grain": 32,
+      "density": null,
+      "specWidth": 240,
+      "specHeight": 240,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 1200,
+        "h": 1200
+      },
+      "crop": {
+        "w": 1200,
+        "h": 1200
+      },
+      "atMax": 35556,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 35556,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ibps-lti",
+      "fixture": "thumb",
+      "grain": 32,
+      "density": null,
+      "specWidth": 240,
+      "specHeight": 240,
+      "minBytes": 20480,
+      "maxBytes": 51200,
+      "decoded": {
+        "w": 1200,
+        "h": 1200
+      },
+      "crop": {
+        "w": 1200,
+        "h": 1200
+      },
+      "atMax": 35556,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 35556,
+      "quality": 1,
+      "encodes": 1
+    },
+    {
+      "id": "ssc-declaration",
+      "fixture": "text",
+      "grain": 0,
+      "density": null,
+      "specWidth": 800,
+      "specHeight": 400,
+      "minBytes": 51200,
+      "maxBytes": 102400,
+      "decoded": {
+        "w": 2400,
+        "h": 1200
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1200
+      },
+      "atMax": 185095,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 94179,
+      "quality": 0.98492431640625,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-declaration",
+      "fixture": "text",
+      "grain": 0,
+      "density": null,
+      "specWidth": 800,
+      "specHeight": 400,
+      "minBytes": 51200,
+      "maxBytes": 102400,
+      "decoded": {
+        "w": 2400,
+        "h": 1200
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1200
+      },
+      "atMax": 185095,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 94179,
+      "quality": 0.98492431640625,
+      "encodes": 13
+    },
+    {
+      "id": "ssc-declaration",
+      "fixture": "text",
+      "grain": 4,
+      "density": null,
+      "specWidth": 800,
+      "specHeight": 400,
+      "minBytes": 51200,
+      "maxBytes": 102400,
+      "decoded": {
+        "w": 2400,
+        "h": 1200
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1200
+      },
+      "atMax": 254951,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 93160,
+      "quality": 0.96497802734375,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-declaration",
+      "fixture": "text",
+      "grain": 4,
+      "density": null,
+      "specWidth": 800,
+      "specHeight": 400,
+      "minBytes": 51200,
+      "maxBytes": 102400,
+      "decoded": {
+        "w": 2400,
+        "h": 1200
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1200
+      },
+      "atMax": 254951,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 93160,
+      "quality": 0.96497802734375,
+      "encodes": 13
+    },
+    {
+      "id": "ssc-declaration",
+      "fixture": "text",
+      "grain": 8,
+      "density": null,
+      "specWidth": 800,
+      "specHeight": 400,
+      "minBytes": 51200,
+      "maxBytes": 102400,
+      "decoded": {
+        "w": 2400,
+        "h": 1200
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1200
+      },
+      "atMax": 270470,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 93955,
+      "quality": 0.95477294921875,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-declaration",
+      "fixture": "text",
+      "grain": 8,
+      "density": null,
+      "specWidth": 800,
+      "specHeight": 400,
+      "minBytes": 51200,
+      "maxBytes": 102400,
+      "decoded": {
+        "w": 2400,
+        "h": 1200
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1200
+      },
+      "atMax": 270470,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 93955,
+      "quality": 0.95477294921875,
+      "encodes": 13
+    },
+    {
+      "id": "ssc-declaration",
+      "fixture": "text",
+      "grain": 12,
+      "density": null,
+      "specWidth": 800,
+      "specHeight": 400,
+      "minBytes": 51200,
+      "maxBytes": 102400,
+      "decoded": {
+        "w": 2400,
+        "h": 1200
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1200
+      },
+      "atMax": 281974,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 93982,
+      "quality": 0.9447998046875,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-declaration",
+      "fixture": "text",
+      "grain": 12,
+      "density": null,
+      "specWidth": 800,
+      "specHeight": 400,
+      "minBytes": 51200,
+      "maxBytes": 102400,
+      "decoded": {
+        "w": 2400,
+        "h": 1200
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1200
+      },
+      "atMax": 281974,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 93982,
+      "quality": 0.9447998046875,
+      "encodes": 13
+    },
+    {
+      "id": "ssc-declaration",
+      "fixture": "text",
+      "grain": 16,
+      "density": null,
+      "specWidth": 800,
+      "specHeight": 400,
+      "minBytes": 51200,
+      "maxBytes": 102400,
+      "decoded": {
+        "w": 2400,
+        "h": 1200
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1200
+      },
+      "atMax": 298960,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 92297,
+      "quality": 0.93482666015625,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-declaration",
+      "fixture": "text",
+      "grain": 16,
+      "density": null,
+      "specWidth": 800,
+      "specHeight": 400,
+      "minBytes": 51200,
+      "maxBytes": 102400,
+      "decoded": {
+        "w": 2400,
+        "h": 1200
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1200
+      },
+      "atMax": 298960,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 92297,
+      "quality": 0.93482666015625,
+      "encodes": 13
+    },
+    {
+      "id": "ssc-declaration",
+      "fixture": "text",
+      "grain": 24,
+      "density": null,
+      "specWidth": 800,
+      "specHeight": 400,
+      "minBytes": 51200,
+      "maxBytes": 102400,
+      "decoded": {
+        "w": 2400,
+        "h": 1200
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1200
+      },
+      "atMax": 323065,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 95186,
+      "quality": 0.924853515625,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-declaration",
+      "fixture": "text",
+      "grain": 24,
+      "density": null,
+      "specWidth": 800,
+      "specHeight": 400,
+      "minBytes": 51200,
+      "maxBytes": 102400,
+      "decoded": {
+        "w": 2400,
+        "h": 1200
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1200
+      },
+      "atMax": 323065,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 95186,
+      "quality": 0.924853515625,
+      "encodes": 13
+    },
+    {
+      "id": "ssc-declaration",
+      "fixture": "text",
+      "grain": 32,
+      "density": null,
+      "specWidth": 800,
+      "specHeight": 400,
+      "minBytes": 51200,
+      "maxBytes": 102400,
+      "decoded": {
+        "w": 2400,
+        "h": 1200
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1200
+      },
+      "atMax": 331272,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 97005,
+      "quality": 0.9148803710937499,
+      "encodes": 13
+    },
+    {
+      "id": "ibps-declaration",
+      "fixture": "text",
+      "grain": 32,
+      "density": null,
+      "specWidth": 800,
+      "specHeight": 400,
+      "minBytes": 51200,
+      "maxBytes": 102400,
+      "decoded": {
+        "w": 2400,
+        "h": 1200
+      },
+      "crop": {
+        "w": 2400,
+        "h": 1200
+      },
+      "atMax": 331272,
+      "ok": true,
+      "reason": "MEETS_SPEC",
+      "bytes": 97005,
+      "quality": 0.9148803710937499,
+      "encodes": 13
+    }
+  ]
+}

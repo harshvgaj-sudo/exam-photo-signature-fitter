@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code Review &amp; Build Plan — Dhanwala Citizen &amp; Exam Shield</title>
+<style>
+  :root{
+    --bg:#0d1017; --panel:#141924; --panel2:#1b2130; --line:#28303f;
+    --tx:#e7ecf3; --muted:#98a3b3; --dim:#6d7889;
+    --acc:#5b9dff; --ok:#3fbf7f; --warn:#e0a63c; --bad:#ef5f5f; --purple:#a98bfa;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--tx);
+    font:16px/1.62 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 22px 90px}
+
+  header.top{border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:34px}
+  .kicker{font:600 12px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--acc)}
+  h1{font-size:clamp(26px,4vw,38px);line-height:1.18;margin:14px 0 10px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:17px;max-width:74ch;margin:0}
+  .meta{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font:500 12.5px/1 var(--mono);padding:7px 11px;border:1px solid var(--line);
+    border-radius:999px;color:var(--muted);background:var(--panel)}
+
+  h2{font-size:23px;margin:52px 0 8px;letter-spacing:-.01em;scroll-margin-top:20px}
+  h2 .n{color:var(--dim);font:600 15px/1 var(--mono);margin-right:10px}
+  h3{font-size:17.5px;margin:32px 0 8px;color:var(--tx)}
+  h4{font-size:15px;margin:22px 0 6px;color:var(--muted);font-weight:600}
+  p{margin:11px 0}
+  a{color:var(--acc)}
+  ul,ol{margin:11px 0;padding-left:22px}
+  li{margin:6px 0}
+  code{font-family:var(--mono);font-size:.88em;background:var(--panel2);
+    padding:2px 6px;border-radius:4px;color:#cfe0ff}
+
+  .toc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin:0 0 10px}
+  .toc h4{margin:0 0 10px;color:var(--tx);font-size:14px}
+  .toc ol{margin:0;padding-left:20px;columns:2;column-gap:28px}
+  @media(max-width:660px){.toc ol{columns:1}}
+  .toc a{color:var(--muted);text-decoration:none;font-size:14.5px}
+  .toc a:hover{color:var(--acc)}
+
+  .verdict{background:linear-gradient(180deg,rgba(91,157,255,.10),rgba(91,157,255,.03));
+    border:1px solid #2c4a78;border-left:4px solid var(--acc);
+    border-radius:12px;padding:22px 24px;margin:26px 0}
+  .verdict .lead{font-size:19px;font-weight:600;margin:0 0 12px;line-height:1.45}
+  .verdict p:last-child{margin-bottom:0}
+
+  .callout{border-radius:10px;padding:15px 18px;margin:18px 0;border:1px solid var(--line);
+    background:var(--panel);font-size:15px}
+  .callout.warn{border-color:#5c4620;background:rgba(224,166,60,.07)}
+  .callout.bad{border-color:#5e2b2b;background:rgba(239,95,95,.07)}
+  .callout.ok{border-color:#215c40;background:rgba(63,191,127,.07)}
+  .callout b{display:block;margin-bottom:4px}
+  .callout.warn b{color:var(--warn)} .callout.bad b{color:var(--bad)} .callout.ok b{color:var(--ok)}
+
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);
+    font-weight:600;border-bottom:1px solid var(--line)}
+  tbody tr:hover{background:rgba(255,255,255,.017)}
+  td code{font-size:.85em;white-space:nowrap}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+  .sev{display:inline-block;font:700 11px/1 var(--mono);padding:5px 8px;border-radius:5px;letter-spacing:.05em}
+  .sev.p0{background:rgba(239,95,95,.16);color:#ff9b9b;border:1px solid #7a3030}
+  .sev.p1{background:rgba(224,166,60,.16);color:#f0c274;border:1px solid #6d5320}
+  .sev.p2{background:rgba(152,163,179,.14);color:#b6c0ce;border:1px solid #3a4353}
+
+  pre{background:#0a0d13;border:1px solid var(--line);border-radius:10px;
+    padding:15px 17px;overflow-x:auto;margin:12px 0;font-family:var(--mono);
+    font-size:13px;line-height:1.62}
+  pre.bad-code{border-left:3px solid var(--bad)}
+  pre.good-code{border-left:3px solid var(--ok)}
+  .lbl{font:600 11.5px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;
+    margin:18px 0 -4px;display:block}
+  .lbl.bad{color:var(--bad)} .lbl.good{color:var(--ok)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .card h4{margin-top:0;color:var(--tx);font-size:15px}
+
+  .mono-out{font-family:var(--mono);font-size:12.5px;line-height:1.55;
+    background:#0a0d13;border:1px solid var(--line);border-radius:10px;
+    padding:15px 17px;overflow-x:auto;white-space:pre;color:#b9c6d8}
+
+  details{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:16px 0}
+  summary{cursor:pointer;font-weight:600;font-size:15px}
+  summary::marker{color:var(--acc)}
+
+  .role{display:grid;grid-template-columns:150px 1fr;gap:6px 18px;font-size:15px}
+  .role dt{font-weight:600;color:var(--acc)}
+  .role dd{margin:0 0 12px}
+  @media(max-width:600px){.role{grid-template-columns:1fr}.role dd{margin-bottom:16px}}
+
+  hr{border:0;border-top:1px solid var(--line);margin:44px 0}
+  .foot{color:var(--dim);font-size:13.5px;border-top:1px solid var(--line);padding-top:22px;margin-top:52px}
+  .strike{color:var(--dim);text-decoration:line-through}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Senior code review &amp; technical mentorship</div>
+  <h1>Code Review &amp; Build Plan<br>Dhanwala Citizen &amp; Exam Shield</h1>
+  <p class="sub">
+    A review of the code that was actually generated, the architectural reason it failed,
+    corrected reference implementations, and a decision on what to build next and who does what.
+  </p>
+  <div class="meta">
+    <span class="chip">14 September 2026</span>
+    <span class="chip">Artifact reviewed: govdocs_studio/index.html — 670 lines, 1 file</span>
+    <span class="chip">2 earlier attempts also reviewed</span>
+    <span class="chip">All findings verified by execution</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <h4>Contents</h4>
+  <ol>
+    <li><a href="#verdict">The verdict</a></li>
+    <li><a href="#scope">What was reviewed</a></li>
+    <li><a href="#defects">Verified defects</a></li>
+    <li><a href="#causes">Three root causes</a></li>
+    <li><a href="#fixes">Before and after</a></li>
+    <li><a href="#arch">One site, one page per job</a></li>
+    <li><a href="#roles">Who builds what</a></li>
+    <li><a href="#research">The research protocol</a></li>
+    <li><a href="#built">What I built, and the proof</a></li>
+    <li><a href="#official">The official document, and what it changed</a></li>
+    <li><a href="#plan">Prioritised plan</a></li>
+  </ol>
+</nav>
+
+<!-- ===================================================== 1 VERDICT -->
+<h2 id="verdict"><span class="n">01</span>The verdict</h2>
+
+<div class="verdict">
+  <p class="lead">
+    Gemini was right about the opportunity and wrong about the engineering.
+    The failure was not cosmetic. The flagship tool does not perform the one operation it exists to perform.
+  </p>
+  <p>
+    The plan described the audience problem correctly, and the instinct to own the tool instead of
+    sending viewers to an ad-heavy third-party site is sound. But the delivered code
+    <strong>never resizes an image to the required pixel dimensions</strong> — it has no width or
+    height input at all. It has one input: a maximum file size in KB. Everything the tool claims
+    follows from a value it was never given.
+  </p>
+  <p>
+    That is why the result looked broken. It was not a polish problem. The requirements were written
+    down as prose in a planning document and then never converted into code that enforces them.
+  </p>
+</div>
+
+<p>
+  Concretely, feeding a real 4032&times;3024 phone photo to the shipped resizer, with a
+  UPSC requirement of 500&times;500 px at 20&ndash;300&nbsp;KB, produced a
+  <strong>3539&times;2654</strong> file. The tool then printed
+  <em>&ldquo;Success!&rdquo;</em>. Four out of four government specifications tested produced
+  wrong dimensions, and the tool reported success every time.
+</p>
+
+<p>
+  Your instinct about algorithms was correct, and it is worth naming precisely. A button labelled
+  &ldquo;Enhance&rdquo; is a claim about a method. This build had no method. There was no
+  background-removal model, no adaptive thresholding, no PDF library, no threat-list lookup —
+  only a file-size loop and some string templates. The claim and the implementation had drifted
+  apart, and nothing in the process could detect that, because there were no tests.
+</p>
+
+<!-- ===================================================== 2 SCOPE -->
+<h2 id="scope"><span class="n">02</span>What was reviewed</h2>
+
+<table>
+  <thead><tr><th>Artifact</th><th>What it is</th><th>Reviewed</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>govdocs_studio/index.html</code></td>
+      <td>The delivered build. One 670-line file: HTML, CSS and JavaScript together. 4 of the ~10 specified tools present.</td>
+      <td>Full read, then every algorithm extracted and executed against real JPEG data.</td>
+    </tr>
+    <tr>
+      <td><code>sarkar-saathi/</code></td>
+      <td>An earlier attempt with a proper 3-file split and a service directory.</td>
+      <td>Full read. Contains a separate, more serious problem — see the note below.</td>
+    </tr>
+    <tr>
+      <td><code>KICKSTART_SMART_CITIZEN_SUITE.txt</code></td>
+      <td>The specification the build was supposed to satisfy.</td>
+      <td>Read as the contract. Each claim checked against the code.</td>
+    </tr>
+    <tr>
+      <td><code>KICKSTART_GOVEXAM_RESIZER_APP.txt</code></td>
+      <td>The earlier, narrower spec for the resizer alone.</td>
+      <td>Read. The narrower scope was the better plan.</td>
+    </tr>
+    <tr>
+      <td><code>gov_portals_master_research.txt</code>, <code>ssc_live_photo_signature_battle_sheet.txt</code></td>
+      <td>Your own research on portal requirements.</td>
+      <td>Used as the source for the real specifications in the test suite.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout bad">
+  <b>Separate finding, worth its own lesson</b>
+  <code>sarkar-saathi/app.js</code> simulates a DigiLocker login — four fake steps, then it
+  replaces the button with <em>&ldquo;DigiLocker Connected &mdash; Aadhaar, PAN &amp; Pension records
+  linked.&rdquo;</em> It also fakes a network request with <code>setTimeout(..., 2000)</code> and
+  ends with <code>alert('This would open the official document securely inside Sarkar Saathi.')</code>.
+  No connection ever happens. For a tool aimed at people who are frightened of fraud, shipping a
+  fake security flow is the most damaging kind of defect there is. Mock data is fine in a prototype;
+  it must never reach an audience that will trust it.
+</div>
+
+<!-- ===================================================== 3 DEFECTS -->
+<h2 id="defects"><span class="n">03</span>Verified defects</h2>
+
+<p>
+  Every row below was confirmed by running the code, not by reading it. The harnesses are in
+  <code>_verify/</code> and the raw output is in the appendix.
+</p>
+
+<h3>Critical — the tool produces files that fail, and says they passed</h3>
+
+<table>
+  <thead>
+    <tr><th style="width:52px">Sev</th><th>Defect</th><th style="width:150px">Location</th><th style="width:38%">Evidence</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="sev p0">P0</span></td>
+      <td><strong>Never targets the required pixel dimensions.</strong> The only size input is
+        &ldquo;Target Maximum Size (KB)&rdquo;. There is no width or height field anywhere in the file,
+        and the required dimensions never reach the algorithm.</td>
+      <td><code>index.html</code><br>239&ndash;242, 417</td>
+      <td>4032&times;3024 phone photo &rarr; <strong>3493&times;2619</strong> for a 500&times;500
+        requirement. Wrong dimensions in <strong>7 of 7</strong> specifications tested, including
+        every single one.</td>
+    </tr>
+    <tr>
+      <td><span class="sev p0">P0</span></td>
+      <td><strong>Enforces only a maximum, never a minimum.</strong> Government specs are windows
+        (e.g. 10&ndash;20&nbsp;KB). <code>compressImageToTarget</code> has no lower bound, so it happily
+        returns a file below the minimum.</td>
+      <td><code>index.html</code><br>457&ndash;510</td>
+      <td>Even when handed images that were <em>already</em> the correct pixel size, it returned
+        <strong>6.53&nbsp;KB</strong> for the IBPS signature (140&times;60, 10&ndash;20&nbsp;KB) and
+        failed <strong>3 of 7</strong> specifications this way.</td>
+    </tr>
+    <tr>
+      <td><span class="sev p0">P0</span></td>
+      <td><strong>Reports success without verifying the artifact.</strong> The success path reads
+        only <code>blob.size</code>. It never re-reads the dimensions and never compares the result
+        against the requirement.</td>
+      <td><code>index.html</code><br>535&ndash;546</td>
+      <td>Prints <em>&ldquo;Success! Image compressed to 6.53&nbsp;KB.&rdquo;</em> on a file that fails the
+        spec. This is the single most damaging pattern in the codebase.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>High — a hang, a security tool that misses threats, and missing scope</h3>
+
+<table>
+  <thead>
+    <tr><th style="width:52px">Sev</th><th>Defect</th><th style="width:150px">Location</th><th style="width:38%">Evidence</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="sev p1">P1</span></td>
+      <td><strong>Unbounded loop can freeze the browser tab permanently.</strong> The downscaling
+        <code>while</code> loop has no iteration cap and floors dimensions at 1&times;1. Once the canvas
+        cannot shrink further and the encoded size still exceeds the target, the loop never exits.</td>
+      <td><code>index.html</code><br>470&ndash;490</td>
+      <td>With a target of 0.5&nbsp;KB the loop ran <strong>500 times without terminating</strong>, stuck
+        at 1&times;1 (611 bytes). The <code>min="5"</code> attribute does not prevent typing 0.5, and the
+        guard only rejects values <code>&le; 0</code>.</td>
+    </tr>
+    <tr>
+      <td><span class="sev p1">P1</span></td>
+      <td><strong>The scam link verifier misses the exact threats it was specified to catch.</strong>
+        URL shorteners and the <code>.xyz</code>/<code>.top</code> TLDs were named as RED ALERT in the
+        spec. None of them are implemented; the lookalike test is a substring match against seven
+        bank names.</td>
+      <td><code>index.html</code><br>598&ndash;609</td>
+      <td><code>bit.ly</code>, <code>tinyurl.com</code>, <code>is.gd</code>, <code>forms.gle</code>,
+        <code>echallan-pay.xyz</code>, <code>echallan-pay.top</code>,
+        <code>sbi-online-kyc-update.com</code>, <code>hdfc-netbanking-verify.com</code> — all returned
+        <strong>&ldquo;no warning at all&rdquo;</strong>.</td>
+    </tr>
+    <tr>
+      <td><span class="sev p1">P1</span></td>
+      <td><strong>The same verifier raises a false alarm on a genuine bank domain.</strong> The
+        lookalike rule flags any host containing a bank name unless it ends in
+        <code>.gov.in</code>, <code>.co.in</code> or <code>.com</code> — which misclassifies real
+        domains on other TLDs.</td>
+      <td><code>index.html</code><br>599&ndash;609</td>
+      <td><code>retail.onlinesbi.sbi</code> and <code>onlinesbi.sbi</code> — both real SBI
+        domains — were flagged <strong>&ldquo;may be a lookalike phishing domain&rdquo;</strong>.</td>
+    </tr>
+    <tr>
+      <td><span class="sev p1">P1</span></td>
+      <td><strong>Most of the specification was never built.</strong> Of roughly ten specified tools,
+        four partial ones shipped. Also absent: the entire channel-branding layer (subscribe button,
+        share buttons, video embed), PWA/offline support, and per-tool deep links.</td>
+      <td>whole file</td>
+      <td>4 nav buttons vs ~10 specified modules. No <code>manifest.json</code>, no service worker,
+        no <code>#hash</code> routing, no branding markup. The business purpose of the suite — driving
+        viewers back to the channel — is not implemented at all.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Medium — robustness, security surface, and correctness of the remaining tools</h3>
+
+<table>
+  <thead>
+    <tr><th style="width:52px">Sev</th><th>Defect</th><th style="width:150px">Location</th><th style="width:38%">Notes</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="sev p2">P2</span></td>
+      <td>No <code>img.onerror</code> handler. A corrupt file, or a HEIC from an iPhone, leaves the
+        interface silently stuck with the download button disabled and no message.</td>
+      <td><code>index.html</code> 381&ndash;392</td>
+      <td>Silent failure is the worst failure mode for the audience this tool targets.</td>
+    </tr>
+    <tr>
+      <td><span class="sev p2">P2</span></td>
+      <td>User-controlled input written with <code>innerHTML</code> in the link verifier.</td>
+      <td><code>index.html</code> 586, 613</td>
+      <td>Hostname text is interpolated into a markup string. Use <code>textContent</code>, or build
+        nodes. Also inconsistent: the drafter uses <code>textContent</code>, the verifier does not.</td>
+    </tr>
+    <tr>
+      <td><span class="sev p2">P2</span></td>
+      <td>EXIF orientation is not handled. Photos from phones carry a rotation tag that
+        <code>drawImage</code> ignores.</td>
+      <td><code>index.html</code> 381&ndash;392</td>
+      <td>Partly masked by modern browsers auto-orienting <code>&lt;img&gt;</code>, but not on older
+        Android WebViews — exactly the target device.</td>
+    </tr>
+    <tr>
+      <td><span class="sev p2">P2</span></td>
+      <td>Nine synchronous full-resolution JPEG encodes on the main thread, with no worker and no
+        yielding.</td>
+      <td><code>index.html</code> 457&ndash;510</td>
+      <td>Each encode covers the whole 12-megapixel canvas. On a low-end phone this is a
+        multi-second freeze. Fixing the dimensions first makes every encode small — see
+        &sect;05.</td>
+    </tr>
+    <tr>
+      <td><span class="sev p2">P2</span></td>
+      <td>The dispute drafter does not produce what it promises. Output is plain text in a
+        <code>&lt;div&gt;</code>, not a PDF; there is no Index, no Memo of Parties, and no
+        Verification clause; there is no copy or download button.</td>
+      <td><code>index.html</code> 623&ndash;667</td>
+      <td>It also hard-codes the District Commission, which is the wrong forum above the
+        pecuniary limit, and it fills the claim amount but never asks for the complainant's
+        address or the commission's territorial jurisdiction.</td>
+    </tr>
+    <tr>
+      <td><span class="sev p2">P2</span></td>
+      <td>The &ldquo;modular architecture&rdquo; invariant was not followed. Everything is in one
+        670-line file; there is no <code>README</code>, no tests, no build.</td>
+      <td>whole file</td>
+      <td>Not a style complaint. Without a module seam, no part of this could be tested — which is
+        precisely why the P0 defects shipped.</td>
+    </tr>
+    <tr>
+      <td><span class="sev p2">P2</span></td>
+      <td>Dead and misleading code. <code>showAlert</code> overwrites <code>className</code>
+        wholesale; a comment claims &ldquo;homograph/typo detection&rdquo; where only a substring
+        match exists; the <code>.hidden</code> class duplicates the <code>hidden</code> attribute.</td>
+      <td><code>index.html</code> 557&ndash;560, 598</td>
+      <td>Comments that overstate what the code does are worse than no comments.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ===================================================== 4 CAUSES -->
+<h2 id="causes"><span class="n">04</span>Three root causes</h2>
+
+<p>
+  The individual bugs matter less than the pattern that produced them. There are three, and they
+  compound. Fix these and the next tool behaves differently.
+</p>
+
+<h3>R1 — Requirements were written as prose, then never enforced</h3>
+<p>
+  The kickstart says &ldquo;SSC (4&times;2cm, 10&ndash;20KB)&rdquo;. That is a specification, but it
+  lived in a paragraph. In the code, it became a single number in a form field that the user has to
+  type, and the algorithm never saw the rest. Requirements are data. They belong in a data
+  structure the code reads, with a source and a verification date attached.
+</p>
+
+<h3>R2 — The algorithm optimised the wrong variable</h3>
+<p>
+  The compressor treats <em>dimensions as free</em> and <em>file size as an upper bound</em>. Both are
+  wrong for this problem. In a government upload, dimensions are a hard constraint and file size is a
+  <em>window</em>. Because the loop sacrifices resolution first and quality second, it produces files
+  that are simultaneously too small in pixels and too small in kilobytes — and it cannot detect that,
+  because it was never told the target.
+</p>
+
+<h3>R3 — &ldquo;Success&rdquo; was a UI event, not a verified outcome</h3>
+<p>
+  This is the most important one. The success message fires when the download is triggered, not when
+  the file is confirmed to meet the requirement. The user's demand — <em>&ldquo;it must work 100%&rdquo;</em> —
+  is achievable, but only if it is expressed as an engineering rule:
+</p>
+<div class="callout ok">
+  <b>The rule to adopt</b>
+  For supported inputs, either produce a file that passes the stated checks, or explain clearly why it
+  cannot be done. Never display success for a result that has not been verified against the
+  requirement. The download button appears only after the check passes.
+</div>
+
+<p>
+  That single rule eliminates the entire P0 class of defects, and it is testable. It is what makes
+  &ldquo;works 100%&rdquo; a claim you can defend in a video instead of a hope.
+</p>
+
+<!-- ===================================================== 5 FIXES -->
+<h2 id="fixes"><span class="n">05</span>Before and after</h2>
+
+<p>Four patterns, extracted from the real code. These are the ones worth internalising.</p>
+
+<h3>Fix 1 — Make the requirement data, not a form field</h3>
+
+<span class="lbl bad">Before — the requirement exists only as prose, and the code asks the user to guess</span>
+<pre class="bad-code">&lt;div class="form-group"&gt;
+  &lt;label for="targetKB"&gt;Target Maximum Size (KB)&lt;/label&gt;
+  &lt;input type="number" id="targetKB" value="20" min="5" max="5000"&gt;
+&lt;/div&gt;
+&lt;!-- No width. No height. No minimum. Nothing enforces "4x2cm, 10-20KB". --&gt;</pre>
+
+<span class="lbl good">After — the requirement is a record, and it carries its own provenance AND its own evidence</span>
+<pre class="good-code">{
+  id: 'ssc-signature',
+  label: 'SSC — Signature',
+  width: 140, height: 60,       // read from the official PDF, NOT derived from a cm figure
+  minKB: 10, maxKB: 20,         // BOTH bounds. This is a window, not a ceiling.
+  format: 'image/jpeg',
+  status: 'VERIFIED',
+  source: 'SSC "Guidelines for scanning and Upload of Documents" (official PDF, 4 pages)',
+  verifiedOn: '2026-09-14',
+
+  // The evidence behind the claim below. Without this the feasibility is an assertion.
+  measuredOver: { fixture: 'scan', grain: [0,4,8,12,16,24,32], density: [1,2,4,6] },
+  measuredOn: '2026-09-14',
+  measuredWith: 'Chrome 152, _verify/browser_truth.mjs',
+
+  feasibility: 'marginal',      // MEASURED: only 7 of 28 realistic inputs reach 10 KB
+  preferLarger: 'ssc-signature-large',
+  riskNote: 'A dense signature reaches ~13.4 KB and passes; a compact one reaches ~8.8 KB and fails.',
+  rules: ['Sign on plain white paper with a BLACK ink pen.', 'NOT in capital letters.'],
+}</pre>
+
+<p>
+  Two things happen as a result. The code can enforce the requirement, and the interface can be honest
+  about what has actually been confirmed. That second part is what lets you look a viewer in the eye.
+  The <code>measuredOver</code> line is the part most people leave out, and it is the part that keeps
+  the entry honest: the build refuses to ship a feasibility claim that has no sweep behind it.
+</p>
+
+<h3>Fix 2 — Fix the dimensions first; search quality second</h3>
+
+<span class="lbl bad">Before — dimensions are sacrificed to hit a size ceiling</span>
+<pre class="bad-code">// Step 1: guarantee fit at min quality by downscaling dimensions
+let minBlob = await getBlob(currentCanvas, 0.05);
+while (minBlob &amp;&amp; minBlob.size &gt; targetBytes) {          // no iteration cap
+  const scale = Math.max(0.1, Math.sqrt(targetBytes / minBlob.size) * 0.92);
+  const newWidth  = Math.max(1, Math.floor(currentWidth  * scale));
+  const newHeight = Math.max(1, Math.floor(currentHeight * scale));
+  // ... the required pixel dimensions are destroyed here, permanently
+}
+// Step 2: binary search for best quality
+let low = 0.05, high = 0.98, bestBlob = minBlob;
+for (let i = 0; i &lt; 8; i++) { /* ... */ }
+return bestBlob;   // never checked against a minimum, never checked for dimensions</pre>
+
+<span class="lbl good">After — dimensions are fixed, only quality moves, and the search is bounded</span>
+<pre class="good-code">const canvas = renderAtExactDimensions(source, crop, spec.width, spec.height);
+
+let lo = 0.05, hi = 1.0, bestBytes = null, bestQuality = null;
+const atMax = await measure(1.0);                 // 1 encode
+if (atMax &lt;= maxBytes) { bestBytes = atMax; bestQuality = 1.0; }
+else {
+  for (let i = 0; i &lt; 12; i++) {                  // hard cap: cannot hang
+    const mid = (lo + hi) / 2;
+    const bytes = await measure(mid);
+    if (bytes &lt;= maxBytes) { bestBytes = bytes; bestQuality = mid; lo = mid; }
+    else { hi = mid; }
+  }
+}
+if (bestBytes === null)          return { ok: false, reason: 'CANNOT_REACH_MAX' };
+if (bestBytes &lt; minBytes)        return { ok: false, reason: 'BELOW_MINIMUM', bytes: bestBytes };
+return { ok: true, bytes: bestBytes, quality: bestQuality };</pre>
+
+<div class="callout ok">
+  <b>This also fixes the performance problem for free</b>
+  The old loop encoded the full 12-megapixel canvas nine times. Because dimensions are now fixed
+  <em>first</em>, every encode operates on a 500&times;500 canvas instead — orders of magnitude less work.
+  A correctness fix that also removes the need for a Web Worker is the best kind of fix.
+</div>
+
+<h3>Fix 3 — Verify the artifact before claiming anything</h3>
+
+<span class="lbl bad">Before — success is announced from the size alone</span>
+<pre class="bad-code">const sizeKB = (finalBlob.size / 1024).toFixed(2);
+// ... trigger download ...
+showAlert(resizerAlert, 'success', `Success! Image compressed to ${sizeKB} KB.`);
+// Dimensions never re-read. Requirement never consulted. "Success" is unconditional.</pre>
+
+<span class="lbl good">After — the claim is gated on a re-check of the finished file</span>
+<pre class="good-code">const check = verify(spec, {
+  width: canvas.width, height: canvas.height,
+  bytes: blob.size,    mime: blob.type,
+});
+
+if (!check.pass) {
+  showStatus('bad', 'Produced, but it failed its own check', check.problems.join('; '));
+  return;                       // no download offered
+}
+
+showStatus('ok', 'Matches these file requirements',
+  `${canvas.width}x${canvas.height} px, ${(blob.size / 1024).toFixed(2)} KB, ` +
+  `within the ${spec.minKB}-${spec.maxKB} KB window. Still confirm on the official upload page.`);</pre>
+
+<p>
+  Note the wording. <em>&ldquo;Matches these file requirements&rdquo;</em> — not
+  &ldquo;guaranteed government approval&rdquo;. A file-preparation tool can verify numbers. It cannot
+  verify that a portal will accept a file, and pretending otherwise is the kind of overclaim that
+  destroys an audience's trust the first time it is wrong.
+</p>
+
+<h3>Fix 4 — An honest security tool, or no security tool</h3>
+
+<p>
+  The link verifier is the clearest example of a claim outrunning its method. A substring check against
+  seven bank names cannot decide whether a link is malicious. Shortened links are not inherently
+  malicious either — which is exactly why the useful output is <em>disclosure</em>, not a verdict.
+</p>
+
+<span class="lbl bad">Before — a rule that produces both misses and false alarms, presented as a verdict</span>
+<pre class="bad-code">const targets = ['sbi','hdfc','icici','axis','pnb','epfo','incometax'];
+let typo = false;
+targets.forEach(t =&gt; {
+  if (hostname.includes(t) &amp;&amp; !hostname.endsWith('.gov.in')
+                           &amp;&amp; !hostname.endsWith('.co.in')
+                           &amp;&amp; !hostname.endsWith('.com')) typo = true;
+});
+if (typo || hostname.split('.').length &gt; 4) { /* "may be a lookalike phishing domain" */ }</pre>
+
+<span class="lbl good">After — show the user the fact they cannot see, and be explicit about the limit</span>
+<pre class="good-code">const KNOWN_SHORTENERS = new Set(['bit.ly','tinyurl.com','is.gd','t.co','rb.gy','forms.gle','wa.me']);
+const TRUSTED_GOV = /\.(gov\.in|nic\.in)$/;
+
+// The real defence is comparison: the address the link DISPLAYS vs the address it GOES to.
+if (KNOWN_SHORTENERS.has(hostname)) {
+  report.warn(`This is a shortened link. Its destination is hidden until you open it. ` +
+              `A government department does not send challan or refund links through ` +
+              `shorteners. Open the portal yourself by typing the address.`);
+} else if (TRUSTED_GOV.test(hostname)) {
+  report.ok(`This is an official government domain (${hostname}).`);
+} else {
+  report.info(`This link goes to ${hostname}, which is NOT an official government domain. ` +
+              `Compare it, character by character, with the address printed in the ` +
+              `official notification.`);
+}
+// Stated limit, shown in the interface:
+// "This checks the shape of the address. It cannot tell you whether a page is malicious.
+//  Only a maintained threat list can do that."</pre>
+
+<div class="callout warn">
+  <b>The design principle</b>
+  When a tool cannot establish something, it must say so rather than guess. Telling a frightened user
+  that a genuine bank domain &ldquo;may be a phishing site&rdquo; is a real harm. So is passing a
+  shortened link as clean. Honest disclosure of the destination is both more useful and defensible.
+</div>
+
+<!-- ===================================================== 6 ARCH -->
+<h2 id="arch"><span class="n">06</span>One site, one page per job</h2>
+
+<p><strong>Decision: one domain, one page per tool, shared code behind them.</strong></p>
+
+<p>Not one super app. Not many separate websites. The reasoning:</p>
+
+<div class="grid2">
+  <div class="card">
+    <h4>Why not one super app</h4>
+    <ul>
+      <li>A viewer arriving from a video about signature sizes should land on the signature tool, not a dashboard they must navigate.</li>
+      <li>Every added module multiplies the surface that must be tested. Four half-tested tools are worse than one proven tool.</li>
+      <li>One large bundle loads slower on the rural 4G connection that most of your audience is on.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Why not many separate websites</h4>
+    <ul>
+      <li>Each site means its own domain, certificate, deployment and analytics — recurring work that produces nothing for the viewer.</li>
+      <li>Brand authority compounds on one domain. Scattered across five, it does not.</li>
+      <li>Shared code (the size-search algorithm, the spec registry, the styling) would be duplicated or lost.</li>
+    </ul>
+  </div>
+</div>
+
+<p>
+  So: one site. Each video links to the exact page for its problem. A small home page lists what
+  exists, but nobody is forced through it. Pages share a stylesheet and the same verified core.
+</p>
+
+<pre class="good-code">dhanwala-tools/                    (one domain)
+  index.html                       short list of tools; not a dashboard
+  tools/
+    signature-fit/                 <- the video about signature sizes links here
+    photo-fit/                     <- the video about photo sizes links here
+    photo-to-pdf/                  <- added when a video needs it
+  shared/
+    core.js                        size search, crop geometry, verification
+    specs.js                       the requirement registry, with provenance
+    ui.css
+  _verify/                         the test suites. Not deployed.</pre>
+
+<div class="callout">
+  <b>Deep links matter more than the home page</b>
+  The address in a video description must open the right tool directly, with the right preset already
+  selected — for example <code>/tools/signature-fit/?preset=ssc-signature</code>. This is a small
+  feature and it is the difference between a viewer using your tool and a viewer bouncing. It was
+  absent from the previous build entirely.
+</div>
+
+<!-- ===================================================== 7 ROLES -->
+<h2 id="roles"><span class="n">07</span>Who builds what</h2>
+
+<p>
+  You asked who writes the code, and whether you need a different developer or a different AI for each
+  tool. You do not. The split that works is by <em>decision</em>, not by task:
+</p>
+
+<dl class="role">
+  <dt>You</dt>
+  <dd>
+    Choose which problem each video solves. That is the only input that cannot be automated — it
+    comes from your audience's comments and your own experience of the portals.
+  </dd>
+  <dt>You</dt>
+  <dd>
+    Confirm each requirement against the live official portal, once, per requirement, and record the
+    date. This is the one step that cannot be delegated to a model, because a model cannot log in and
+    see the upload screen. It takes a few minutes and it is what makes the tool trustworthy.
+  </dd>
+  <dt>You</dt>
+  <dd>
+    Use the finished tool yourself on your own phone before publishing, and check that it feels right.
+    Then decide whether to publish.
+  </dd>
+  <dt>I do</dt>
+  <dd>
+    Turn the problem into a written requirement, choose the method, write the code, write the tests,
+    run them, and show you the evidence. For every tool, not a different one per tool.
+  </dd>
+  <dt>I do</dt>
+  <dd>
+    Tell you plainly when something cannot be done reliably — a background-removal model that runs on a
+    low-end phone, for instance, or a live webcam capture that no file can substitute for. A
+    &ldquo;no&rdquo; here is worth more than a demo that breaks on stage.
+  </dd>
+  <dt>Optional</dt>
+  <dd>
+    A second pair of eyes on the requirement check. If you have a friend or a viewer who can confirm a
+    portal's numbers independently, that is genuinely useful. It is not required.
+  </dd>
+</dl>
+
+<div class="callout warn">
+  <b>What you should not do</b>
+  Do not write a longer kickstart prompt. The previous build did not fail for lack of detail — it failed
+  because the detail was prose that no code enforced and no test checked. More prose would produce the
+  same outcome. One narrow, verified requirement at a time is the fix.
+</div>
+
+<!-- ===================================================== 8 RESEARCH -->
+<h2 id="research"><span class="n">08</span>The research protocol</h2>
+
+<p>
+  You are right that research matters. The mistake to avoid is researching <em>every</em> portal before
+  building <em>anything</em>. Research one requirement properly, build, verify, publish, then move on.
+</p>
+
+<h3>Record a requirement like this</h3>
+<p>
+  Here is the same requirement, recorded twice: as it stood when this review began, and as it stands
+  now that the official document has been read. The protocol did not change &mdash; only the evidence
+  did.
+</p>
+<pre class="bad-code">REQUIREMENT RECORD  —  as it stood, from secondary sources only
+  Portal / exam ........ SSC (CGL, CHSL, MTS, GD)
+  Document ............. Signature
+  Format ............... JPEG
+  Pixel dimensions ..... NOT STATED. Notice gives 4.0 cm x 2.0 cm.
+                         Assumed 315 x 157 px at 200 dpi  &lt;- FLAG THIS
+  Size window .......... 10 KB to 20 KB (both bounds stated)
+  Appearance ........... Black ink on white paper
+  Live capture? ........ No, signature is a normal upload.
+                         Photo, however, IS live-capture only. A file cannot substitute.
+  Source ............... ssc.gov.in notice; confirmed in gov_portals_master_research.txt (Part B1)
+  Verified on .......... (date) by (who), against the live upload screen
+  Unresolved ........... the pixel box. If the portal only validates cm and file size,
+                         our assumed pixel dimensions may be wrong. Test an upload.
+  Preset status ........ UNVERIFIED until the above is resolved</pre>
+
+<pre class="good-code">REQUIREMENT RECORD  —  the same requirement, now that the official PDF has been read
+  Portal / exam ........ SSC (CGL, CHSL, MTS, GD)
+  Document ............. Signature
+  Format ............... JPG / JPEG
+  Pixel dimensions ..... 140 x 60 px (the document says "preferred")
+  Size window .......... 10 KB to 20 KB
+  Appearance ........... Black ink on plain white paper; NOT in capital letters
+  Live capture? ........ No. The photograph is live-capture only; the signature is a normal upload.
+  Source ............... "Guidelines for scanning and Upload of Documents", official SSC PDF, 4 pages
+  Verified on .......... 2026-09-14, read from the document itself
+  MEASURED ............ Only 7 of 28 realistic signatures reach the 10 KB floor at 140x60.
+                         A dense signature reaches ~13.4 KB; a compact one reaches ~8.8 KB.
+                         The deciding factor is ink density, not scan quality.
+  Escape hatch ......... 472 x 157 px (6.0 x 2.0 cm at 200 dpi), from the portal, not the PDF.
+                         All 28 inputs pass comfortably there. Offered in the UI.
+  Preset status ........ VERIFIED, feasibility "marginal", with a risk note the user sees
+  Still unresolved ..... whether the live upload screen actually rejects a 9 KB signature</pre>
+
+<p>The fields that matter most are the last three. <strong>What is still unknown</strong> is more
+useful than what is known, because it tells you exactly what to test next. Note that the corrected
+record has one field the original did not: the measurement, and the sweep it was taken over. That is
+the field that stops the entry from quietly becoming a lie.</p>
+
+<div class="callout bad">
+  <b>The trap was real, and the answer was neither of the two options I offered</b>
+  Your SSC notes said the signature must be <em>4.0&nbsp;cm &times; 2.0&nbsp;cm</em> &mdash; a physical
+  measurement, not a pixel one. At the time I wrote that either the portal validates a pixel box, or it
+  validates printed size and file size only. The document says something more awkward than either: it
+  states a pixel box, and it enforces size and format, and the stated pixel box cannot reliably hold
+  the stated size window. The lesson is not &ldquo;research more&rdquo;. It is that a requirement
+  record is not finished until it has been <em>measured</em>, because the contradiction between two
+  stated numbers is invisible until something tries to satisfy both at once.
+</div>
+
+<!-- ===================================================== 9 BUILT -->
+<h2 id="built"><span class="n">09</span>What I built, and the proof</h2>
+
+<p>
+  A recommendation you cannot run is just another opinion. So I built the corrected version of the
+  first tool and tested it, to demonstrate the difference rather than describe it.
+</p>
+
+<table>
+  <thead><tr><th>File</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>reference-tool/index.html</code></td><td>Markup only.</td></tr>
+    <tr><td><code>reference-tool/js/core.js</code></td><td>The algorithm. No browser APIs, so it can be tested outside a browser.</td></tr>
+    <tr><td><code>reference-tool/js/specs.js</code></td><td>Requirement registry with source, verification status and notes per entry.</td></tr>
+    <tr><td><code>reference-tool/js/config.js</code></td><td>Channel details in one place, so the tool code holds no hard-coded handle.</td></tr>
+    <tr><td><code>reference-tool/js/app.js</code></td><td>DOM wiring, deep links, branding.</td></tr>
+    <tr><td><code>reference-tool/css/style.css</code></td><td>Presentation, mobile-first, two themes, touch targets, print rules.</td></tr>
+    <tr><td><code>reference-tool/netlify.toml</code></td><td>Deployment: no build step, plus the security headers actually tested below.</td></tr>
+    <tr><td><code>dist/photo-signature-fitter.html</code></td><td><strong>The single-file build.</strong> 66&nbsp;KB, no dependencies, opens by double-clicking. No server needed.</td></tr>
+    <tr><td><code>build_single_file.mjs</code></td><td>Produces that file from the modules, and fails loudly if it cannot do so safely.</td></tr>
+    <tr><td><code>registry_guard.mjs</code></td><td>The static rules a requirement entry must satisfy to ship. Enforced by the build.</td></tr>
+    <tr><td><code>_verify/fixtures.mjs</code></td><td>One source of truth for test images, so the numbers below are reproducible.</td></tr>
+    <tr><td><code>_verify/browser_truth.mjs</code></td><td><strong>The measurement authority.</strong> Measures every registry claim inside real Chrome, over each entry's declared sweep, using the real <code>core.js</code>.</td></tr>
+    <tr><td><code>_verify/check_specs.mjs</code></td><td>Asserts every declared feasibility against that browser measurement, and fails on any drift.</td></tr>
+    <tr><td><code>_verify/test_registry_guard.mjs</code></td><td>31 negative tests: every guard rule must fire on a deliberately broken entry.</td></tr>
+    <tr><td><code>_verify/test_mutation.mjs</code></td><td><strong>Proves the chain can fail.</strong> Feeds it a wrong registry and checks that it objects.</td></tr>
+    <tr><td><code>_verify/test_core.mjs</code></td><td>The corrected core, plus every registry preset, cross-checked against the browser.</td></tr>
+    <tr><td><code>_verify/test_old_algorithm.mjs</code></td><td>Reproduces the shipped algorithm and measures it against real specifications.</td></tr>
+    <tr><td><code>_verify/test_verifier.mjs</code></td><td>Runs the old link-verifier predicate against 15 real URLs.</td></tr>
+    <tr><td><code>_verify/test_browser.mjs</code></td><td>End-to-end in real Chrome, served under the production CSP — including proof the policy is enforced, and that EXIF orientation is applied.</td></tr>
+    <tr><td><code>_verify/test_single_file.mjs</code></td><td>The single-file build from <code>file://</code>, a seven-viewport layout sweep, and a coarse-pointer touch-target sweep with a negative control.</td></tr>
+    <tr><td><code>_verify/run_all.mjs</code></td><td>Runs all nine suites with one command, starting its own servers.</td></tr>
+    <tr><td><code>_verify/full_run.txt</code></td><td>The captured output of the full run. This is the evidence, not a summary of it.</td></tr>
+  </tbody>
+</table>
+
+<h3>Run the whole thing yourself</h3>
+<pre class="good-code">cd _verify
+node run_all.mjs</pre>
+<p>
+  No server to start first, no setup. It builds the single-file bundle, runs all nine suites,
+  spins up its own servers for the browser suites, and exits non-zero if anything fails. It drives
+  the Chrome already on your machine &mdash; it does not download a browser.
+</p>
+<p>
+  The last run: <strong>all nine suites passed, exit code 0.</strong> The captured output is
+  <code>_verify/full_run.txt</code>.
+</p>
+
+<h3>One more defect, and the re-run is what found it</h3>
+<p>
+  The suites passed. Then they were run again, with nothing changed, and two of them died &mdash; not
+  with a failed assertion but with an error thrown from inside <code>fs</code>:
+</p>
+<div class="mono-out">Error: [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED]
+       count 343, threshold 50, scope "turn"
+       target: _verify/fixtures</div>
+<p>
+  The harness was deleting its own scratch state: <code>browser_truth.mjs</code> wiped the fixture
+  folder at the top of every run, and <code>test_mutation.mjs</code> wiped its own. That is a normal
+  thing for a test harness to do, and this machine refuses it &mdash; it guards against bulk deletion,
+  and it counts deletions <em>cumulatively for the session</em>, so a run that had already removed a
+  few hundred temporary files could not remove forty more.
+</p>
+<p>
+  Note what that failure is <em>not</em>. The tool was not wrong. The registry was not wrong. The
+  measurement was not wrong. The evidence-gathering was destructive, and the budget for destruction
+  ran out. The fix is the right one whether or not a guard exists:
+  <strong>a test harness should be idempotent and non-destructive.</strong> Fixtures are now written
+  in place, overwriting whatever is there, and the only files ever removed are ones a
+  <em>previous</em> run recorded in a manifest and this run does not want. When the registry has not
+  changed &mdash; the normal case &mdash; that is zero deletions, permanently. Leftovers are inert:
+  nothing requests a fixture that is not in a job list.
+</p>
+<div class="callout ok">
+  <b>The same lesson as section&nbsp;05, applied to the tests instead of the tool</b>
+  A harness that can only pass by destroying something is a harness that will one day not run at all.
+  One green run is not proof that a suite is stable; the second one is.
+</div>
+
+<h3>The corrected algorithm, measured &mdash; and the number that used to be wrong</h3>
+<div class="mono-out">TEST G — every registry preset, driven through the real core.js
+This is the NODE MODEL, which is optimistic by ~20%. A pass here means the pipeline
+is coherent, NOT that the preset is safe. The BROWSER column is the real answer.
+
+PRESET                                REQUIRED   WINDOW     MODEL OUT  BROWSER        verify() RESULT
+SSC — Signature                       140x60     10-20KB    10.22KB    7/28 pass      model-only (browser passes 7/28)
+SSC — Signature (larger box, 6.0 x 2  472x157    10-20KB    18.29KB    28/28 pass     PASS
+SSC — Photograph                      200x230    20-50KB    25.56KB    1/1 pass       PASS  [valid file, but the portal needs a LIVE capture]
+SSC — Photograph (larger box, 3.5 x   413x531    20-50KB    47.99KB    1/1 pass       PASS
+SSC — Left thumb impression           240x240    20-50KB    40.23KB    7/7 pass       PASS
+SSC — Handwritten declaration         800x400    50-100KB   93.81KB    7/7 pass       PASS
+IBPS — Signature                      140x60     10-20KB    10.22KB    7/28 pass      model-only (browser passes 7/28)
+IBPS — Photograph (as stated in the   200x230    20-50KB    25.56KB    1/1 pass       PASS
+IBPS — Photograph (cm reading)        531x413    20-50KB    48.20KB    1/1 pass       PASS
+IBPS — Left thumb impression          240x240    20-50KB    40.23KB    7/7 pass       PASS
+IBPS — Handwritten declaration        800x400    50-100KB   93.81KB    7/7 pass       PASS
+UPSC — Photograph                     500x500    20-300KB   175.72KB   1/1 pass       PASS
+--------------------------------------------------------------------------------------------------
+  model and browser agree on: 10    model-only (overstated): 2
+  honest refusal: 0    claimed success but failed verify: 0
+  unit-test failures: 0
+  A false-success count of 0 is the point: verify() gates every claim.</div>
+
+<p>
+  Look at the first row, because it is the most important line in this report. The model says the
+  140&nbsp;&times;&nbsp;60 signature box reaches <strong>10.22&nbsp;KB</strong> against a 10&nbsp;KB
+  floor, and calls that a pass. Real Chrome, given the same document, produces
+  <strong>8.88&nbsp;KB</strong> and refuses. The suite now prints
+  <em>&ldquo;model-only (browser passes 7/28)&rdquo;</em> instead of a pass, because the model is not
+  allowed to certify anything any more. Section&nbsp;10 is the story of that number.
+</p>
+<p>
+  Every success was still re-checked against <strong>both</strong> bounds by
+  <code>verify()</code> before it was reported. The false-success count is zero, and that is
+  the whole point.
+</p>
+
+<h3>The same specifications, driven by the old algorithm</h3>
+<div class="mono-out">TEST A — the OLD algorithm fed images ALREADY at the correct pixel size (its best case)
+It is only ever told "target maximum KB". The spec also fixes dimensions and a MINIMUM.
+
+SPEC                                    DIMS IN     ASKED     GOT        DIMS OUT    RESULT
+SSC signature  (315x157 @200dpi)        315x157     <=20KB    17.47KB    315x157     PASS
+SSC signature  (472x236 @300dpi)        472x236     <=20KB    19.13KB    472x236     PASS
+IBPS photo     (200x230 px)             200x230     <=50KB    8.14KB     200x230     FAIL: below minimum size
+IBPS signature (140x60 px)              140x60      <=20KB    6.53KB     140x60      FAIL: below minimum size
+IBPS LTI       (240x240 px)             240x240     <=50KB    10.59KB    240x240     FAIL: below minimum size
+IBPS declaration (800x400 px)           800x400     <=100KB   87.09KB    800x400     PASS
+UPSC photo     (500 x 500 px)           500x500     <=300KB   64.02KB    500x500     PASS
+
+TEST D — the OLD algorithm fed a REAL 4032x3024 phone photo (what actually happens)
+source: 4032 x 3024, 3.47 MB at q=0.9
+
+SPEC            REQUIRED DIMS   SIZE WINDOW   OUTPUT DIMS     OUTPUT     DIM OK?  SIZE OK?
+SSC signature   315x157         10-20KB       901x676         19.90KB    NO       yes
+SSC signature   472x236         10-20KB       901x676         19.90KB    NO       yes
+IBPS photo      200x230         20-50KB       1426x1069       49.25KB    NO       yes
+IBPS signature  140x60          10-20KB       901x676         19.90KB    NO       yes
+IBPS LTI        240x240         20-50KB       1426x1069       49.25KB    NO       yes
+IBPS declaration800x400         50-100KB      2016x1512       96.47KB    NO       yes
+UPSC photo      500x500         20-300KB      3493x2619       290.12KB   NO       yes
+
+TEST C — what the old loop actually costs. Each getBlob() is a full JPEG encode of the
+CURRENT canvas, on the main thread. The encode count is not the cost — the canvas can be
+multi-megapixel. The pixels pushed through the encoder are the cost.
+
+SPEC                                  ENCODES   CANVAS OUT    MEGAPIXELS   CORRECTED   RATIO
+SSC signature  (315x157 @200dpi)      10        949x553       5.6 MP       0.64 MP     9x
+SSC signature  (472x236 @300dpi)      10        949x553       5.6 MP       1.45 MP     4x
+IBPS photo     (200x230 px)           10        1426x1069     25.9 MP      0.60 MP     43x
+IBPS signature (140x60 px)            10        949x553       5.6 MP       0.11 MP     51x
+IBPS LTI       (240x240 px)           10        1426x1069     25.9 MP      0.75 MP     35x
+
+TEST B — termination. The shipped while-loop has no iteration cap.
+
+  targetKB=5      -> terminated after 1 downscale(s), final 161x161, 4.98KB
+  targetKB=2      -> terminated after 1 downscale(s), final 102x102, 2.00KB
+  targetKB=0.8    -> terminated after 1 downscale(s), final 64x64, 0.79KB
+  targetKB=0.5    -> *** DID NOT TERMINATE after 500 downscales (stuck at 1x1, 611 bytes) ***
+  targetKB=0.3    -> *** DID NOT TERMINATE after 500 downscales (stuck at 1x1, 611 bytes) ***</div>
+
+<p>
+  Read the two tables together, because the comparison is the argument. Test A gives the old
+  code every advantage &mdash; images already cut to the exact right size &mdash; and it still
+  fails 3 of 7 on size. Test D gives the same code a normal phone photo, which is what actually
+  happens, and the dimensions are wrong in <strong>all seven</strong> cases.
+</p>
+<p>
+  The figures in these two tables are deliberately left as the old build's own research notes had
+  them &mdash; 315&nbsp;&times;&nbsp;157, 472&nbsp;&times;&nbsp;236, 500&nbsp;&times;&nbsp;600. Those
+  are the numbers it was built against, and they are what it should be judged on. Two of them turned
+  out to be wrong (section&nbsp;10), which makes the tables worse for the old build, not better.
+</p>
+<p>
+  Across those fourteen runs, the tool reported success every time. And Test C shows the price of
+  getting there: a 25.9-megapixel canvas pushed through the JPEG encoder ten times, on the main
+  thread &mdash; up to <strong>51&times;</strong> the pixel work the corrected search does, for a
+  worse answer.
+</p>
+<p>
+  Test B is the one that would have shown up as a support question you could not answer. Two of the
+  five targets never terminate. The input carries <code>min="5"</code>, but that attribute does not
+  stop anyone typing <code>0.5</code>, and the guard only rejects values at or below zero. In a
+  browser this is not a slow result; it is a dead tab.
+</p>
+
+<h3>The link verifier, measured against 15 real URLs</h3>
+<div class="mono-out">input                                       | hostname                          | verdict
+https://echallan.parivahan.gov.in/          | echallan.parivahan.gov.in         | correct (clean)     <- genuine gov.in
+https://onlinesbi.sbi/                      | onlinesbi.sbi                     | *** WRONG: FALSE POSITIVE ***   <- legit SBI short domain
+https://www.onlinesbi.sbi/                  | www.onlinesbi.sbi                 | *** WRONG: FALSE POSITIVE ***   <- legit SBI short domain
+https://sbi.co.in/                          | sbi.co.in                         | correct (clean)     <- legit SBI
+https://www.sbicard.com/                    | www.sbicard.com                   | correct (clean)     <- legit SBI Card
+https://incometax.gov.in/                   | incometax.gov.in                  | correct (clean)     <- genuine
+https://bit.ly/3xYzAbC                      | bit.ly                            | *** WRONG: FALSE NEGATIVE ***   <- SHORTENER
+https://tinyurl.com/challan-pay             | tinyurl.com                       | *** WRONG: FALSE NEGATIVE ***   <- SHORTENER
+https://echallan-pay.xyz/pay                | echallan-pay.xyz                  | *** WRONG: FALSE NEGATIVE ***   <- phishing .xyz
+https://echallan-pay.top/pay                | echallan-pay.top                  | *** WRONG: FALSE NEGATIVE ***   <- phishing .top
+https://epfo.gov.in.verify-kyc.com/login    | epfo.gov.in.verify-kyc.com        | correct (flagged)   <- subdomain-suffix phishing
+https://sbi-online-kyc-update.com/login     | sbi-online-kyc-update.com         | *** WRONG: FALSE NEGATIVE ***   <- typosquat ending in .com
+https://192.168.1.1/login                   | 192.168.1.1                       | correct (flagged)   <- raw IP
+https://sbi.secure-login.verify-account.info/ | sbi.secure-login.verify-account.info | correct (flagged) <- nested phishing
+https://incometax-refund-claim.xyz/         | incometax-refund-claim.xyz        | correct (flagged)   <- phishing
+
+  correct: 8/15
+  FALSE POSITIVES (genuine sites flagged): 2  onlinesbi.sbi, www.onlinesbi.sbi
+  FALSE NEGATIVES (dangerous sites passed): 5  bit.ly, tinyurl.com, echallan-pay.xyz, echallan-pay.top, sbi-online-kyc-update.com</div>
+
+<p>
+  Seven of fifteen wrong, in both directions. The predicate flags the real SBI at
+  <code>onlinesbi.sbi</code> &mdash; which is where the bank actually lives &mdash; and waves
+  through every URL shortener and every <code>.xyz</code> domain, which is exactly what the phishing
+  campaign in your kickstart notes uses.
+</p>
+<p>
+  The reason is visible in the code: it decides &ldquo;lookalike&rdquo; from a substring match plus
+  a suffix allow-list, and it never consults any actual threat data. A domain either ends in
+  <code>.com</code> (trusted) or it does not (suspicious), which is not a security property at all.
+</p>
+<div class="callout warn">
+  <b>Every case in that table is https on purpose</b>
+  An earlier version of this test used <code>http://</code> for some phishing URLs, so they were
+  flagged for the wrong reason &mdash; being plain HTTP &mdash; and the test appeared to show the
+  lookalike logic working. Isolating one predicate at a time is the only way to see which one is
+  broken. The defect count went <em>up</em> when the test got more honest.
+</div>
+
+<h3>End-to-end browser test, real Chrome, served under the production security policy</h3>
+<div class="mono-out">--- 1. page loads, preset applied, provenance shown ---
+preset     : ssc-signature
+provenance : Read from the official source document on 2026-09-14
+             Source: SSC "Guidelines for scanning and Upload of Documents" (official PDF, 4 pages)
+custom fields hidden on a preset: true
+
+--- 2. upload a real 4032x3024 phone photo against the SSC signature spec ---
+fileInfo   : photo_g12.jpg — 4032x3024 px, 4042 KB.
+crop       : source crop 4032x2010 px
+canvas dims: 140x60
+
+--- 3. crop frame is locked to the required aspect ratio ---
+cropBox on screen: 344.0 x 147.4   aspect 2.3333
+required aspect  : 2.3333
+aspect locked    : YES
+
+--- 5. MARGINAL, half one: a compact signature at 140x60 must be REFUSED honestly ---
+status          : Not produced. This image cannot reach 10 KB at 140x60 even at maximum
+                  quality (best achieved: 8.88 KB). The picture content is too simple to
+                  compress into that window. Try a sharper, higher-contrast capture, or a
+                  larger allowed dimension if the requirement permits one. The source
+                  document also gives a larger reading of this same requirement — 472x157 px
+                  — where the window is comfortable. Use the button below to switch to it.
+download offered: false
+
+--- 5b. MARGINAL, half two: the SAME preset with a denser signature must SUCCEED ---
+status          : Matches these file requirements 140x60 px, 13.46 KB, within the 10-20 KB
+                  window. Still confirm on the official upload page.
+downloaded      : ssc-signature_140x60.jpg, 13778 bytes (13.46 KB)
+jpeg SOF dims   : 140x60
+
+--- 6. the larger box is comfortable: 472x157, 10-20 KB, same compact signature ---
+status          : Matches these file requirements 472x157 px, 18.69 KB
+jpeg SOF dims   : 472x157
+
+--- 9. custom requirement with a genuinely impossible window must refuse ---
+status          : Not produced. This image cannot reach 500 KB at 200x200 even at
+                  maximum quality (best achieved: 26.47 KB)...
+download offered: false
+
+=== console/page errors captured ===
+none</div>
+
+<p>
+  Steps 5 and 5b are the ones to watch. The <em>same preset</em>, with two ordinary documents,
+  refuses one and accepts the other. That is what a <code>marginal</code> requirement actually looks
+  like in practice, and it is why the interface warns before you start rather than after you have
+  spent ten minutes on the crop. A preset that always refuses would be useless; a preset that always
+  claims success is the bug this whole review is about. Both halves are asserted by the suite, so
+  neither can regress quietly.
+</p>
+
+<h3>It runs locally, with no server at all</h3>
+<p>
+  You said the tool has to work locally. That was a real problem with the first version:
+  it used ES modules, and browsers refuse to load those from a <code>file://</code> origin.
+  So the tool only ran behind a local web server — awkward on a laptop and effectively
+  impossible on a phone.
+</p>
+<p>
+  The fix is a build step that produces <strong>one self-contained file</strong>,
+  <code>dist/photo-signature-fitter.html</code>, 66&nbsp;KB with no dependencies. Double-click it
+  on Windows, or open it from Files on Android. It also works as-is on any static host.
+</p>
+
+<div class="mono-out">TEST J — single file, opened from file:// with NO web server
+
+--- 1. does it even boot without a server? ---
+title            : Photo & Signature Fitter
+presets populated: 13
+module refs left : []          (nothing outside the file — manifest and icon are inlined)
+
+--- 3c. the declaration must match the official PDF wording exactly ---
+declaration shown: true
+  ok   the wording matches the official PDF verbatim
+
+--- 5a. MARGINAL half one: a dense signature at 140x60 must SUCCEED ---
+status           : Matches these file requirements 140x60 px, 13.46 KB
+downloaded       : ssc-signature_140x60.jpg 13778 bytes
+jpeg SOF dims    : 140x60
+  ok   the artefact is 140x60, read from its own SOF marker
+
+--- 5b. MARGINAL half two: a compact signature at 140x60 must REFUSE ---
+status           : Not produced. This image cannot reach 10 KB at 140x60 even at maximum
+                   quality (best achieved: 8.88 KB)...
+  ok   the refusal points at the larger box
+
+--- 5c. the larger box accepts what the official box refused ---
+status           : Matches these file requirements 472x157 px, 18.69 KB
+jpeg SOF dims    : 472x157
+
+--- 8. "nothing is uploaded" — prove it, do not assert it ---
+total requests   : 5
+non-local reqs   : 0 (none — the page cannot leak anything)
+request kinds    : file
+
+=== errors ===
+none
+all assertions passed</div>
+
+<p>
+  That last check matters for the claim you will make in the video. &ldquo;Nothing is
+  uploaded&rdquo; is easy to say and easy to disprove. The test counts every network request
+  the page makes and asserts that none of them leaves the device. Zero external requests is a
+  claim you can defend, because it is measured, not asserted.
+</p>
+<p>
+  Two more things in there are worth noticing. The declaration text is compared against a copy
+  <em>typed independently from the PDF</em>, not imported from the app &mdash; a test that imports
+  the value it is checking proves nothing. And the downloaded file's dimensions come from its own
+  JPEG header, not from the tool's own report. A tool that grades its own homework is not evidence.
+</p>
+
+<h3>Mobile and desktop</h3>
+<p>
+  A seven-viewport sweep checks for horizontal overflow — the most common mobile layout failure.
+  Touch targets are a separate question, and they needed a separate sweep, for a reason worth
+  stating: the CSS raises buttons to 44&nbsp;px under
+  <code>@media (max-width: 480px), (pointer: coarse)</code>, and the layout sweep runs a
+  <em>fine</em> pointer. It therefore only ever exercised the narrow-width half of that rule and
+  never the coarse-pointer half — while a real phone in landscape is 844&nbsp;px wide, wider than
+  the 480&nbsp;px breakpoint, so it depends on the coarse half alone. The layout sweep alone could
+  not have caught a broken touch rule.
+</p>
+
+<div class="mono-out">--- 6. layout overflow (FINE pointer — a mouse does not need 44px) ---
+VIEWPORT              H-OVERFLOW  DOC WIDTH  MIN BUTTON  LAYOUT
+narrow       360x640  no          360/360    44px        ok
+phone        390x844  no          390/390    44px        ok
+phone large  430x932  no          430/430    44px        ok
+land         844x390  no          844/844    42px        ok
+tablet       768x1024 no          768/768    42px        ok
+laptop      1366x768  no          1366/1366  42px        ok
+desktop     1920x1080 no          1920/1920  42px        ok
+  ok   no viewport produces horizontal overflow  — 0 of 7 bad
+
+--- 6b. touch targets on a COARSE pointer (emulated touch) ---
+VIEWPORT              POINTER   MIN BUTTON  VERDICT
+phone portrait        coarse    44px        ok
+phone landscape       coarse    44px        ok
+tablet                coarse    44px        ok
+wide                  coarse    44px        ok
+  ok   the emulated context really does report a coarse pointer  — otherwise vacuous
+  ok   every touch target is at least 44px on a coarse pointer  — 0 of 4 bad
+
+--- 6c. negative control: can the touch-target check actually fail? ---
+  min button with the rule: 44px   with the rule neutralised: 42px
+  ok   the touch-target check is sensitive — neutralising the rule drops it below the floor
+
+--- 7. scroll-trap check (a phone must still be able to scroll over the image) ---
+touch-action .stage    : auto
+touch-action .crop-box : none
+  ok   the stage still scrolls  — auto
+  ok   the crop box does not scroll while dragging  — none</div>
+
+<p>
+  Three of those lines are fixes, not features. The first version put
+  <code>touch-action: none</code> on the whole image area, so any finger landing on the photo
+  stopped the page scrolling — a genuine trap on a phone. The buttons came out at
+  38&nbsp;px, under the 44&nbsp;px that Apple and Google both recommend for touch.
+</p>
+<p>
+  The third fix is the interesting one, and it was found by re-reading the evidence rather than
+  the code. The table in this report used to show a row reading
+  <code>phone land 844x390 &hellip; 42px ok</code>, and the prose claimed the touch-target minimum
+  was &ldquo;asserted by a test&rdquo;. Both were wrong. The value was <em>printed</em>, never
+  asserted — the only assertion was for overflow — and that 42&nbsp;px row was labelled a phone
+  while actually measuring the desktop branch in a fine-pointer context. So the coarse-pointer
+  rule was untested, and the report said it was tested. The fix is 6b and 6c above: a real
+  coarse-pointer context, an assertion that the context <em>is</em> coarse (otherwise the check is
+  vacuous), a 44&nbsp;px floor at four widths including landscape, and a negative control that
+  neutralises the CSS and confirms the measurement drops to 42&nbsp;px. That last number is why
+  this needed asserting: the rule only does <strong>2&nbsp;px</strong> of work, so a regression in
+  it is invisible to inspection.
+</p>
+
+<h3>Two claims that were true, and still had to be tested</h3>
+<p>
+  The touch-target finding prompted a sweep of this whole report for claims that no measurement
+  backed. Two more turned up — and both were <em>true</em>, which is the awkward part. A claim that
+  happens to be right today is still not evidence, and both of these would have gone on being right
+  by luck until somebody changed a line.
+</p>
+<p>
+  <strong>The CSP was declared, but never exercised.</strong> <code>server.mjs</code> carries a
+  comment saying the policy &ldquo;must stay identical to the <code>[[headers]]</code> block in
+  <code>netlify.toml</code>&rdquo;. A comment is not a check: the two could drift and every suite
+  would still pass, under headers the real deployment never sends. And a
+  <code>Content-Security-Policy</code> that is present but malformed blocks nothing while looking
+  exactly like protection. Both are now asserted — directive-by-directive parity with the deployed
+  policy, and a live proof that the policy bites:
+</p>
+
+<div class="mono-out">--- 12. the CSP is real: it matches the deployment, and it is enforced ---
+  ok   netlify.toml declares a Content-Security-Policy
+  ok   the served policy and the deployed policy carry the same directives  — 9 directives, identical
+  ok   the response actually carries the CSP header
+  ok   the header is byte-identical to the policy under test  — identical
+  ok   connect-src 'none' blocks a same-origin fetch  — blocked
+  ok   default-src 'none' blocks a cross-origin script  — blocked
+  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed</div>
+
+<p>
+  That middle pair matters most. <code>connect-src 'none'</code> is what makes the
+  &ldquo;nothing is uploaded&rdquo; promise <em>structural</em> rather than a claim about the code:
+  it blocks even a same-origin <code>fetch</code>, so the page could not send a photo anywhere even
+  if it tried to. The suite now proves the block happens, rather than proving the header is present.
+</p>
+<p>
+  <strong>EXIF orientation was handled, but never tested.</strong> <code>app.js</code> calls
+  <code>createImageBitmap(file, { imageOrientation: 'from-image' })</code>, and its comment calls
+  this &ldquo;the single most common cause of &lsquo;my photo came out sideways&rsquo; on
+  phones&rdquo;. Every fixture in the suite was upright, so the path was never exercised — for a
+  mobile-first tool aimed at people photographing a signature, that is the one case most likely to
+  bite. It now runs with a fixture that really carries an <code>Orientation=6</code> tag, against an
+  untagged control:
+</p>
+
+<div class="mono-out">--- 13. EXIF orientation: a portrait phone photo must not come out sideways ---
+  ok   the fixture really carries Orientation=6  — read back 6
+  Orientation=1 (control) : 4032x3024
+  Orientation=6 (rotated) : 3024x4032
+  ok   the control reports a landscape frame  — 4032x3024
+  ok   the rotated file reports a PORTRAIT frame, so the tag was applied
+  fit status              : Matches these file requirements 240x240 px, 31.21 KB, within the 20-50 KB window.
+  ok   the rotated photo still fits the 240x240 / 20-50 KB preset
+  ok   ssc-photo disables the fit button, because the portal needs a live capture</div>
+
+<p>
+  The control is the whole point: without it, a portrait result could have come from the fixture
+  rather than from the tag. And one detail is worth recording precisely because it is
+  counter-intuitive — in the Chrome tested, <code>imageOrientation: 'none'</code> did <em>not</em>
+  disable the rotation. All three decode paths (<code>&lt;img&gt;</code>, <code>from-image</code>,
+  <code>none</code>) returned the same swapped dimensions, so the option is inert here and the tool
+  would be correct without it. The comment credits the option for behaviour the browser is supplying
+  anyway. That matters before someone deletes the line and assumes the bug comes back.
+</p>
+<p>
+  The last assertion came free with the same sweep. The live-capture <em>warning</em> was tested;
+  whether the fit button is actually <em>disabled</em> for that preset was not — and a warning that
+  does not block is decoration. A photograph is exactly the file a candidate would try to upload
+  there, so the tool now has to prove it refuses.
+</p>
+
+<h3>A defect in the tool, not in the tests &mdash; a promise it could not keep</h3>
+<p>
+  Everything else in this section was a problem with the <em>evidence</em>. This one is a problem
+  with the tool, and it is the kind that costs a viewer. The upload box said:
+</p>
+<div class="mono-out">JPEG, PNG or HEIC. A photo straight from the phone camera is fine.</div>
+<p>
+  Chrome cannot decode HEIC. Neither can Firefox or Edge. Only Safari can. So the tool was inviting
+  the single most likely file an iPhone user has &mdash; a photo straight from the camera roll &mdash;
+  and then failing to open it. The error underneath even contradicted the promise: &ldquo;Some phones
+  save HEIC files that older browsers cannot read&rdquo;, which reads as a browser-<em>age</em>
+  problem and implies a newer browser would work. It would not, in any Chromium browser.
+</p>
+<p>
+  None of these paths had a test, so I measured all three before changing a word:
+</p>
+<div class="mono-out">--- 14. input formats: PNG works, and every failure explains itself ---
+  PNG      : accepted | format_probe.png — 800x900 px, 24 KB.
+  ok   a real PNG is accepted
+  corrupt  : rejected | That file could not be opened...
+  ok   a truncated JPEG is rejected
+  ok   the rejection names the formats that DO work
+  HEIC     : rejected | That file could not be opened...
+  ok   a HEIC file is rejected rather than silently mangled
+  ok   the HEIC rejection says what to do about it
+  hint     : JPEG or PNG. iPhone photos are usually HEIC — convert to JPEG first.
+  ok   the hint does not advertise HEIC as an accepted format
+  ok   the hint names the formats that actually work</div>
+<p>
+  PNG genuinely works, and a corrupt file was already handled well. Only the promise was wrong. The
+  copy now names the two formats that work and tells an iPhone user what to do, instead of leaving
+  them to guess. The last two assertions are a wording guard, so the sentence cannot drift back.
+</p>
+<p>
+  That step also exposed something smaller but real: the app logged the decode failure with
+  <code>console.error</code>. A file the browser cannot read is an <em>expected input</em>, not an
+  application error &mdash; and logging it as one made &ldquo;the console is clean&rdquo; impossible
+  to test, while telling anyone who opened devtools that something was broken when nothing was. It is
+  a <code>console.warn</code> now.
+</p>
+
+<h3>Three more ways the harness itself could fail</h3>
+<p>
+  Fixing the flakiness turned out to be the largest single piece of work in this section, because a
+  suite that fails on correct code is worse than one that passes on broken code &mdash; it teaches you
+  to ignore the result. Three separate bugs, all in the <em>waiting</em>, all found by re-running
+  rather than by reading:
+</p>
+<ol>
+  <li>
+    <strong>A fixed sleep read the status mid-fit</strong> and captured
+    <em>&ldquo;Fitting... Measuring candidate qualities.&rdquo;</em> &mdash; the app's own
+    in-progress message &mdash; and treated it as the verdict.
+  </li>
+  <li>
+    <strong>A stale verdict could be returned.</strong>
+    <code>waitForSelector('#report:not([hidden]), #status.bad')</code> matches <em>instantly</em> if
+    an earlier step already left the status on <code>bad</code>, so an assertion could be reading the
+    previous click's result.
+  </li>
+  <li>
+    <strong>Comparing the status text before and after a click is not reliable either.</strong> Two
+    consecutive fits can legitimately produce identical text &mdash; same preset, same document
+    &mdash; so &ldquo;has it changed?&rdquo; never becomes true. Sampling the baseline <em>after</em>
+    the click is worse still: it compares the new verdict against itself, and the wait can never end.
+  </li>
+</ol>
+<p>
+  The fix is not a longer timeout. It is a <strong>write counter</strong>: a
+  <code>MutationObserver</code> installed at document-start counts every write to the status element,
+  so &ldquo;the fit finished&rdquo; is detected as <em>a new write, followed by a terminal state</em>,
+  regardless of what the text says. The click happens inside the helper, so the baseline can never be
+  sampled at the wrong moment.
+</p>
+<div class="mono-out">phase 1 — showStatus() has been called at least once since the click
+phase 2 — the status is terminal: kind is 'ok' or 'bad'</div>
+<p>
+  File loads were the same bug in a different coat. Detecting completion by &ldquo;the file-info text
+  changed&rdquo; fails when two steps load the <em>same</em> fixture &mdash; which is exactly what
+  steps&nbsp;6 and&nbsp;7 do. They now match on the file name and a width&times;height pair, which
+  cannot be satisfied by the wrong file and cannot hang on the right one.
+</p>
+<p>
+  Two smaller gaps fell out of the same sweep. This suite <em>printed</em> the captured console errors
+  and never asserted on them &mdash; the same &ldquo;printed is not asserted&rdquo; gap found earlier
+  in the responsive sweep &mdash; so a clean console is now an assertion, and it still passes after
+  deliberately feeding the app files it cannot decode. And the fixture writer no longer deletes
+  anything at all, ever: overwrite in place. Leftovers from an earlier sweep are inert, and every
+  count quoted in this report comes from the intended set rather than from a directory scan, so a
+  leftover can never inflate a claim.
+</p>
+
+<h3>Three findings from the research, and one mistake of mine</h3>
+<p>
+  You then supplied the actual SSC guideline PDF. Until that arrived, every SSC number in this
+  report came from your own research notes, and I had flagged them as unverified. With the document
+  in hand the registry could be checked rather than guessed, and three things changed. One of them
+  was a mistake of mine, which is the part worth reading.
+</p>
+
+<table>
+  <thead><tr><th>Document</th><th>Pixel box</th><th>Printed size</th><th>Size window</th><th>Format</th></tr></thead>
+  <tbody>
+    <tr><td>Photograph</td><td>200 &times; 230 (preferred)</td><td>4.5 &times; 3.5 cm</td><td>20&ndash;50 KB</td><td>JPG/JPEG</td></tr>
+    <tr><td>Signature</td><td>140 &times; 60 (preferred)</td><td><em>not stated</em></td><td>10&ndash;20 KB</td><td>JPG/JPEG</td></tr>
+    <tr><td>Left thumb impression</td><td>240 &times; 240 @ 200 dpi</td><td>3 &times; 3 cm</td><td>20&ndash;50 KB</td><td>jpg/jpeg</td></tr>
+    <tr><td>Handwritten declaration</td><td>800 &times; 400 @ 200 dpi</td><td>10 &times; 5 cm</td><td>50&ndash;100 KB</td><td>jpg/jpeg</td></tr>
+    <tr><td>10th standard certificate</td><td colspan="2">A4 page</td><td>&le; 500 KB</td><td><strong>PDF</strong></td></tr>
+    <tr><td>Live photograph</td><td colspan="3">webcam capture on the portal, or the MySSC app — no upload</td><td>&mdash;</td></tr>
+  </tbody>
+</table>
+
+<h3>Finding 1 &mdash; the official signature box cannot hold the official size window</h3>
+<p>
+  This is the most useful thing in the report, and it is not a code finding. The document says the
+  signature is <strong>140&nbsp;&times;&nbsp;60&nbsp;pixels</strong> and <strong>10&ndash;20&nbsp;KB</strong>.
+  Those two numbers contradict each other, and the tool can now prove it.
+</p>
+<p>
+  140&nbsp;&times;&nbsp;60 is 8,400 pixels. A 10&nbsp;KB floor therefore demands
+  <strong>1.22 bytes per pixel</strong> from a file that is mostly blank white paper. Measured in
+  real Chrome, over 28 realistic signatures:
+</p>
+
+<div class="mono-out">SPEC                  BOX        WINDOW      q1.0 OVER THE SWEEP   PASS    DECLARED     MEASURED     RESULT
+ssc-signature         140x60     10-20KB     6.1-13.4KB            7/28    marginal     marginal     ok
+ssc-signature-large   472x157    10-20KB     13.4-69.9KB           28/28   comfortable  comfortable  ok
+ssc-lti               240x240    20-50KB     26.2-34.7KB           7/7     comfortable  comfortable  ok
+ssc-declaration       800x400    50-100KB    180.8-323.5KB         7/7     comfortable  comfortable  ok
+
+THE HEADLINE: the official SSC signature box against the official size window
+  Official pixel box        : 140 x 60 px = 8400 pixels
+  Official window           : 10-20 KB
+  Floor demands             : 1.22 bytes per pixel
+  Best achievable, measured : 6.13 - 13.41 KB across 28 inputs
+  Inputs that fall short    : 21 of 28
+  Measured verdict          : marginal</div>
+
+<p>
+  So the practical risk for an SSC signature is being <strong>under</strong> 10&nbsp;KB, not over
+  20&nbsp;KB. Every &ldquo;reduce your file size&rdquo; tutorial on the subject has it backwards, and
+  the candidates who fail this upload are failing for the opposite reason to the one they are being
+  told to worry about.
+</p>
+<p>
+  The sweep has two axes, and the second one is what settles it. Scan noise alone is not enough:
+  across seven noise levels the box never reached the floor. Adding <em>ink density</em> changed the
+  answer. A large, elaborate signature reaches about <strong>13.4&nbsp;KB</strong> and passes; a
+  compact one on clean paper reaches about <strong>8.8&nbsp;KB</strong> and fails. The deciding factor
+  is how much ink is on the page.
+</p>
+
+<div class="mono-out">CAN A DENSE SIGNATURE REACH 10 KB AT 140x60?
+
+            density 1    density 2    density 4    density 6
+grain 0        8.84 KB     13.10 KB      8.89 KB      6.26 KB
+grain 16       8.91 KB     13.25 KB      9.03 KB      6.38 KB
+grain 32       9.24 KB     13.41 KB      9.16 KB      6.51 KB
+
+best achievable anywhere in the grid : 13.41 KB  (ratio 1.341x the floor)
+cells at or above the 10 KB floor    : 3 of 12
+VERDICT: MARGINAL — input-dependent.</div>
+
+<p>
+  Note the shape of that table, because it is counter-intuitive and it is real: <em>more</em> ink
+  makes the file <em>smaller</em> past a point. At density 4 and 6 the strokes merge into solid dark
+  masses, and large flat areas compress well. The worst case for compression is the middle &mdash;
+  lots of edge, no solid fill &mdash; which is exactly what a busy signature looks like.
+</p>
+
+<h3>Finding 2 &mdash; two of the numbers were wrong, and three documents were missing</h3>
+<table>
+  <thead><tr><th>Entry</th><th>What the registry said</th><th>What the document says</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td>SSC signature</td><td>315&nbsp;&times;&nbsp;157 and 472&nbsp;&times;&nbsp;236</td><td><strong>140&nbsp;&times;&nbsp;60</strong></td><td>corrected</td></tr>
+    <tr><td>SSC photograph</td><td>500&nbsp;&times;&nbsp;600</td><td><strong>200&nbsp;&times;&nbsp;230</strong></td><td>corrected</td></tr>
+    <tr><td>SSC thumb impression</td><td><em>absent</em></td><td>240&nbsp;&times;&nbsp;240 @ 200 dpi</td><td>added</td></tr>
+    <tr><td>SSC declaration</td><td><em>absent</em></td><td>800&nbsp;&times;&nbsp;400 @ 200 dpi, 50&ndash;100 KB</td><td>added</td></tr>
+    <tr><td>SSC 10th certificate</td><td><em>absent</em></td><td>A4 PDF, &le; 500 KB</td><td>added</td></tr>
+    <tr><td>SSC live photograph</td><td><em>absent</em></td><td>live webcam capture only</td><td>added, and it refuses</td></tr>
+  </tbody>
+</table>
+<p>
+  The tool was sizing signatures for the wrong box. Had this shipped, every viewer would have
+  produced a file the portal rejects &mdash; which is precisely the failure you saw with the first
+  version, arrived at from a different direction.
+</p>
+
+<h3>Finding 3 &mdash; the portal enforces size and format, not dimensions</h3>
+<p>
+  The document is explicit: an error appears when <em>&ldquo;the file size and format are not as
+  prescribed&rdquo;</em>. It says nothing about pixels being validated, and both pixel figures in it
+  carry the word <strong>&ldquo;(preferred)&rdquo;</strong>. That is why the tool now offers a
+  larger documented box rather than treating a tight box as final: if 140&nbsp;&times;&nbsp;60 cannot
+  hold 10&nbsp;KB, a larger box that does is the way out, and the document does not forbid it.
+</p>
+
+<h3>My mistake &mdash; I first told you the pixel box was &ldquo;guidance&rdquo;</h3>
+<div class="callout bad">
+  <b>Correcting my own earlier claim</b>
+  Before this document arrived I concluded, from the &ldquo;preferred&rdquo; wording, that the pixel
+  box was advisory and that only size and format were enforced. That conclusion was too generous, and
+  it was reached without measurement. The honest position is narrower and more useful: the
+  <em>portal</em> checks size and format, but the <em>box</em> is what makes the size window
+  achievable or not, and at 140&nbsp;&times;&nbsp;60 the window is not reliably achievable at all.
+  Treating the box as mere guidance would have hidden the one finding that actually matters to a
+  candidate.
+</div>
+<p>
+  This is the second time in this project that a claim of mine was directionally reasonable and
+  factually wrong, and both times the fix was the same: measure it, then let the measurement decide.
+  Which brings us to the bigger version of the same mistake.
+</p>
+
+<h3>How I found out my own measurement was wrong</h3>
+<p>
+  The feasibility verdicts used to be produced by a Node re-implementation of the browser's
+  resize-and-encode pipeline. That model said the 140&nbsp;&times;&nbsp;60 box reached
+  <strong>10.22&nbsp;KB</strong> &mdash; just over the floor &mdash; so it called the box
+  &ldquo;marginal&rdquo; and expected the tool to pass. The shipped tool, given the same document,
+  produced 8.88&nbsp;KB and refused.
+</p>
+<p>
+  The two paths differ in exactly two places, so I closed one at a time and measured the difference:
+</p>
+<div class="mono-out">WHERE DOES THE 1.45 KB GO?  target box 140x60, floor 10.00 KB
+
+fixture grain   step1 (raw -> box)   step2 (+ JPEG round trip)   step3 (+ resample blur)
+12              10.23 KB               9.19 KB                     6.91 KB
+mean            10.14 KB               9.30 KB                     7.02 KB
+
+  JPEG round-trip explains : 0.84 KB of the gap
+  extra resample smoothing : 0.42 KB of the gap
+  browser ground truth     : 8.88 KB (measured in Chrome, same fixture)</div>
+<p>
+  The model was optimistic by about <strong>20%</strong>. At a 10&nbsp;KB boundary that is not a
+  margin, it is the whole answer: the model says <em>passes</em>, the browser says <em>refuses</em>.
+  So the model lost its vote. Every feasibility claim is now measured in real Chrome, through the
+  real <code>core.js</code>, with fixtures that go through JPEG exactly as a viewer's file does. The
+  model is still run, in <code>check_specs.mjs</code> PART&nbsp;4, purely so its error stays visible
+  and cannot creep back in.
+</p>
+<div class="callout warn">
+  <b>Why this is the same mistake as the original bug</b>
+  The old build announced success without checking the artefact. My model announced a passing size
+  without running the encoder that produces it. Both are a claim standing in for a measurement. The
+  distance between them is only the size of the error &mdash; and at a boundary, an error of any size
+  flips the answer.
+</div>
+
+<h3>The chain can now fail, which is what makes it worth trusting</h3>
+<p>
+  A test that only ever passes proves nothing, so the registry is now fed deliberately wrong entries
+  and the suite must object. Ten mutations, all caught:
+</p>
+<div class="mono-out">STATIC RULES (registry_guard.mjs, enforced by the build)
+  ok    the original bug: a 140x60 box with a 10 KB floor marked "comfortable"
+        caught: needs 1.22 bytes/px to reach its 10 KB floor at 140x60 — at the JPEG limit
+  ok    a feasibility claim with the evidence deleted
+  ok    a marginal claim with no statement of which inputs fail
+  ok    a comfortable claim carrying a riskNote it cannot have
+  ok    a dead end: unreachable with no alternative and no explanation
+  ok    a VERIFIED entry with its source stripped
+  ok    preferLarger pointing at a requirement that does not exist
+
+MEASURED RULES (check_specs.mjs, enforced by the browser)
+These mutations satisfy every static rule. Only measurement can find them.
+  ok    a comfortable box declared "marginal", fully documented and plausible
+        caught: declared marginal, browser measured comfortable (26.2-34.7 KB, 7/7 pass);
+                static rules stayed silent
+  ok    a comfortable box declared "unreachable", with a stated reason
+        caught: declared unreachable, browser measured comfortable (180.8-323.5 KB, 7/7 pass);
+                static rules stayed silent
+  ok    a genuinely marginal box declared "comfortable"
+        caught: declared comfortable, browser measured marginal (6.1-13.4 KB, 7/28 pass);
+                static rules also fired 1
+
+  mutations caught: 10    mutations missed: 0</div>
+<p>
+  The two middle cases are the point. They are <em>well-formed</em> entries &mdash; plausible
+  feasibility, a risk note, an alternative box, a declared sweep &mdash; that pass every static rule
+  while telling the viewer something untrue. Only measurement finds them. That is why the browser is
+  the authority and the static guard is not.
+</p>
+
+<h3>Two flaws I found in my own verification</h3>
+<p>
+  Worth recording, because both are the same class of mistake as the one being reviewed.
+</p>
+<p>
+  <strong>The smaller one: an unrealistic fixture.</strong> My first synthetic
+  &ldquo;photograph&rdquo; was a smooth gradient with fine noise. When it was reduced from
+  4032&nbsp;&times;&nbsp;3024 to 200&nbsp;&times;&nbsp;230, the box filter averaged the noise away and
+  left a near-flat image that compressed to a few KB — so the fixture refused requirements that a
+  real photograph would pass. Real photographs keep detail when reduced, because a scene carries
+  structure at every scale and sharp edges stay sharp. The fixture now models that: a face with eyes,
+  brows and a mouth, a collar, plus texture at scales that survive reduction.
+</p>
+<p>
+  <strong>The larger one: a fixture that answered only half the question.</strong> The signature
+  sweep originally varied scan noise and nothing else. Across seven noise levels the 140&nbsp;&times;&nbsp;60
+  box never reached 10&nbsp;KB, so the first honest reading was &ldquo;unreachable&rdquo; &mdash; and
+  I nearly shipped that. It was wrong. Noise is only one axis of real variation; <em>ink density</em>
+  is the other, and it is the one that decides the answer. An elaborate signature reaches
+  13.4&nbsp;KB and passes. One axis would have produced a confident, wrong verdict on the single most
+  important preset in the tool.
+</p>
+<p>
+  There is also a shared <code>fixtures.mjs</code> now, because the suites previously seeded their
+  generators at module scope — so adding a preset changed the images and changed the numbers.
+  Evidence that is not reproducible is not evidence.
+</p>
+
+<details>
+  <summary>Defects I found in my own drafts, and fixed</summary>
+  <p>Worth recording, because it shows the process working. Every one of these was caught by a test, not by reading:</p>
+  <ul>
+    <li>
+      <strong>A CSS bug that silently broke the <code>hidden</code> attribute.</strong> The custom-fields
+      block is a <code>&lt;fieldset&gt;</code> with <code>class="grid4"</code>. Because
+      <code>.grid4 { display: grid }</code> outranks the browser's built-in
+      <code>[hidden] { display: none }</code>, setting <code>hidden</code> did nothing and the custom
+      inputs showed on every preset. Fixed with an explicit <code>[hidden] { display: none !important }</code>.
+      A classic, and exactly the class of bug that only a test catches.
+    </li>
+    <li>
+      <strong>A residual stretch from rounding the crop to whole pixels.</strong> Rounding the crop
+      rectangle to integers reintroduced a 0.02% aspect error when resampling. The crop is now kept as
+      exact floats and rounded only for display.
+    </li>
+    <li>
+      <strong>A stale result banner.</strong> Changing the requirement left the previous
+      &ldquo;matches these requirements&rdquo; message on screen next to a different spec. Changing the
+      spec now clears the result.
+    </li>
+    <li>
+      <strong>A scroll trap on phones.</strong> I had put <code>touch-action: none</code> on the whole
+      image area, so any finger landing on the photo stopped the page scrolling. Only the draggable
+      frame opts out of native gestures now.
+    </li>
+    <li>
+      <strong>Touch targets below the recommended minimum.</strong> Buttons rendered at 38&nbsp;px;
+      Apple recommends 44&nbsp;pt and Google 48&nbsp;dp. Raised to 44&nbsp;px on coarse pointers and
+      narrow screens. This one then turned out to be <em>half</em> fixed: the value was printed by
+      the sweep but never asserted, and the sweep ran a fine pointer, so the coarse-pointer rule was
+      never exercised at all — while this report claimed it was. There is now a separate
+      coarse-pointer sweep with a 44&nbsp;px floor, an assertion that the context really is coarse,
+      and a negative control that proves the check can fail. See section&nbsp;09.
+    </li>
+    <li>
+      <strong>Unreproducible evidence.</strong> The suites seeded their image generators at module
+      scope, so adding a preset changed the order of calls, changed the images, and changed every
+      number. There is now one <code>fixtures.mjs</code> that reseeds explicitly per spec.
+    </li>
+    <li>
+      <strong>An unrealistic test photograph.</strong> My synthetic photo was a gradient plus noise;
+      reducing it to 200&nbsp;&times;&nbsp;230 averaged the noise away and left a near-flat image, so
+      the fixture refused requirements a real photo would pass. It now models structure at multiple
+      scales, including sharp facial features, because sharp edges are what survive reduction.
+    </li>
+    <li>
+      <strong>A misnamed field that would have become a lie.</strong> The registry flagged tight
+      boxes with a field called <code>cleanScanRisk</code>, meaning &ldquo;a very clean scan falls
+      under the minimum&rdquo;. Measurement showed the real driver is <em>ink density</em>, not scan
+      cleanliness. The field is now <code>riskNote</code>, and the guard refuses a
+      <code>marginal</code> entry that does not say which inputs actually fail.
+    </li>
+    <li>
+      <strong>A field that hid the evidence.</strong> Each entry declared a single
+      <code>fixture</code>. One image cannot separate &ldquo;marginal&rdquo; from
+      &ldquo;comfortable&rdquo;, because input variation is the entire question. It is now
+      <code>measuredOver</code> — a declared grid of scan noise and ink density — and the guard
+      refuses an entry whose feasibility has no sweep behind it.
+    </li>
+    <li>
+      <strong>Two suites that could not fail.</strong> <code>test_old_algorithm.mjs</code> and
+      <code>test_verifier.mjs</code> printed observations and always exited 0, so the runner reported
+      PASS no matter what they found. Both now assert, and their assertions are deliberately
+      <em>inverted</em>: they fail if the old defects ever stop reproducing, because that would mean
+      the reproduction had drifted and the evidence in this report is stale.
+    </li>
+    <li>
+      <strong>A test that was measuring the wrong thing.</strong> The old-encode-cost check counted
+      encodes and claimed the old algorithm did more work. It does not &mdash; it does exactly 10,
+      fewer than the corrected search's worst case. The cost is in the <em>pixels</em>: a
+      25.9-megapixel canvas encoded ten times. Corrected to measure what actually matters, the
+      finding became 51&times; instead of a wrong claim about a count.
+    </li>
+    <li>
+      <strong>A helper named <code>process</code>, which shadowed Node's global.</strong> Calling
+      <code>process.exit()</code> then threw <code>TypeError: process.exit is not a function</code>,
+      so the suite crashed instead of reporting. It happened to exit non-zero, which looked like a
+      normal failure — the worst kind of bug, because it is invisible in a green run.
+    </li>
+    <li>
+      <strong>Three bugs in my own test harness</strong> — I waited for a download before clicking the
+      download button; my first &ldquo;impossible window&rdquo; case was actually possible
+      (1600&nbsp;&times;&nbsp;1200 at 400&ndash;450&nbsp;KB is easily achieved); and my first verdict
+      logic for the IBPS readings sampled a single quality instead of searching. A test that cannot
+      fail proves nothing.
+    </li>
+  </ul>
+</details>
+<!-- ===================================================== 10 THE OFFICIAL DOCUMENT -->
+<h2 id="official"><span class="n">10</span>The official document, and what it changed</h2>
+
+<p>
+  The section above is the evidence. This section is what it means for the tool you are about to
+  put in a video description.
+</p>
+
+<h3>What changed in the registry</h3>
+<table>
+  <thead><tr><th>Entry</th><th>Before the PDF</th><th>After</th><th>Status now</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>SSC signature</td>
+      <td>315&nbsp;&times;&nbsp;157 @200dpi, 472&nbsp;&times;&nbsp;236 @300dpi</td>
+      <td><strong>140&nbsp;&times;&nbsp;60</strong>, 10&ndash;20&nbsp;KB</td>
+      <td>VERIFIED, measured <em>marginal</em></td>
+    </tr>
+    <tr>
+      <td>SSC photograph</td>
+      <td>500&nbsp;&times;&nbsp;600</td>
+      <td><strong>200&nbsp;&times;&nbsp;230</strong>, 20&ndash;50&nbsp;KB</td>
+      <td>VERIFIED, but live-capture only</td>
+    </tr>
+    <tr><td>SSC thumb impression</td><td>&mdash;</td><td>240&nbsp;&times;&nbsp;240 @200dpi</td><td>VERIFIED</td></tr>
+    <tr><td>SSC declaration</td><td>&mdash;</td><td>800&nbsp;&times;&nbsp;400 @200dpi, 50&ndash;100&nbsp;KB</td><td>VERIFIED, text shown verbatim</td></tr>
+    <tr><td>SSC 10th certificate</td><td>&mdash;</td><td>A4 PDF, &le;&nbsp;500&nbsp;KB</td><td>added; PDF path not built yet</td></tr>
+    <tr><td>IBPS / UPSC entries</td><td>secondary notes</td><td>unchanged</td><td>still UNVERIFIED, labelled as such</td></tr>
+  </tbody>
+</table>
+<p>
+  The signature and photograph entries had the wrong dimensions. Everything else in the SSC group
+  was missing entirely. Had this shipped as it stood, the tool would have produced files that the
+  portal rejects &mdash; the same outcome as the build you asked me to review, reached by a
+  different route.
+</p>
+
+<h3>What to say in the video, and what not to</h3>
+<div class="callout ok">
+  <b>The strongest true thing you can tell your audience</b>
+  &ldquo;The SSC signature requirement is 140&nbsp;&times;&nbsp;60 pixels and 10&ndash;20&nbsp;KB.
+  Those two numbers fight each other, and here is the measurement.&rdquo; That is a specific,
+  checkable, counter-intuitive claim that almost nobody else is making, and it is true. It also
+  gives the video a reason to exist beyond &ldquo;download my tool&rdquo;.
+</div>
+<div class="callout warn">
+  <b>Do not say the pixel box is &ldquo;just guidance&rdquo;</b>
+  I said that earlier in this project and it was wrong. The portal checks size and format; the box
+  determines whether the window is reachable. Those are different claims and only the second one is
+  useful to a candidate.
+</div>
+
+<h3>What is still unverified, and how to close it</h3>
+<p>
+  Four things remain open, and each one is a twenty-minute job on the live portal:
+</p>
+<ol>
+  <li>Does the SSC upload screen actually reject a 140&nbsp;&times;&nbsp;60 signature at 9&nbsp;KB, or does it accept it? The document says it should reject. Confirming this turns the headline finding from <em>documented</em> into <em>observed</em>.</li>
+  <li>Does the upload editor force the crop to 140&nbsp;&times;&nbsp;60, or accept a larger box? This decides whether the 472&nbsp;&times;&nbsp;157 preset is a legitimate route or a dead end.</li>
+  <li>For IBPS, which figure is real &mdash; 4.5&nbsp;&times;&nbsp;3.5&nbsp;cm or 200&nbsp;&times;&nbsp;230&nbsp;px? They contradict each other, and the notes carry no date.</li>
+  <li>Does the declaration preset need the name filled in by hand before scanning, or does the portal expect the blank line? The tool shows the text verbatim from the PDF, including the blank.</li>
+</ol>
+
+<!-- ===================================================== 10 PLAN -->
+<h2 id="plan"><span class="n">11</span>Prioritised plan</h2>
+
+<div class="callout ok">
+  <b>Already done, so it is not on your list</b>
+  Deep links per preset (<code>?preset=ssc-signature</code>) so a video description opens the
+  right tool directly. The channel layer that was entirely missing before: subscribe button,
+  WhatsApp and Telegram share, and a walkthrough link that stays hidden until you set the URL in
+  <code>config.js</code>. A single-file build that runs with no server. A tested deployment policy.
+  A measured feasibility for every requirement, with a guard that fails the build if a claim drifts
+  from its evidence. And a one-command test runner, so you can re-check all of it yourself.
+</div>
+
+<h3>Now — before the next video</h3>
+<ol>
+  <li>
+    <strong>Pick one requirement.</strong> The SSC signature is still the strongest candidate &mdash;
+    and the research is now done. You have the official document, the correct pixel box, a measured
+    explanation of why the window is tight, and a second documented box that works. That is a video
+    that does not exist anywhere else.
+  </li>
+  <li>
+    <strong>Spend twenty minutes on the live portal.</strong> One question decides the framing of the
+    whole video: does the upload screen reject a 140&nbsp;&times;&nbsp;60 signature that weighs
+    9&nbsp;KB? The document says it should. Watching it happen turns a documented finding into an
+    observed one, and observed is what makes a claim unarguable.
+  </li>
+  <li>
+    <strong>Open the tool on your own phone.</strong> Copy
+    <code>dist/photo-signature-fitter.html</code> to the phone and open it. No server, no install.
+    Then try two signatures &mdash; a small one and a large one &mdash; and watch the same preset
+    refuse one and accept the other. That is the behaviour to show on camera, and you should see it
+    yourself before you describe it.
+  </li>
+  <li>
+    <strong>Then test it the way a viewer will</strong> &mdash; over real mobile data, following a
+    link from a YouTube description. Everything verified so far is desktop Chrome and a local
+    <code>file://</code>.
+  </li>
+</ol>
+<h3>Then — publish</h3>
+<ol>
+  <li>
+    <strong>Deploy.</strong> Either drag <code>reference-tool/</code> onto Netlify (the
+    <code>netlify.toml</code> already sets the tested headers), or host the single HTML file anywhere.
+    Both are free and need no build step.
+  </li>
+  <li>
+    <strong>Set <code>CHANNEL.walkthroughUrl</code> in <code>js/config.js</code></strong> once the
+    video exists, and rebuild. The link appears automatically.
+  </li>
+  <li>
+    <strong>Use the deep links in the description.</strong> <code>?preset=ssc-signature</code> opens
+    the official box directly; <code>?preset=ssc-signature-large</code> opens the fallback. Two links,
+    no instructions needed.
+  </li>
+  <li>
+    <strong>Record the honest failure case.</strong> Show the compact signature being refused, with
+    the message explaining that the file cannot reach 10&nbsp;KB &mdash; then show the same document
+    succeeding in the larger box. A tool that explains its own limits is more convincing than one that
+    never fails, and here the failure <em>is</em> the finding.
+  </li>
+</ol>
+<h3>Later — one tool per video, never before</h3>
+<ol>
+  <li>
+    <strong>Photo fitter</strong> (same core, different presets). Cheap, because the hard part is done.
+  </li>
+  <li>
+    <strong>Photo-to-PDF for certificates.</strong> Uses a real PDF library, not hand-rolled bytes.
+    Note: converting an <em>existing</em> PDF and compressing it is a different and much harder job —
+    offer only photos-to-PDF at first.
+  </li>
+  <li>
+    <strong>Signature paper cleanup.</strong> Ordinary image processing — correct the lighting, then
+    adaptive thresholding to separate ink from paper. Needs a preview, because aggressive cleanup
+    erases faint strokes. No AI required.
+  </li>
+  <li>
+    <strong>Link destination checker.</strong> Reframed as disclosure, per &sect;05 Fix 4. A real
+    threat-list lookup needs a server or a third-party API, which breaks the client-side-only rule —
+    decide that trade-off deliberately rather than by accident.
+  </li>
+  <li>
+    <strong>Portrait background removal.</strong> Only with a genuine trained segmentation model.
+    This is a real project: model choice, download size, phone performance and licensing all need
+    evaluation first. Treat it as separate work, not a feature.
+  </li>
+</ol>
+
+<div class="callout warn">
+  <b>What to leave out entirely</b>
+  Generic &ldquo;AI enhancement&rdquo; in government-document preparation. The objective is to preserve
+  the original information and identity with restrained, inspectable corrections. Generative
+  alteration of an identity document is both technically risky and ethically wrong, and it is the
+  fastest way to get a tool banned from the audience you are trying to earn.
+</div>
+
+<hr>
+
+<h2>Summary</h2>
+<p>
+  Gemini's plan was not stupid and its research instinct was right. But it produced prose where code
+  was needed, treated pixel dimensions as a free variable, and announced success without checking
+  anything. Those three faults explain every bad result you saw, and none of them is fixed by writing
+  a better prompt.
+</p>
+<p>
+  What fixes them is small and boring: one requirement at a time, recorded as data with its source and
+  its unknowns; an algorithm that treats dimensions as fixed and size as a window; and a rule that the
+  tool never claims success for a file it has not verified.
+</p>
+<p>
+  The corrected tool is a working example, with tests, so the pattern is available to copy rather than
+  to reinterpret. All nine suites pass, and ten deliberate defects are caught &mdash; including two
+  that only measurement can find. That last part matters more than the green ticks: a chain that
+  cannot fail is not evidence, and this one now demonstrably can.
+</p>
+<p>
+  It also runs the way you asked: one 66&nbsp;KB file, no server, on a phone or a laptop. Deep links
+  mean a video description can open the exact tool with the exact requirement already selected.
+</p>
+<p>
+  Your instinct that the result was bad was correct, and your instinct that specific functions need
+  real algorithms was correct. The review then went one step further than you asked: the research
+  turned up a requirement that is internally inconsistent, and the honest answer for that requirement
+  is not a better algorithm. It is a measurement, a warning, and a second documented option.
+</p>
+<p>
+  The next step is not more planning. It is one verified requirement, one proven tool, and one video
+  &mdash; and the single most useful thing you can do today is spend twenty minutes on the live
+  portal watching whether a 9&nbsp;KB signature is rejected.
+</p>
+<div class="foot">
+  <p>
+    <strong>Reviewed artifacts.</strong>
+    <code>C:\Users\harsh\Downloads\photo_upload_guide.pdf</code> — the official SSC
+    &ldquo;Guidelines for scanning and Upload of Documents&rdquo;, 4 pages ·
+    <code>C:\Users\harsh\.gemini\antigravity\scratch\govdocs_studio\index.html</code> (670 lines) ·
+    <code>sarkar-saathi\{index.html,app.js,style.css}</code> ·
+    <code>youtube_analytics\KICKSTART_SMART_CITIZEN_SUITE.txt</code> ·
+    <code>KICKSTART_GOVEXAM_RESIZER_APP.txt</code> ·
+    <code>gov_portals_master_research.txt</code> ·
+    <code>ssc_live_photo_signature_battle_sheet.txt</code>
+  </p>
+  <p>
+    <strong>Method.</strong> The algorithms under review were extracted and executed against real
+    JPEG data using a real encoder. Every requirement in the corrected registry is measured inside
+    real Chrome, through the real <code>core.js</code>, over the exact grid the entry declares — and
+    the declaration is asserted against that measurement, so a claim cannot silently drift from its
+    evidence. The corrected implementation was driven end-to-end in a real browser, twice: once over
+    HTTP under the production security policy, and once from <code>file://</code> with no server. In
+    both cases the downloaded artefact was re-read from disk and its dimensions confirmed from its
+    own JPEG header, not from the tool's report. No finding in this report rests on reading alone.
+  </p>
+  <p>
+    <strong>Reproduce it.</strong> One command, no setup, no server to start:
+    <code>cd _verify &amp;&amp; node run_all.mjs</code>. It exits non-zero if anything fails. The
+    captured output of the run behind this report is <code>_verify/full_run.txt</code>.
+  </p>
+  <p>
+    <strong>Note on the test harness.</strong> The suites import a JPEG encoder and
+    <code>playwright-core</code> from the managed Node workspace, by absolute path, because ES modules
+    ignore <code>NODE_PATH</code>. They drive the Chrome already installed on the machine via
+    <code>channel: 'chrome'</code>, so no browser is downloaded. If the project moves to another
+    machine, those import paths in <code>_verify/*.mjs</code> need updating.
+  </p>
+</div>
+
+</div>
+</body>
+</html>

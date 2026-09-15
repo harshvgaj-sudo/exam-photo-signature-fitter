@@ -1,0 +1,211 @@
+pages: 4
+
+======================================================================
+PAGE 1
+======================================================================
+Guidelines for scanning and Upload of Documents 
+ 
+Before applying online a candidate will be required to have a scanned (digital) image of  
+ his/her photograph 
+  signature 
+  left thumb impression 
+ hand written declaration 
+ SSC/ SSLC/ 10th standard or equivalent certificate 
+ Certificate as mentioned in Clause J (ix), - if applicable  
+  
+ as per the specifications given below. 
+ 
+Please note that until photographs and signature are as per the specifications provided, the system 
+will not allow the candidate to move forward to the next stage of application.  
+ 
+ Photograph Image: (4.5cm × 3.5cm) 
+ Photograph must be a recent passport style colour picture. 
+ Make sure that the picture is in colour, taken against a light -coloured, preferably white, 
+background. 
+ Look straight at the camera with a relaxed face 
+ If the picture is taken on a sunny day, have the sun behind you, or place yourself in the shade, 
+so that you are not squinting and there are no harsh shadows 
+ If you have to use flash, ensure there's no "red-eye" 
+ If you wear glasses make sure that there are no reflections and your eyes can be clearly seen. 
+ Caps, hats and dark glasses are not acceptable. Religious headwear is allowed but it must not 
+cover your face. 
+ Dimensions 200 x 230 pixels (preferred) 
+ Size of file should be between 20kb–50 kb 
+ Ensure that the size of the scanned image is not more than 50kb. If the size of the file is more 
+than 50 kb, then adjust the settings of the scanner such as the DPI resolution, no. of colours 
+etc., during the process of scanning. 
+ Photo uploaded should be of appropriate size and clearly visible.  
+ 
+Photograph Capture 
+ In addition to the above photograph, candidates will also be required to capture and upload their 
+live photograph either by using webcam or mobile phone.  
+ On selecting “Capture Photo” option, candidates’ webcam will be activated allowing them to 
+click their picture, which will get auto uploaded in the application form.  
+ On selecting “Click here to Scan” option, candidates can use their mobile phone to scan the QR 
+code, which will redirect to a website, allowing to click photograph on their mobile phone. On 
+selecting the taken picture, photograph will get auto uploaded in the application form.  
+ 
+Do’s and Don’ts  of Photo Capture 
+Dos Don’ts 
+ Ensure the photo is captured against a 
+light coloured, preferably white 
+background and there is adequate light.  
+ Look straight at the webcam/ camera. 
+ Small size photograph not to be clicked/ 
+uploaded. 
+ Coloured glasses or sunglasses/ Cap 
+should not be worn. 
+
+======================================================================
+PAGE 2
+======================================================================
+ Photograph should be of passport size  Shadow on face/ not facing the camera/ 
+distorted face/ face covered with mask / 
+blurred image. 
+ Photo not to be taken in dark/ improper 
+background.  
+  
+ Signature: 
+ The applicant has to sign on white paper with Black Ink pen. 
+o Dimensions 140 x 60 pixels (preferred) 
+o Size of file should be between 10kb – 20kb 
+o Ensure that the size of the scanned image is not more than 20kb 
+o Signature (NOT IN CAPITAL LETTERS)  uploaded should be of appropriate size 
+and clearly visible.  
+ 
+Left thumb impression: 
+ The applicant has to put his left thumb impression on a white paper with black or blue ink. 
+o File type: jpg / jpeg 
+o Dimensions: 240 x 240 pixels in 200 DPI (Preferred for required quality) i.e 3 cm * 
+3 cm (Width * Height) 
+o File Size: 20 KB – 50 KB 
+o Note: If a candidate does not have left thumb, he/ she may use his/ her right thumb. 
+If both thumbs are missing, the impression of one of the fingers of the left hand 
+starting from the forefinger should be taken. If there are no fingers on the left hand, 
+the impression of one of the fingers of the right hand starting from the forefinger 
+should be taken. If no fingers are available, the impression of left toe may be taken. 
+In all such cases where left thumb impression is not uploaded, the candidate should 
+specify in the uploaded document the name of finger and the specification of left/ 
+right hand or toe.  
+ 
+Hand-written declaration Image: 
+ The applicant has to write the declaration in English clearly on a white paper with black ink. 
+o File type: jpg / jpeg 
+o Dimensions: 800 x 400 pixels in 200 DPI (Preferred for required quality) i.e. 10 cm 
+* 5 cm (Width * Height) 
+o File Size: 50 KB – 100 KB 
+o Note: The hand written declaration has to be in the candidate’s hand writing and in 
+English only. The text should NOT BE IN CAPITAL LETTERS. If it is written by 
+anybody else and uploaded or in any other language, the application will be 
+considered as invalid. (In the case of candidates who cannot write, may get that text 
+of declaration typed and put their left han d thumb impression (if not able to sign 
+also) below the typed declaration and upload the document as per specifications).  
+ 
+o The text for hand written declaration is as follows:  
+ 
+“I, __________ (Name of the candidate), hereby declare that all the 
+information submitted by me in the application form is correct, true and valid. 
+I will present the supporting documents as and when required.” 
+ 
+
+======================================================================
+PAGE 3
+======================================================================
+SSC/ SSLC/ 10th Standard or Equivalent Certificate and Certificate as mentioned in Clause 
+J (ix) for eligible candidates:  
+ 
+o Document must be in PDF format. 
+o Page size of the document to be A4. 
+o Size of the file should not be exceeding 500 KB.  
+o In case of Document being scanned, please ensure it is saved as PDF and size not 
+more than 500 KB as PDF. If the size of the file is more than 500KB, then adjust the 
+setting of the scanner such as the DPI resolution, no. of colours etc., during the 
+process of scanning. Please ensure that Documents uploaded are clear and readable. 
+ The signature, left thumb impression and the hand written declaration should be of the 
+applicant and not by any other person. 
+ If the Applicant’s signature on the attendance sheet or Call letter, signed at the time of the 
+examination, does not match the signature uploaded, the applicant will be disqualified. 
+ Signature / Hand written declaration in CAPITAL LETTERS shall NOT be accepted. 
+ Ensure that the photo, signature, left thumb impression, hand written declaration, SSC/ 
+SSLC/ 10th standard or equivalent certificate and certificate as mentioned in Clause J 
+(ix) - if applicable are uploaded at the specified spaces only in the online application 
+form. 
+ 
+Ensure that all these scanned documents adhere to the required specifications. 
+ 
+Scanning the documents: 
+o Set the scanner resolution to a minimum of 200 dpi (dots per inch) 
+o Set Colour to True Colour 
+o File Size as specified above 
+o Crop the image in the scanner to the edge of the photograph/signature/ left thumb impression 
+/ hand written declaration, then use the upload editor to crop the image to the final size (as 
+specified above). 
+o The image file should be JPG or JPEG format. An example file name is: image01.jpg or 
+image01.jpeg. Image dimensions can be checked by listing the folder files or moving the 
+mouse over the file image icon. 
+o Candidates using MS Windows/MSOffice can easily obtain documents in .jpeg format by 
+using MS Paint or MSOffice Picture Manager.  Scanned  documents    in  any  format  can  
+be  saved  in .jpg / .jpeg format  by  using  ‘Save   As’  option  in  the  File  menu. Size can 
+be adjusted   by using crop and then resize option. 
+ 
+Procedure for uploading the documents 
+o While filling in the Online Application Form the candidate will be provided with separate  links  
+for  uploading  Photograph, signature, left  thumb  impression  and  hand written declaration , 
+SSC/ SSLC/ 10th standard or equivalent certificate  and certificate mentioned in Clause J (ix)  
+– if applicable,. 
+o Click  on  the  respective  link  “Upload Photograph / signature / Upload  left  thumb  impression  
+/  hand  written declaration/ SSC/ SSLC/ 10th standard or equivalent certificate / certificate as 
+mentioned in Clause J (ix) – if applicable,  ”  
+o Browse and Select the location where the Scanned Photograph / signature / left thumb 
+impression / hand written declaration/ SSC/ SSLC/ 10th standard or equivalent certificate / 
+certificate as mentioned in clause J (ix) – if applicable, file has been saved. 
+o Select the file by clicking on it 
+
+======================================================================
+PAGE 4
+======================================================================
+o Click the ‘Open/Upload’ 
+o If the file size and format are not as prescribed, an error message will be displayed. 
+o Preview of the uploaded image will help to see the quality of the image. In case of unclear / 
+smudged, the same may be re-uploaded to the expected clarity /quality. 
+ 
+Your Online Application will not be registered unless you upload your Photograph, signature, left 
+thumb impression, hand written declaration, SSC/ SSLC/ 10th standard or equivalent certificate 
+and certificate as mentioned in Clause J (ix) – if applicable, as specified. 
+ 
+Note: 
+(1) In case the face in the photograph / signature/ left thumb impression / the hand written 
+declaration/ SSC/ SSLC/ 10th standard or equivalent certificate / certificate as mentioned 
+in clause J (ix) – if applicable, is unclear / smudged the candidate’ s application may be 
+rejected. 
+(2) After uploading the Photograph / signature / left thumb impression / hand written 
+declaration/ SSC/ SSLC/ 10th standard or equivalent certificate / certificate as mentioned 
+in clause J (ix) – if applicable, in the online application form candidates should check that 
+the images are clear and have been uploaded correctly. In case the photograph or signature 
+or left thumb impression or the hand written declaration or SSC/ SSLC/ 10th standard or 
+equivalent certificate  or certificate as mentioned in clause J (ix) – if applicable, is not 
+prominently visible, the candidate may edit his/ her application and re -upload his/ her 
+photograph or signature or left thumb impression or the hand written declaration or  SSC/ 
+SSLC/ 10th standard or equivalent certificate or certificate as mentioned in clause J (ix) – 
+if applicable, prior to submitting the form. 
+(3) Candidate should also ensure that photo is uploaded at the place of photo and signature at 
+the place of signature. If photo in place of photo and signature in place of signature is not 
+uploaded properly, candidate will not be allowed to appear for the exam. 
+(4) Candidate must ensure that Photo to be uploaded is of required size and the face should be 
+clearly visible. 
+(5) If the photo is not uploaded at the place of Photo Admission for Examination will be 
+rejected/denied. Candidate him/herself will be responsible for the same. 
+(6) Candidates should ensure that the signature uploaded is clearly visible and not smudged/ 
+blurred.  
+(7) After registering online candidates are advised to take a printout of their system generated 
+online application forms. 
+(8) The signature, left thumb impression and the hand written declaration should be of the 
+applicant and not of any other person.  
+(9) If the Applicant’s signature on the attendance sheet or Call letter, signed at the time of the 
+examination, does not match the signature uploaded, the applicant will be disqualified.  
+(10) Signature/ Hand written declaration in CAPITAL LETTERS shall NOT be accepted. 
+(11) Ensure that the photograph, signature, left thumb impression, hand written declaration , 
+SSC/ SSLC/ 10th standard or equivalent certificate and certificate as mentioned in Clause 
+I (ix) are uploaded at the specified spaces only in the online application form. 
+ 
+ 

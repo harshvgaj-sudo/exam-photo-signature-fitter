@@ -1,0 +1,23 @@
+
+=== CONTROL 1 + 2: the report checks, on a deliberately broken page ===
+  baseline: 16 mono blocks, title "Code Review & Build Plan — Dhanwala Citizen & Exam Shield"
+  ok   CONTROL 1a: the real report passes the >= 16 floor  — 16 blocks
+  ok   CONTROL 1b: removing 8 blocks FAILS the >= 16 floor  — 8 blocks left
+  ok   CONTROL 1c: ...and the OLD >= 8 floor would have PASSED that broken page  — 8 >= 8 — this is why the floor was raised
+  ok   CONTROL 2a: the old length>0 check PASSES a browser error title  — "Error: file not found" — the old check could not tell
+  ok   CONTROL 2b: the new exact check REJECTS that same title  — "Error: file not found"
+
+=== CONTROL 3: the download guard is reachable (not dead code) ===
+  ok   CONTROL 3a: the button really is hidden for a live-capture preset
+  ok   CONTROL 3b: grabDownload() returns null here, so the else branch runs  — null — else branch is live
+  ok   CONTROL 3c: that null now produces a FAILING assertion, not silence  — the suite would report "the download fired for ... = false"
+
+=== CONTROL 4: the marginal claim is now a real AND ===
+  ok   CONTROL 4a: refused=true, accepted=true  -> passes
+  ok   CONTROL 4b: refused=false, accepted=true -> FAILS (half one missing)
+  ok   CONTROL 4c: refused=true, accepted=false -> FAILS (half two missing)
+  note  CONTROL 4d: the OLD `assert(label, true)` could not fail on any of the above
+
+============================================================
+all negative controls behaved correctly
+============================================================

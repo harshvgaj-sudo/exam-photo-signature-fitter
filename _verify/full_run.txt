@@ -1,0 +1,704 @@
+Photo & Signature Fitter — full verification
+
+> building single-file bundle
+BUILD OK
+  output      : C:\Users\harsh\WorkBuddy AI\2026-09-14-10-03-21\govdocs-review\dist\photo-signature-fitter.html
+  size        : 66.5 KB (one file, no dependencies)
+  modules     : js/config.js, js/specs.js, js/core.js, js/app.js
+  registry    : 13 requirements, 4 VERIFIED, 2 flagged marginal
+  guard       : provenance + arithmetic checks passed
+  local refs  : none
+  opens from  : file:// (double-click) or any static host
+
+  Behavioural verification is separate and must also pass:
+    node _verify/check_specs.mjs      (every registry claim measured)
+    node _verify/run_all.mjs          (all suites)
+
+> test_registry_guard.mjs — the guard itself: every rule must fire on a deliberately broken entry
+====================================================================================================
+REGISTRY GUARD — negative tests. Every rule must fire on a broken entry.
+====================================================================================================
+
+The real registry must pass cleanly:
+  ok    the shipped registry produces no problems
+
+A minimal valid entry must pass, so the tests below isolate one fault each:
+  ok    minimal valid entry
+
+Provenance rules:
+  ok    VERIFIED with no source
+  ok    VERIFIED with no verifiedOn
+
+The claim must carry its evidence:
+  ok    no feasibility declared
+  ok    unknown feasibility value
+  ok    no measuredOver sweep
+  ok    measuredOver with no fixture
+  ok    measuredOver with no grain levels
+  ok    measuredOver.density not an array
+  ok    no measuredOn date
+  ok    no measuredWith method
+  ok    rules not an array
+
+Referential integrity:
+  ok    preferLarger points at a missing id
+
+Consistency between the declared fields:
+  ok    marginal with no alternative and no reason
+  ok    unreachable with no alternative and no reason
+  ok    marginal with a valid alternative passes
+  ok    marginal with an explicit noLargerReading reason passes
+  ok    both preferLarger and noLargerReading
+  ok    marginal with no riskNote
+  ok    comfortable with a riskNote
+  ok    a riskNote on a marginal entry passes
+
+THE HEADLINE CASE — the exact bug this project exists to fix:
+  ok    140x60 box with a 10 KB floor marked "comfortable"
+  ok    the same box correctly marked "marginal" passes
+  ok    the same box marked "unreachable" is allowed through as a warning
+
+Arithmetic and shape:
+  ok    minimum greater than maximum
+  ok    zero minimum
+  ok    zero dimensions
+  ok    duplicate ids
+  ok    empty registry
+  ok    missing id
+
+====================================================================================================
+  passed: 31    failed: 0
+  Every guard rule fires on a broken entry, and stays silent on a good one.
+====================================================================================================
+
+> check_specs.mjs — every registry claim measured in a REAL BROWSER, over each entry's declared sweep
+================================================================================================================
+PART 1 — STATIC REGISTRY GUARD
+The same rules the build enforces, run against the shipping registry.
+================================================================================================================
+  ok    all 13 entries satisfy the registry guard
+  ok    4 of 13 entries are VERIFIED: ssc-signature, ssc-photo, ssc-lti, ssc-declaration
+  ok    12 of 13 entries declare a measurement sweep
+  ok    117 measurement points in total
+
+================================================================================================================
+PART 2 — FEASIBILITY, MEASURED IN A REAL BROWSER
+Every declaration is checked against the browser, over the grid the entry declares.
+A box is 'comfortable' when EVERY input clears the floor by at least 1.15x.
+'marginal' means some inputs clear it and some do not — input-dependent by definition.
+================================================================================================================
+  fixtures: 43 JPEG file(s), 33.9 MB total
+  jobs    : 117 measurement(s) across 12 registry entries
+  browser : Chrome/152.0.0.0 (real system Chrome)
+  measured : 2026-09-15T04:44:34.371Z
+
+SPEC                  BOX        WINDOW      q1.0 OVER THE SWEEP PASS    DECLARED     MEASURED     RESULT
+----------------------------------------------------------------------------------------------------------------
+  ok    ssc-signature: 'marginal' confirmed — 6.1-13.4KB over 28 inputs, 7 pass
+ssc-signature         140x60     10-20KB     6.1-13.4KB          7/28    marginal     marginal     ok
+  ok    ssc-signature-large: 'comfortable' confirmed — 13.4-69.9KB over 28 inputs, 28 pass
+ssc-signature-large   472x157    10-20KB     13.4-69.9KB         28/28   comfortable  comfortable  ok
+  ok    ssc-photo: 'comfortable' confirmed — 25.7-25.7KB over 1 inputs, 1 pass
+ssc-photo             200x230    20-50KB     25.7-25.7KB         1/1     comfortable  comfortable  ok
+  ok    ssc-photo-large: 'comfortable' confirmed — 151.2-151.2KB over 1 inputs, 1 pass
+ssc-photo-large       413x531    20-50KB     151.2-151.2KB       1/1     comfortable  comfortable  ok
+  ok    ssc-lti: 'comfortable' confirmed — 26.2-34.7KB over 7 inputs, 7 pass
+ssc-lti               240x240    20-50KB     26.2-34.7KB         7/7     comfortable  comfortable  ok
+  ok    ssc-declaration: 'comfortable' confirmed — 180.8-323.5KB over 7 inputs, 7 pass
+ssc-declaration       800x400    50-100KB    180.8-323.5KB       7/7     comfortable  comfortable  ok
+  ok    ibps-signature: 'marginal' confirmed — 6.4-13.5KB over 28 inputs, 7 pass
+ibps-signature        140x60     10-20KB     6.4-13.5KB          7/28    marginal     marginal     ok
+  ok    ibps-photo: 'comfortable' confirmed — 25.7-25.7KB over 1 inputs, 1 pass
+ibps-photo            200x230    20-50KB     25.7-25.7KB         1/1     comfortable  comfortable  ok
+  ok    ibps-photo-cm: 'comfortable' confirmed — 127.3-127.3KB over 1 inputs, 1 pass
+ibps-photo-cm         531x413    20-50KB     127.3-127.3KB       1/1     comfortable  comfortable  ok
+  ok    ibps-lti: 'comfortable' confirmed — 26.2-34.7KB over 7 inputs, 7 pass
+ibps-lti              240x240    20-50KB     26.2-34.7KB         7/7     comfortable  comfortable  ok
+  ok    ibps-declaration: 'comfortable' confirmed — 180.8-323.5KB over 7 inputs, 7 pass
+ibps-declaration      800x400    50-100KB    180.8-323.5KB       7/7     comfortable  comfortable  ok
+  ok    upsc-photo: 'comfortable' confirmed — 165.2-165.2KB over 1 inputs, 1 pass
+upsc-photo            500x500    20-300KB    165.2-165.2KB       1/1     comfortable  comfortable  ok
+----------------------------------------------------------------------------------------------------------------
+
+================================================================================================================
+PART 3 — ARTEFACT INTEGRITY AND LEGIBILITY
+The official PDF requires the image to be "clearly visible". Any produced file that needed
+JPEG quality below 0.3 to fit its window fails that requirement.
+================================================================================================================
+  ok    every produced file kept JPEG quality at or above 0.3
+  ok    quality range across all 75 produced files: 0.875 - 1.000
+
+================================================================================================================
+PART 4 — CROSS-CHECK: THE NODE MODEL vs THE BROWSER  (informational)
+The model that used to decide these declarations. It no longer decides anything;
+it is measured here so its error stays visible and cannot creep back in.
+================================================================================================================
+SPEC                  BOX        NODE MODEL    BROWSER     MODEL ERROR
+----------------------------------------------------------------------------------------------------------------
+ssc-signature         140x60     10.23 KB      8.76 KB     +16.9%
+ssc-signature-large   472x157    61.48 KB      48.32 KB    +27.2%
+ibps-signature        140x60     10.23 KB      8.71 KB     +17.5%
+----------------------------------------------------------------------------------------------------------------
+The model is optimistic by 20.5% on average. That is why it cannot decide
+feasibility: at a 10 KB boundary an overstatement of that size is the difference
+between "passes" and "refuses". It is retained only as a fast pre-screen.
+
+================================================================================================================
+PART 5 — THE HEADLINE: the official SSC signature box against the official size window
+================================================================================================================
+  Official pixel box        : 140 x 60 px = 8400 pixels
+  Official window           : 10-20 KB
+  Floor demands             : 1.22 bytes per pixel
+  Best achievable, measured : 6.13 - 13.41 KB across 28 inputs
+  Inputs that fall short    : 21 of 28
+  Measured verdict          : marginal
+
+  A signature on white paper compresses far below 1.22 bytes per pixel unless it is
+  dense. So the practical risk for an SSC signature is being UNDER 10 KB, not over
+  20 KB — every "reduce your file size" tutorial has this backwards. The tool therefore
+  offers the documented larger box (ssc-signature-large), which is comfortable on both bounds.
+================================================================================================================
+
+================================================================================================================
+ALL REGISTRY DECLARATIONS MATCH BROWSER MEASUREMENT.
+================================================================================================================
+
+> test_mutation.mjs — prove the chain can fail: a wrong registry must be caught, statically or by measurement
+========================================================================================================
+MUTATION TESTS — the chain must object to a deliberately wrong registry
+========================================================================================================
+
+STATIC RULES (registry_guard.mjs, enforced by the build)
+--------------------------------------------------------------------------------------------------------
+  ok    the original bug: a 140x60 box with a 10 KB floor marked "comfortable"
+        caught: registry: ssc-signature needs 1.22 bytes/px to reach its 10 KB floor at 140x60 — at the JPEG limit — but declares "comfortable"
+  ok    a feasibility claim with the evidence deleted
+        caught: registry: ssc-lti declares no measuredOver sweep, so its feasibility is unevidenced
+  ok    a marginal claim with no statement of which inputs fail
+        caught: registry: ssc-signature is marginal but has no riskNote saying which inputs fall short
+  ok    a comfortable claim carrying a riskNote it cannot have
+        caught: registry: ssc-lti declares a riskNote but its feasibility is "comfortable"
+  ok    a dead end: unreachable with no alternative and no explanation
+        caught: registry: ssc-signature is unreachable but offers no alternative and no stated reason
+  ok    a VERIFIED entry with its source stripped
+        caught: registry: ssc-lti is VERIFIED but has no source
+  ok    preferLarger pointing at a requirement that does not exist
+        caught: registry: ssc-signature points at a missing preferLarger "ssc-signature-does-not-exist"
+
+MEASURED RULES (check_specs.mjs, enforced by the browser)
+These mutations satisfy every static rule. Only measurement can find them.
+--------------------------------------------------------------------------------------------------------
+  ok    a comfortable box declared "marginal", fully documented and plausible
+        caught: declared marginal, browser measured comfortable (26.2-34.7 KB, 7/7 pass); static rules stayed silent
+  ok    a comfortable box declared "unreachable", with a stated reason
+        caught: declared unreachable, browser measured comfortable (180.8-323.5 KB, 7/7 pass); static rules stayed silent
+  ok    a genuinely marginal box declared "comfortable"
+        caught: declared comfortable, browser measured marginal (6.1-13.4 KB, 7/28 pass); static rules also fired 1
+
+========================================================================================================
+  mutations caught: 10    mutations missed: 0
+  Every deliberate defect was caught, by the static rules or by measurement.
+  The chain can fail, so a green run means something.
+========================================================================================================
+
+> test_core.mjs — the corrected core: crop geometry, size search, per-preset compliance
+
+--- coverRect / clampCrop (exact, unrounded) ---
+  ok   landscape src -> square target  ->  {"x":500,"y":0,"width":3000,"height":3000}
+  ok   portrait src -> wide target  ->  {"x":0,"y":1250,"width":3000,"height":1500}
+  ok   clamp past right edge  ->  {"x":700,"y":0,"width":300,"height":300}
+  ok   clamp past bottom edge  ->  {"x":0,"y":0,"width":300,"height":300}
+
+--- searchQuality rejects an invalid window rather than guessing ---
+  ok   {"minBytes":0,"maxBytes":1000} -> INVALID_WINDOW
+  ok   {"minBytes":5000,"maxBytes":1000} -> INVALID_WINDOW
+
+--- classifyHeadroom: how much room is there above the floor? ---
+  ok   no bytes measured  ->  "unknown"
+  ok   no minimum  ->  "unknown"
+  ok   half the floor  ->  "unreachable"
+  ok   exactly the floor  ->  "marginal"
+  ok   10 percent above the floor  ->  "marginal"
+  ok   exactly at the comfortable threshold  ->  "comfortable"
+  ok   twice the floor  ->  "comfortable"
+
+--- classifySweep: the classification that a single image cannot make ---
+  ok   no samples at all  ->  "unknown"
+  ok   no minimum  ->  "unknown"
+  ok   every input below the floor  ->  "unreachable"
+  ok   one input below the floor  ->  "marginal"
+  ok   every input above the floor but inside the comfortable margin  ->  "marginal"
+  ok   one input exactly at the floor  ->  "marginal"
+  ok   every input clears the margin  ->  "comfortable"
+  ok   non-numeric entries are ignored  ->  "comfortable"
+  ok   the threshold is the documented constant  ->  "comfortable"
+
+--- explainFailure: an honest refusal, and the way out of it ---
+  ok   without an alternative: does not invent one
+  ok   with an alternative: names the box to switch to
+  ok   invalid window gets its own message
+
+==================================================================================================================
+ TEST G — every registry preset, driven through the real core.js
+ This is the NODE MODEL, which is optimistic by ~20%. A pass here means the pipeline
+ is coherent, NOT that the preset is safe. The BROWSER column is the real answer.
+==================================================================================================================
+PRESET                                REQUIRED   WINDOW     MODEL OUT  BROWSER        verify() RESULT
+------------------------------------------------------------------------------------------------------------------
+SSC — Signature                       140x60     10-20KB    10.22KB    7/28 pass      model-only (browser passes 7/28)
+SSC — Signature (larger box, 6.0 x 2  472x157    10-20KB    18.29KB    28/28 pass     PASS
+SSC — Photograph                      200x230    20-50KB    25.56KB    1/1 pass       PASS   [valid file, but the portal needs a LIVE capture]
+SSC — Photograph (larger box, 3.5 x   413x531    20-50KB    47.99KB    1/1 pass       PASS
+SSC — Left thumb impression           240x240    20-50KB    40.23KB    7/7 pass       PASS
+SSC — Handwritten declaration         800x400    50-100KB   93.81KB    7/7 pass       PASS
+IBPS — Signature                      140x60     10-20KB    10.22KB    7/28 pass      model-only (browser passes 7/28)
+IBPS — Photograph (as stated in the   200x230    20-50KB    25.56KB    1/1 pass       PASS
+IBPS — Photograph (cm reading)        531x413    20-50KB    48.20KB    1/1 pass       PASS
+IBPS — Left thumb impression          240x240    20-50KB    40.23KB    7/7 pass       PASS
+IBPS — Handwritten declaration        800x400    50-100KB   93.81KB    7/7 pass       PASS
+UPSC — Photograph                     500x500    20-300KB   175.72KB   1/1 pass       PASS
+------------------------------------------------------------------------------------------------------------------
+  model and browser agree on: 10    model-only (overstated): 2
+  honest refusal: 0    claimed success but failed verify: 0
+  unit-test failures: 0
+  A false-success count of 0 is the point: verify() gates every claim.
+
+==================================================================================================================
+ TEST H — the input class that produced the old tool's false "Success!"
+ A perfectly flat sheet. Physically impossible to fill a size window at a small pixel box.
+==================================================================================================================
+
+  SSC — Signature (140x60, 10-20 KB)
+    ok=false  reason=BELOW_MINIMUM  best achievable=0.84KB
+    shown to the user:
+      This image cannot reach 10 KB at 140x60 even at maximum quality (best achieved: 0.84 KB). The picture content is too simple to compress into that window. Try a sharper, higher-contrast capture, or a larger allowed dimension if the requirement permits one. The source document also gives a larger reading of this same requirement — 472x157 px (SSC — Signature (larger box, 6.0 x 2.0 cm)) — where the window is comfortable. Use the button below to switch to it.
+
+  IBPS — Signature (140x60, 10-20 KB)
+    ok=false  reason=BELOW_MINIMUM  best achievable=0.84KB
+    shown to the user:
+      This image cannot reach 10 KB at 140x60 even at maximum quality (best achieved: 0.84 KB). The picture content is too simple to compress into that window. Try a sharper, higher-contrast capture, or a larger allowed dimension if the requirement permits one.
+
+  SSC — Left thumb impression (240x240, 20-50 KB)
+    ok=false  reason=BELOW_MINIMUM  best achievable=2.14KB
+    shown to the user:
+      This image cannot reach 20 KB at 240x240 even at maximum quality (best achieved: 2.14 KB). The picture content is too simple to compress into that window. Try a sharper, higher-contrast capture, or a larger allowed dimension if the requirement permits one.
+------------------------------------------------------------------------------------------------------------------
+  Every one of these is a refusal, and every refusal names a reason. The old build
+  printed "Success!" for all three.
+  Feasibility, measured in a real browser over each entry's declared sweep, lives in
+  check_specs.mjs.
+
+
+> test_old_algorithm.mjs — the OLD algorithm from the shipped build, measured against real specs
+
+======================================================================================================================
+ TEST A — the old algorithm fed images ALREADY at the correct pixel size (its best case)
+ It is only ever told "target maximum KB". The spec also fixes dimensions and a MINIMUM.
+======================================================================================================================
+SPEC                                    DIMS IN     ASKED     GOT        DIMS OUT    RESULT
+----------------------------------------------------------------------------------------------------------------------
+SSC signature  (315x157 @200dpi)        315x157     <=20KB    17.47KB    315x157     PASS
+SSC signature  (472x236 @300dpi)        472x236     <=20KB    19.13KB    472x236     PASS
+IBPS photo     (200x230 px)             200x230     <=50KB    8.14KB     200x230     FAIL: below minimum size
+IBPS signature (140x60 px)              140x60      <=20KB    6.53KB     140x60      FAIL: below minimum size
+IBPS LTI       (240x240 px)             240x240     <=50KB    10.59KB    240x240     FAIL: below minimum size
+IBPS declaration (800x400 px)           800x400     <=100KB   87.09KB    800x400     PASS
+UPSC photo     (500x500 px)             500x500     <=300KB   64.02KB    500x500     PASS
+
+  ok   even at the correct input size, the old algorithm fails real specs  — 3 of 7 specs failed: IBPS photo     (200x230 px), IBPS signature (140x60 px), IBPS LTI       (240x240 px)
+
+======================================================================================================================
+ TEST D — the old algorithm fed a REAL 4032x3024 phone photo (what actually happens)
+======================================================================================================================
+source: 4032 x 3024, 3.47 MB at q=0.9
+
+SPEC            REQUIRED DIMS   SIZE WINDOW   OUTPUT DIMS     OUTPUT     DIM OK?  SIZE OK?
+---------------------------------------------------------------------------------------------------------
+SSC signature   315x157         10-20KB       901x676         19.90KB    NO       yes
+SSC signature   472x236         10-20KB       901x676         19.90KB    NO       yes
+IBPS photo      200x230         20-50KB       1426x1069       49.25KB    NO       yes
+IBPS signature  140x60          10-20KB       901x676         19.90KB    NO       yes
+IBPS LTI        240x240         20-50KB       1426x1069       49.25KB    NO       yes
+IBPS declaration800x400         50-100KB      2016x1512       96.47KB    NO       yes
+UPSC photo      500x500         20-300KB      3493x2619       290.12KB   NO       yes
+
+  ok   the algorithm never returns the required pixel dimensions for a phone photo  — 7 of 7 wrong
+
+  The algorithm is never told the required pixel dimensions, so for a phone photo it
+  returns a multi-megapixel JPEG that no government portal will accept.
+
+======================================================================================================================
+ TEST B — termination. The shipped while-loop has no iteration cap.
+======================================================================================================================
+  targetKB=5      -> terminated after 1 downscale(s), final 161x161, 4.98KB
+  targetKB=2      -> terminated after 1 downscale(s), final 102x102, 2.00KB
+  targetKB=0.8    -> terminated after 1 downscale(s), final 64x64, 0.79KB
+  targetKB=0.5    -> *** DID NOT TERMINATE after 500 downscales (stuck at 1x1, 611 bytes) ***
+  targetKB=0.3    -> *** DID NOT TERMINATE after 500 downscales (stuck at 1x1, 611 bytes) ***
+
+  ok   at least one reachable input does not terminate  — 2 of 5 targets hung
+
+  In a browser this is not a slow result, it is a dead tab. The input has min="5",
+  but the attribute does not stop typing 0.5, and the guard only rejects values <= 0.
+
+======================================================================================================================
+ TEST C — work performed. Each getBlob() is a full JPEG encode of the CURRENT canvas.
+ The encode count is not the cost. The canvas can be multi-megapixel, so what matters
+ is the total PIXELS pushed through the encoder, on the main thread.
+======================================================================================================================
+SPEC                                  ENCODES   CANVAS OUT    MEGAPIXELS   CORRECTED   RATIO
+----------------------------------------------------------------------------------------------------------------------
+SSC signature  (315x157 @200dpi)      10        949x553       5.6 MP       0.64 MP     9x
+SSC signature  (472x236 @300dpi)      10        949x553       5.6 MP       1.45 MP     4x
+IBPS photo     (200x230 px)           10        1426x1069     25.9 MP      0.60 MP     43x
+IBPS signature (140x60 px)            10        949x553       5.6 MP       0.11 MP     51x
+IBPS LTI       (240x240 px)           10        1426x1069     25.9 MP      0.75 MP     35x
+----------------------------------------------------------------------------------------------------------------------
+  ok   the old algorithm pushes far more pixels through the encoder than the corrected search  — worst case 51x the corrected pipeline
+
+======================================================================================================================
+ TEST E — a perfectly flat signature. The old code reports success on a rejected file.
+======================================================================================================================
+  315x157    max=20KB -> 1.96KB  *** BELOW the 10KB minimum. The old tool prints "Success!" anyway. ***
+  472x236    max=20KB -> 3.62KB  *** BELOW the 10KB minimum. The old tool prints "Success!" anyway. ***
+  140x60     max=20KB -> 0.84KB  *** BELOW the 10KB minimum. The old tool prints "Success!" anyway. ***
+
+  ok   a flat sheet produces a file below the minimum that the old tool still calls success  — 3 of 3 boxes below the floor
+
+==============================================================
+the old algorithm still reproduces its defects, so the report's evidence holds
+==============================================================
+
+> test_verifier.mjs — the OLD link-verifier predicate, against real URLs
+input                                         | hostname                        | verdict
+------------------------------------------------------------------------------------------------------------------------
+https://echallan.parivahan.gov.in/            | echallan.parivahan.gov.in       | correct (clean)   <- genuine gov.in
+https://onlinesbi.sbi/                        | onlinesbi.sbi                   | *** WRONG: FALSE POSITIVE ***   <- legit SBI short domain
+https://www.onlinesbi.sbi/                    | www.onlinesbi.sbi               | *** WRONG: FALSE POSITIVE ***   <- legit SBI short domain
+https://sbi.co.in/                            | sbi.co.in                       | correct (clean)   <- legit SBI
+https://www.sbicard.com/                      | www.sbicard.com                 | correct (clean)   <- legit SBI Card
+https://incometax.gov.in/                     | incometax.gov.in                | correct (clean)   <- genuine
+https://bit.ly/3xYzAbC                        | bit.ly                          | *** WRONG: FALSE NEGATIVE ***   <- SHORTENER — kickstart says RED ALERT
+https://tinyurl.com/challan-pay               | tinyurl.com                     | *** WRONG: FALSE NEGATIVE ***   <- SHORTENER — kickstart says RED ALERT
+https://echallan-pay.xyz/pay                  | echallan-pay.xyz                | *** WRONG: FALSE NEGATIVE ***   <- phishing .xyz — kickstart says RED ALERT
+https://echallan-pay.top/pay                  | echallan-pay.top                | *** WRONG: FALSE NEGATIVE ***   <- phishing .top — kickstart says RED ALERT
+https://epfo.gov.in.verify-kyc.com/login      | epfo.gov.in.verify-kyc.com      | correct (flagged)   <- subdomain-suffix phishing
+https://sbi-online-kyc-update.com/login       | sbi-online-kyc-update.com       | *** WRONG: FALSE NEGATIVE ***   <- typosquat ending in .com — the blind spot
+https://192.168.1.1/login                     | 192.168.1.1                     | correct (flagged)   <- raw IP
+https://sbi.secure-login.verify-account.info/ | sbi.secure-login.verify-account.info| correct (flagged)   <- nested phishing
+https://incometax-refund-claim.xyz/           | incometax-refund-claim.xyz      | correct (flagged)   <- phishing
+------------------------------------------------------------------------------------------------------------------------
+  correct: 8/15
+  FALSE POSITIVES (genuine sites flagged): 2  onlinesbi.sbi, www.onlinesbi.sbi
+  FALSE NEGATIVES (dangerous sites passed): 5  bit.ly, tinyurl.com, echallan-pay.xyz, echallan-pay.top, sbi-online-kyc-update.com
+
+The reproduction must still show the old build's defects:
+  ok   the predicate wrongly flags genuine sites (false positives)  — 2 found
+  ok   the predicate passes dangerous sites as clean (false negatives)  — 5 found
+  ok   the predicate gets 7 of its 15 cases wrong  — 7 of 15 wrong
+  ok   the two SBI short domains are wrongly flagged
+  ok   every shortener and .xyz/.top domain is wrongly passed
+
+==============================================================
+the old predicate still reproduces its defects, so the report's evidence holds
+==============================================================
+
+> test_browser.mjs — modular version over HTTP (port 53985)
+
+--- 1. page loads, preset applied, provenance shown ---
+title      : Photo & Signature Fitter
+preset     : ssc-signature
+provenance : Read from the official source document on 2026-09-14 Source: SSC "Guidelines for scanning and Upload of Documents" (official PDF, 4 pages)
+footer note: SSC — Signature — 140x60 px, 10-20 KB, JPEG. Status: VERIFIED. Measured fit: marginal (2026-09-14).
+  ok   custom fields are hidden on a preset
+
+--- 2. upload a real 4032x3024 phone photo against the SSC signature spec ---
+fileInfo   : photo_g12.jpg — 4032x3024 px, 4042 KB.
+crop       : source crop 4032x1728 px
+canvas dims: 140x60
+
+--- 3. crop frame is locked to the required aspect ratio ---
+cropBox on screen: 344.0 x 147.0  aspect 2.3401
+required aspect  : 2.3333
+  ok   aspect is locked
+
+--- 4. drag the frame, then process ---
+crop after drag : source crop 4032x1728 px
+status class    : status bad
+status          : Not produced This image cannot reach 10 KB at 140x60 even at maximum quality (best achieved: 5.20 KB). The picture content is too simple to compress into that window. Try a sharper, higher-contrast capture, or a larger allowed dimension if the requirement permits one. The source document also gives a larger reading of this same requirement — 472x157 px (SSC — Signature (larger box, 6.0 x 2.0 cm)) — where the window is comfortable. Use the button below to switch to it.
+  ok   the download button is never offered before verify() passes
+
+--- 5. MARGINAL, half one: a compact signature at 140x60 must be REFUSED honestly ---
+status          : Not produced This image cannot reach 10 KB at 140x60 even at maximum quality (best achieved: 8.88 KB). The picture content is too simple to compress into that window. Try a sharper, higher-contrast capture, or a larger allowed dimension if the requirement permits one. The source document also gives a larger reading of this same requirement — 472x157 px (SSC — Signature (larger box, 6.0 x 2.0 cm)) — where the window is comfortable. Use the button below to switch to it.
+  ok   the tool refuses rather than producing a failing file  — status bad
+  ok   the refusal names the real best achievable size
+  ok   the refusal explains the cause rather than just saying no
+  ok   the refusal offers the documented larger box
+  ok   no download is offered for a file that would be rejected
+
+--- 5b. MARGINAL, half two: the SAME preset with a denser signature must SUCCEED ---
+status          : Matches these file requirements 140x60 px, 13.46 KB, within the 10-20 KB window. Still confirm on the official upload page.
+  ok   the tool accepts the input that genuinely reaches the floor
+  file            : ssc-signature_140x60.jpg, 13778 bytes (13.46 KB)
+  jpeg SOF dims   : 140x60
+  ok   the downloaded file is 140x60  — 140x60
+  ok   the downloaded file is inside 10-20 KB  — 13.46 KB
+  ok   both halves of the marginal claim were observed end to end  — refused=true accepted=true
+
+--- 6. the larger box is comfortable: 472x157, 10-20 KB, same compact signature ---
+status          : Matches these file requirements 472x157 px, 18.69 KB, within the 10-20 KB window. Still confirm on the official upload page.
+  ok   the larger box accepts the input the official box refused
+  file            : ssc-signature-large_472x157.jpg, 19141 bytes (18.69 KB)
+  jpeg SOF dims   : 472x157
+  ok   the downloaded file is 472x157  — 472x157
+  ok   the downloaded file is inside 10-20 KB  — 18.69 KB
+
+--- 7. second preset: UPSC 500x500, 20-300 KB ---
+status          : Matches these file requirements 500x500 px, 153.67 KB, within the 20-300 KB window. Still confirm on the official upload page.
+  file            : upsc-photo_500x500.jpg, 157363 bytes (153.67 KB)
+  jpeg SOF dims   : 500x500
+  ok   the downloaded file is 500x500  — 500x500
+  ok   the downloaded file is inside 20-300 KB  — 153.67 KB
+
+--- 8. the live-capture requirement refuses before the user invests any effort ---
+  ok   a live-capture warning is shown up front
+  ok   the process button is disabled for it
+warning         : This requirement cannot be met with a prepared file SSC requires the photograph to be captured live — through the webcam on the portal, or by scanning the QR code to open
+
+--- 9. custom requirement with a genuinely impossible window must refuse ---
+status class    : status bad
+status          : Not produced This image cannot reach 500 KB at 200x200 even at maximum quality (best achieved: 26.80 KB). The picture content is too simple to compress into that window. Try a sharper, higher-contrast capture, or a larger allowed dimension if the requirement permits one.
+  ok   the impossible custom window is refused
+  ok   no download offered
+
+--- 10. the tight preset warns, and the larger-box button switches to it ---
+caution text    : Read this before you rely on this preset This pixel box and this size window do not agree. Measured over a grid of realistic documents, the largest file this tool can produce at 140x60 sometimes clear
+  ok   a caution is shown
+  ok   the caution says the risk is being too SMALL
+  ok   the caution says which inputs fail  — riskNote mentions ink
+  ok   the larger box is offered
+  ok   clicking it switches the preset
+canvas dims     : 472x157
+
+--- 11. desktop layout screenshot ---
+
+--- 12. the CSP is real: it matches the deployment, and it is enforced ---
+  ok   netlify.toml declares a Content-Security-Policy
+  ok   the served policy and the deployed policy carry the same directives  — 9 directives, identical
+  ok   the response actually carries the CSP header
+  ok   the header is byte-identical to the policy under test  — identical
+  ok   connect-src 'none' blocks a same-origin fetch  — blocked
+  ok   default-src 'none' blocks a cross-origin script  — blocked
+  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:53985/index.html | script-src-elem <- https://example.com/evil.js
+
+--- 13. EXIF orientation: a portrait phone photo must not come out sideways ---
+  ok   the fixture really carries Orientation=6  — read back 6
+  Orientation=1 (control) : 4032x3024
+  Orientation=6 (rotated) : 3024x4032
+  ok   the control reports a landscape frame  — 4032x3024
+  ok   the rotated file reports a PORTRAIT frame, so the tag was applied  — 3024x4032 vs control 4032x3024
+  fit status              : Matches these file requirements 240x240 px, 31.21 KB, within the 20-50 KB window. Still confirm on the official upload page.
+  ok   the rotated photo still fits the 240x240 / 20-50 KB preset  — class=status ok | Matches these file requirements 240x240 px, 31.21 KB, within the 20-50 KB window. Still confirm on the official upload page.
+  ssc-photo (live capture): process button disabled = true
+  ok   ssc-photo disables the fit button, because the portal needs a live capture  — the tool must refuse an uploaded photograph, not just warn
+  ok   no file is offered for a live-capture preset
+  guard, button re-enabled: status bad | Not produced This requirement needs a live webcam capture on the portal. No prepared file 
+  ok   the guard refuses even when the button is re-enabled  — Not produced This requirement needs a live webcam capture on the portal. No prepared file can satisfy it.
+  ok   still no file offered after the forced attempt
+
+--- 14. input formats: PNG works, and every failure explains itself ---
+  PNG      : accepted | format_probe.png — 800x900 px, 24 KB.
+  ok   a real PNG is accepted  — format_probe.png — 800x900 px, 24 KB.
+  corrupt  : rejected | That file could not be openedThis tool reads JPEG and PNG. iPhone phot
+  ok   a truncated JPEG is rejected
+  ok   the rejection names the formats that DO work  — That file could not be openedThis tool reads JPEG and PNG. iPhone photos are usually HEIC, which browsers other than Saf
+  HEIC     : rejected | That file could not be openedThis tool reads JPEG and PNG. iPhone phot
+  ok   a HEIC file is rejected rather than silently mangled
+  ok   the HEIC rejection says what to do about it  — a user with an iPhone photo must be told the format is the problem
+  hint     : JPEG or PNG. iPhone photos are usually HEIC — convert to JPEG first.
+  ok   the hint does not advertise HEIC as an accepted format  — JPEG or PNG. iPhone photos are usually HEIC — convert to JPEG first.
+  ok   the hint names the formats that actually work  — JPEG or PNG. iPhone photos are usually HEIC — convert to JPEG first.
+
+=== console/page errors captured ===
+none
+  ok   no console or page errors, even after deliberately bad input  — none
+
+==============================================================
+all assertions passed
+==============================================================
+
+> test_single_file.mjs — single-file build from file://, no server, responsive sweep
+=== TEST J: single file, opened from file:// with no server ===
+url: file:///C:/Users/harsh/WorkBuddy AI/2026-09-14-10-03-21/govdocs-review/dist/ph...
+
+--- 1. does it even boot without a server? ---
+title            : Photo & Signature Fitter
+theme applied    : light
+presets populated: 13
+module refs left : []
+  ok   the page boots from file:// with its real title  — Photo & Signature Fitter
+  ok   presets are populated  — 13 options
+  ok   no external file references remain
+
+--- 2. deep link: ?preset=ibps-photo ---
+selected preset  : ibps-photo
+spec line        : IBPS — Photograph (as stated in the notes) — 200x230 px, 20-50 KB, JPEG. Status: UNVERIFIED. Measured fit: comfortable (2026-09-14).
+caution shown    : true
+rules listed     : 2
+  ok   a ?preset= deep link selects that preset
+
+--- 3. the marginal preset must say so, and offer the documented way out ---
+caution visible  : true
+larger box offer : true | This box may fail — use the larger box instead: 472x157 px
+rules for this   : Sign on plain white paper with a BLACK ink pen. / NOT in capital letters — block capitals are rejected. / Must be your own signature, and must match the one you sign at the exam.
+  ok   the tight preset shows a caution
+  ok   the caution says the risk is being too SMALL
+  ok   the caution names the driver of the failure  — riskNote mentions ink
+  ok   the documented larger box is offered
+
+--- 3b. switching to the larger box must change the requirement ---
+preset now       : ssc-signature-large
+spec line        : SSC — Signature (larger box, 6.0 x 2.0 cm) — 472x157 px, 10-20 KB, JPEG. Status: UNVERIFIED. Measured fit: comfortable (2026-09-14).
+url synced       : preset=ssc-signature-large
+  ok   the button switches to the larger box
+  ok   the caution clears, because the larger box is comfortable
+
+--- 3c. the declaration must match the official PDF wording exactly ---
+declaration shown: true
+text             : I, __________ (Name of the candidate), hereby declare that all the information submitted by me i...
+  ok   the declaration preset shows the text
+  ok   the wording matches the official PDF verbatim
+
+--- 4. live-capture preset must refuse before any effort is invested ---
+warning shown    : true
+process disabled : true
+warning text     : This requirement cannot be met with a prepared file SSC requires the photograph to be captured live — through the webcam on the po
+  ok   a live-capture warning is shown
+  ok   the process button is disabled
+
+--- 5a. MARGINAL half one: a dense signature at 140x60 must SUCCEED ---
+status           : Matches these file requirements 140x60 px, 13.46 KB, within the 10-20 KB window. Still confirm on the official upload page.
+  ok   the tool accepts the input that reaches the floor
+downloaded       : ssc-signature_140x60.jpg 13778 bytes
+jpeg SOF dims    : 140x60
+  ok   the artefact is 140x60, read from its own SOF marker  — 140x60
+  ok   the artefact is inside 10-20 KB  — 13.46 KB
+
+--- 5b. MARGINAL half two: a compact signature at 140x60 must REFUSE ---
+status class     : status bad
+status           : Not produced This image cannot reach 10 KB at 140x60 even at maximum quality (best achieved: 8.88 KB). The picture content is too simple to compress into that w
+  ok   the compact signature is refused
+  ok   the refusal names the real best achievable size
+  ok   no download is offered
+  ok   the refusal points at the larger box
+
+--- 5c. the larger box accepts what the official box refused ---
+status           : Matches these file requirements 472x157 px, 18.69 KB, within the 10-20 KB window. Still confirm on the official upload page.
+  ok   the larger box accepts the same document
+jpeg SOF dims    : 472x157
+  ok   the artefact is 472x157  — 472x157
+  ok   the artefact is inside 10-20 KB  — 18.69 KB
+
+--- 6. responsive sweep: layout overflow (FINE pointer) ---
+VIEWPORT              H-OVERFLOW  DOC WIDTH  MIN BUTTON  LAYOUT
+--------------------------------------------------------------------------------
+narrow       360x640  no          360/360    44px        ok
+phone        390x844  no          390/390    44px        ok
+phone large  430x932  no          430/430    44px        ok
+land         844x390  no          844/844    42px        ok
+tablet       768x1024 no          768/768    42px        ok
+laptop      1366x768  no          1366/1366  42px        ok
+desktop     1920x1080 no          1920/1920  42px        ok
+  ok   no viewport produces horizontal overflow  — 0 of 7 bad
+
+--- 6b. touch targets on a COARSE pointer (emulated touch) ---
+VIEWPORT              POINTER   MIN BUTTON  VERDICT
+----------------------------------------------------------------------
+phone portrait        coarse    44px        ok
+phone landscape       coarse    44px        ok
+tablet                coarse    44px        ok
+wide                  coarse    44px        ok
+  ok   the emulated context really does report a coarse pointer  — otherwise the check below would be vacuous
+  ok   every touch target is at least 44px on a coarse pointer  — 0 of 4 bad
+
+--- 6c. negative control: can the touch-target check actually fail? ---
+  min button with the rule: 44px   with the rule neutralised: 42px
+  ok   the touch-target check is sensitive — neutralising the rule drops it below the floor  — 44px -> 42px
+
+--- 7. scroll-trap check (a phone must still be able to scroll over the image) ---
+touch-action .stage    : auto
+touch-action .crop-box : none
+  ok   the stage still scrolls  — auto
+  ok   the crop box does not scroll while dragging  — none
+
+--- 8. "nothing is uploaded" — prove it, do not assert it ---
+total requests   : 5
+non-local reqs   : 0 (none — the page cannot leak anything)
+request kinds    : file
+  ok   the page makes no non-local request at all
+
+--- 9. screenshots ---
+
+=== errors ===
+none
+  ok   no console or page errors
+
+==============================================================
+all assertions passed
+==============================================================
+
+> shot_report.mjs — the report itself renders, with no broken anchors or clipped output
+=== REPORT RENDER CHECK ===
+title    : Code Review & Build Plan — Dhanwala Citizen & Exam Shield
+
+sections : 12
+    01The verdict
+    02What was reviewed
+    03Verified defects
+    04Three root causes
+    05Before and after
+    06One site, one page per job
+    07Who builds what
+    08The research protocol
+    09What I built, and the proof
+    10The official document, and what it changed
+    11Prioritised plan
+    Summary
+
+mono blocks : 16
+tables      : 8
+toc links   : 11
+doc width   : 1100/1100
+
+assertions:
+  ok   every table-of-contents link resolves to a real section  — all resolve
+  ok   the page does not overflow horizontally at 1100px
+  ok   no console or page errors  — none
+  ok   the official-document section is present
+  ok   the captured output blocks are all still present  — 16 blocks
+  ok   the report has 12 top-level sections  — 12 h2
+
+screenshots:
+  report_official_document.png
+  report_built.png
+  report_plan.png
+  report_top.png
+
+====================================================
+report renders correctly
+====================================================
+
+==============================================================
+SUMMARY
+==============================================================
+  PASS  test_registry_guard.mjs
+  PASS  check_specs.mjs
+  PASS  test_mutation.mjs
+  PASS  test_core.mjs
+  PASS  test_old_algorithm.mjs
+  PASS  test_verifier.mjs
+  PASS  test_browser.mjs
+  PASS  test_single_file.mjs
+  PASS  shot_report.mjs
+==============================================================
+All suites passed.

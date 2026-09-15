@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo &amp; Signature Fitter</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6feb'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'%3EPF%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">PF</span>
+    <div>
+      <strong>Photo &amp; Signature Fitter</strong>
+      <span class="brand-sub">Runs entirely in your browser. Nothing is uploaded.</span>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <a id="subscribeBtn" class="sub-btn" target="_blank" rel="noopener">Subscribe</a>
+    <button id="themeToggle" class="ghost-btn" type="button" aria-label="Switch theme">Theme</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- STEP 1 ------------------------------------------------------------ -->
+  <section class="card" aria-labelledby="h-req">
+    <h2 id="h-req"><span class="step">1</span> Choose the requirement</h2>
+
+    <div class="row">
+      <label class="field">
+        <span>Preset</span>
+        <select id="presetSelect"></select>
+      </label>
+    </div>
+
+    <div id="provenance" class="provenance" role="status"></div>
+
+    <div id="liveCaptureWarn" class="banner-warn" role="alert" hidden></div>
+
+    <div id="presetWarning" class="banner-warn" role="alert" hidden></div>
+
+    <div id="preferLargerRow" class="row" hidden>
+      <button id="preferLargerBtn" class="ghost-btn" type="button"></button>
+    </div>
+
+    <div id="presetRules" class="rules" hidden>
+      <strong>Rules from the source document</strong>
+      <ul id="presetRulesList"></ul>
+    </div>
+
+    <div id="declarationBox" class="declaration" hidden>
+      <strong>Write exactly this text, by hand, in English</strong>
+      <p id="declarationText"></p>
+    </div>
+
+    <div class="row linkrow">
+      <button id="copyLink" class="ghost-btn" type="button">Copy link to this tool</button>
+      <span class="mono" id="copyStatus" role="status"></span>
+    </div>
+
+    <fieldset id="customFields" class="grid4" hidden>
+      <legend>Custom requirement</legend>
+      <label class="field"><span>Width (px)</span><input type="number" id="cw" min="1" max="10000" value="600"></label>
+      <label class="field"><span>Height (px)</span><input type="number" id="ch" min="1" max="10000" value="600"></label>
+      <label class="field"><span>Min size (KB)</span><input type="number" id="cmin" min="1" max="20000" value="10"></label>
+      <label class="field"><span>Max size (KB)</span><input type="number" id="cmax" min="1" max="20000" value="100"></label>
+    </fieldset>
+  </section>
+
+  <!-- STEP 2 ------------------------------------------------------------ -->
+  <section class="card" aria-labelledby="h-img">
+    <h2 id="h-img"><span class="step">2</span> Add the image</h2>
+    <input type="file" id="fileInput" accept="image/*">
+    <p class="hint" id="fileInfo">JPEG or PNG. iPhone photos are usually HEIC &mdash; convert to JPEG first.</p>
+  </section>
+
+  <!-- STEP 3 ------------------------------------------------------------ -->
+  <section class="card" id="cropCard" aria-labelledby="h-crop" hidden>
+    <h2 id="h-crop"><span class="step">3</span> Frame it</h2>
+    <p class="hint">Drag the frame to position it. Use the slider to zoom. The frame is locked to the required shape, so the picture can never be stretched.</p>
+
+    <div id="stage" class="stage">
+      <img id="stageImg" alt="Your image">
+      <div id="cropBox" class="crop-box" tabindex="0" role="application" aria-label="Crop frame. Use arrow keys to move."></div>
+    </div>
+
+    <div class="row">
+      <label class="field grow">
+        <span>Zoom</span>
+        <input type="range" id="zoom" min="0" max="100" value="100">
+      </label>
+    </div>
+
+    <div class="row">
+      <button id="resetCrop" class="ghost-btn" type="button">Reset frame</button>
+      <span class="mono" id="cropReadout"></span>
+    </div>
+  </section>
+
+  <!-- STEP 4 ------------------------------------------------------------ -->
+  <section class="card" id="processCard" aria-labelledby="h-out" hidden>
+    <h2 id="h-out"><span class="step">4</span> Fit and check</h2>
+
+    <div class="preview-wrap">
+      <canvas id="preview" class="preview" aria-label="Result preview"></canvas>
+    </div>
+
+    <button id="processBtn" class="primary" type="button">Fit to requirement</button>
+
+    <div id="status" class="status" role="alert" hidden></div>
+
+    <dl id="report" class="report" hidden>
+      <div><dt>Dimensions</dt><dd id="rDims"></dd></div>
+      <div><dt>File size</dt><dd id="rSize"></dd></div>
+      <div><dt>Format</dt><dd id="rFormat"></dd></div>
+      <div><dt>Quality used</dt><dd id="rQuality"></dd></div>
+      <div><dt>Checks run</dt><dd id="rEncodes"></dd></div>
+    </dl>
+
+    <button id="downloadBtn" class="primary" type="button" hidden>Download</button>
+  </section>
+
+  <footer class="foot">
+    <p><strong>What this tool does not do.</strong> It prepares a file to match stated numeric requirements. It cannot log in for you, cannot replace a mandatory live webcam capture, and cannot guarantee that a portal will accept a file. Confirm on the official upload page before you rely on it.</p>
+
+    <div class="share-row">
+      <a id="shareWhatsapp" class="ghost-btn" target="_blank" rel="noopener">Share on WhatsApp</a>
+      <a id="shareTelegram" class="ghost-btn" target="_blank" rel="noopener">Share on Telegram</a>
+      <a id="walkthroughLink" class="ghost-btn" target="_blank" rel="noopener" hidden>Watch the walkthrough</a>
+      <a id="channelLink" class="ghost-btn" target="_blank" rel="noopener"></a>
+    </div>
+
+    <p id="presetNote" class="mono"></p>
+  </footer>
+
+</main>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
