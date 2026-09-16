@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certificate to PDF</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6feb'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'%3ECP%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">CP</span>
+    <div>
+      <strong>Certificate to PDF</strong>
+      <span class="brand-sub">Runs entirely in your browser. Nothing is uploaded.</span>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <a id="subscribeBtn" class="sub-btn" target="_blank" rel="noopener">Subscribe</a>
+    <button id="themeToggle" class="ghost-btn" type="button" aria-label="Switch theme">Theme</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- STEP 1 ------------------------------------------------------------ -->
+  <section class="card" aria-labelledby="h-req">
+    <h2 id="h-req"><span class="step">1</span> Choose the requirement</h2>
+
+    <div class="row">
+      <label class="field">
+        <span>Requirement</span>
+        <select id="requirement"></select>
+      </label>
+    </div>
+
+    <div id="requirementNote" class="provenance" role="status"></div>
+
+    <div class="row" id="customRow" hidden>
+      <label class="field">
+        <span>Maximum size (KB)</span>
+        <input type="number" id="maxKB" min="10" max="20000" value="500">
+      </label>
+    </div>
+  </section>
+
+  <!-- STEP 2 ------------------------------------------------------------ -->
+  <section class="card" aria-labelledby="h-img">
+    <h2 id="h-img"><span class="step">2</span> Add the certificate photos</h2>
+    <input type="file" id="fileInput" accept="image/*" multiple>
+    <p class="hint" id="fileInfo">JPEG or PNG. One photo per page, in the order you choose them. iPhone photos are usually HEIC &mdash; convert to JPEG first.</p>
+    <ul id="fileList" class="file-list"></ul>
+  </section>
+
+  <!-- STEP 3 ------------------------------------------------------------ -->
+  <section class="card" aria-labelledby="h-build">
+    <h2 id="h-build"><span class="step">3</span> Build the PDF</h2>
+
+    <button id="buildBtn" class="primary" type="button">Build the PDF</button>
+
+    <div id="status" class="status" role="alert" hidden></div>
+
+    <details id="attemptsBox" class="attempts-box">
+      <summary>What was tried</summary>
+      <ul id="attempts" class="attempts"></ul>
+    </details>
+
+    <table id="result" class="report" hidden>
+      <caption>Read back from the file that was produced</caption>
+      <tbody id="resultBody"></tbody>
+    </table>
+
+    <button id="downloadBtn" class="primary" type="button" hidden>Download the PDF</button>
+  </section>
+
+  <footer class="foot">
+    <p><strong>What this tool does not do.</strong> It produces a file that matches stated numeric requirements &mdash; PDF format, A4 page size, and the size ceiling. It cannot guarantee that a portal will accept it, and it cannot read a portal's own rules. Confirm on the official upload page before you rely on it.</p>
+
+    <p><strong>Your certificate never leaves your device.</strong> There is no server, no upload and no account. The file is built in this page and saved straight to your device.</p>
+
+    <div class="share-row">
+      <a id="shareWhatsapp" class="ghost-btn" target="_blank" rel="noopener">Share on WhatsApp</a>
+      <a id="shareTelegram" class="ghost-btn" target="_blank" rel="noopener">Share on Telegram</a>
+      <a id="channelLink" class="ghost-btn" target="_blank" rel="noopener"></a>
+    </div>
+  </footer>
+
+</main>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

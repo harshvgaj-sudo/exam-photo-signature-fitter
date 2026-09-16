@@ -32,17 +32,20 @@ const SUITES = [
   ['test_core.mjs', 'the corrected core: crop geometry, size search, per-preset compliance'],
   ['test_old_algorithm.mjs', 'the OLD algorithm from the shipped build, measured against real specs'],
   ['test_verifier.mjs', 'the OLD link-verifier predicate, against real URLs'],
+  ['test_certificate_pdf.mjs', 'the PDF writer: A4 pages, JPEG embedded byte-for-byte, predictable size'],
 ];
 
 console.log('Photo & Signature Fitter — full verification\n');
 
-// 1. Build first, so the single-file suite tests current source.
-console.log('> building single-file bundle');
-const built = await new Promise((resolve) => {
-  const p = spawn(NODE, [join(ROOT, 'build_single_file.mjs')], { stdio: 'inherit' });
-  p.on('close', (c) => resolve(c === 0));
-});
-if (!built) { console.error('\nBuild failed. Stopping.'); process.exit(1); }
+// 1. Build first, so the single-file suites test current source.
+console.log('> building single-file bundles');
+for (const script of ['build_single_file.mjs', 'build_certificate_pdf.mjs']) {
+  const built = await new Promise((resolve) => {
+    const p = spawn(NODE, [join(ROOT, script)], { stdio: 'inherit' });
+    p.on('close', (c) => resolve(c === 0));
+  });
+  if (!built) { console.error(`\n${script} failed. Stopping.`); process.exit(1); }
+}
 
 const results = [];
 for (const [script, label] of SUITES) {
@@ -61,6 +64,9 @@ try {
 
 console.log('\n> test_single_file.mjs — single-file build from file://, no server, responsive sweep');
 results.push(['test_single_file.mjs', await run('test_single_file.mjs')]);
+
+console.log('\n> test_certificate_tool.mjs — the second tool, end to end from file://');
+results.push(['test_certificate_tool.mjs', await run('test_certificate_tool.mjs')]);
 
 // 3. The report is a deliverable too, so it gets checked the same way: opened in a
 // real browser, with every table-of-contents anchor and the captured output blocks
