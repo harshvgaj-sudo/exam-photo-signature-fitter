@@ -3,9 +3,9 @@ Photo & Signature Fitter — full verification
 > building single-file bundles
 BUILD OK
   output      : C:\Users\harsh\WorkBuddy AI\2026-09-14-10-03-21\govdocs-review\dist\photo-signature-fitter.html
-  size        : 77.2 KB (one file, no dependencies)
+  size        : 95.5 KB (one file, no dependencies)
   modules     : js/config.js, js/specs.js, js/core.js, js/app.js
-  registry    : 16 requirements, 7 VERIFIED, 2 flagged marginal
+  registry    : 17 requirements, 13 VERIFIED, 2 DERIVED, 1 UNVERIFIED, 2 flagged marginal
   guard       : provenance + arithmetic checks passed
   local refs  : none
   opens from  : file:// (double-click) or any static host
@@ -37,6 +37,16 @@ A minimal valid entry must pass, so the tests below isolate one fault each:
 Provenance rules:
   ok    VERIFIED with no source
   ok    VERIFIED with no verifiedOn
+  ok    an unknown status value
+
+A box derived from a printed size rather than stated in pixels:
+  ok    DERIVED with no source
+  ok    DERIVED with no verifiedOn
+  ok    DERIVED with no dpi, hiding the fact that the resolution is ours
+  ok    DERIVED with a non-numeric dpi
+  ok    DERIVED with no note, so the dpi choice is never disclosed
+  ok    a correctly declared DERIVED entry passes
+  ok    a VERIFIED entry carrying a dpi is still fine, it just does not need one
 
 The claim must carry its evidence:
   ok    no feasibility declared
@@ -82,7 +92,7 @@ Arithmetic and shape:
   ok    missing id
 
 ====================================================================================================
-  passed: 35    failed: 0
+  passed: 43    failed: 0
   Every guard rule fires on a broken entry, and stays silent on a good one.
 ====================================================================================================
 
@@ -125,10 +135,10 @@ THE BUNDLER IS SOUND: every inlineable form is stripped, and the net catches the
 PART 1 — STATIC REGISTRY GUARD
 The same rules the build enforces, run against the shipping registry.
 ================================================================================================================
-  ok    all 16 entries satisfy the registry guard
-  ok    7 of 16 entries are VERIFIED: ssc-signature, ssc-photo, ssc-lti, ssc-declaration, rrb-signature, mpsc-photo, mpsc-signature
-  ok    15 of 16 entries declare a measurement sweep
-  ok    174 measurement points in total
+  ok    all 17 entries satisfy the registry guard
+  ok    13 of 17 entries are VERIFIED: ssc-signature, ssc-photo, ssc-lti, ssc-declaration, ibps-signature, ibps-photo, ibps-lti, ibps-declaration, upsc-photo, upsc-signature, rrb-signature, mpsc-photo, mpsc-signature
+  ok    16 of 17 entries declare a measurement sweep
+  ok    226 measurement points in total
 
 ================================================================================================================
 PART 2 — FEASIBILITY, MEASURED IN A REAL BROWSER
@@ -136,10 +146,10 @@ Every declaration is checked against the browser, over the grid the entry declar
 A box is 'comfortable' when EVERY input clears the floor by at least 1.15x.
 'marginal' means some inputs clear it and some do not — input-dependent by definition.
 ================================================================================================================
-  fixtures: 43 JPEG file(s), 33.9 MB total
-  jobs    : 174 measurement(s) across 15 registry entries
+  fixtures: 75 JPEG file(s), 65.2 MB total
+  jobs    : 226 measurement(s) across 16 registry entries
   browser : Chrome/153.0.0.0 (real system Chrome)
-  measured : 2026-09-20T10:00:22.680Z
+  measured : 2026-09-20T10:20:31.521Z
 
 SPEC                  BOX        WINDOW      q1.0 OVER THE SWEEP PASS    DECLARED     MEASURED     RESULT
 ----------------------------------------------------------------------------------------------------------------
@@ -147,30 +157,32 @@ SPEC                  BOX        WINDOW      q1.0 OVER THE SWEEP PASS    DECLARE
 ssc-signature         140x60     10-20KB     6.1-13.4KB          7/28    marginal     marginal     ok
   ok    ssc-signature-large: 'comfortable' confirmed — 13.4-69.9KB over 28 inputs, 28 pass
 ssc-signature-large   472x157    10-20KB     13.4-69.9KB         28/28   comfortable  comfortable  ok
-  ok    ssc-photo: 'comfortable' confirmed — 25.7-25.7KB over 1 inputs, 1 pass
-ssc-photo             200x230    20-50KB     25.7-25.7KB         1/1     comfortable  comfortable  ok
-  ok    ssc-photo-large: 'comfortable' confirmed — 151.2-151.2KB over 1 inputs, 1 pass
-ssc-photo-large       413x531    20-50KB     151.2-151.2KB       1/1     comfortable  comfortable  ok
+  ok    ssc-photo: 'comfortable' confirmed — 24.2-28.4KB over 5 inputs, 5 pass
+ssc-photo             200x230    20-50KB     24.2-28.4KB         5/5     comfortable  comfortable  ok
+  ok    ssc-photo-large: 'comfortable' confirmed — 145.9-165.8KB over 5 inputs, 5 pass
+ssc-photo-large       413x531    20-50KB     145.9-165.8KB       5/5     comfortable  comfortable  ok
   ok    ssc-lti: 'comfortable' confirmed — 26.2-34.7KB over 7 inputs, 7 pass
 ssc-lti               240x240    20-50KB     26.2-34.7KB         7/7     comfortable  comfortable  ok
   ok    ssc-declaration: 'comfortable' confirmed — 180.8-323.5KB over 7 inputs, 7 pass
 ssc-declaration       800x400    50-100KB    180.8-323.5KB       7/7     comfortable  comfortable  ok
   ok    ibps-signature: 'marginal' confirmed — 6.4-13.5KB over 28 inputs, 7 pass
 ibps-signature        140x60     10-20KB     6.4-13.5KB          7/28    marginal     marginal     ok
-  ok    ibps-photo: 'comfortable' confirmed — 25.7-25.7KB over 1 inputs, 1 pass
-ibps-photo            200x230    20-50KB     25.7-25.7KB         1/1     comfortable  comfortable  ok
-  ok    ibps-photo-cm: 'comfortable' confirmed — 127.3-127.3KB over 1 inputs, 1 pass
-ibps-photo-cm         531x413    20-50KB     127.3-127.3KB       1/1     comfortable  comfortable  ok
+  ok    ibps-photo: 'comfortable' confirmed — 24.2-28.4KB over 5 inputs, 5 pass
+ibps-photo            200x230    20-50KB     24.2-28.4KB         5/5     comfortable  comfortable  ok
+  ok    ibps-photo-cm: 'comfortable' confirmed — 49.2-57.5KB over 5 inputs, 5 pass
+ibps-photo-cm         354x276    20-50KB     49.2-57.5KB         5/5     comfortable  comfortable  ok
   ok    ibps-lti: 'comfortable' confirmed — 26.2-34.7KB over 7 inputs, 7 pass
 ibps-lti              240x240    20-50KB     26.2-34.7KB         7/7     comfortable  comfortable  ok
   ok    ibps-declaration: 'comfortable' confirmed — 180.8-323.5KB over 7 inputs, 7 pass
 ibps-declaration      800x400    50-100KB    180.8-323.5KB       7/7     comfortable  comfortable  ok
-  ok    upsc-photo: 'comfortable' confirmed — 165.2-165.2KB over 1 inputs, 1 pass
-upsc-photo            500x500    20-300KB    165.2-165.2KB       1/1     comfortable  comfortable  ok
+  ok    upsc-photo: 'comfortable' confirmed — 159.1-182.5KB over 5 inputs, 5 pass
+upsc-photo            500x500    20-200KB    159.1-182.5KB       5/5     comfortable  comfortable  ok
+  ok    upsc-signature: 'comfortable' confirmed — 37.4-111.1KB over 28 inputs, 28 pass
+upsc-signature        350x350    20-100KB    37.4-111.1KB        28/28   comfortable  comfortable  ok
   ok    rrb-signature: 'comfortable' confirmed — 35.2-127.1KB over 28 inputs, 28 pass
 rrb-signature         551x315    30-49KB     35.2-127.1KB        28/28   comfortable  comfortable  ok
-  ok    mpsc-photo: 'comfortable' confirmed — 57.4-57.4KB over 1 inputs, 1 pass
-mpsc-photo            276x354    1-50KB      57.4-57.4KB         1/1     comfortable  comfortable  ok
+  ok    mpsc-photo: 'comfortable' confirmed — 54.0-65.5KB over 5 inputs, 5 pass
+mpsc-photo            276x354    1-50KB      54.0-65.5KB         5/5     comfortable  comfortable  ok
   ok    mpsc-signature: 'comfortable' confirmed — 13.3-38.1KB over 28 inputs, 28 pass
 mpsc-signature        276x118    1-50KB      13.3-38.1KB         28/28   comfortable  comfortable  ok
 ----------------------------------------------------------------------------------------------------------------
@@ -181,25 +193,26 @@ The official PDF requires the image to be "clearly visible". Any produced file t
 JPEG quality below 0.3 to fit its window fails that requirement.
 ================================================================================================================
   ok    every produced file kept JPEG quality at or above 0.3
-  ok    quality range across all 132 produced files: 0.875 - 1.000
+  ok    quality range across all 184 produced files: 0.875 - 1.000
 
   Per-entry measured range, for the registry comments:
   SPEC                  q1.0 RANGE            QUALITY TO FIT    PASS    WORST INPUT
   ------------------------------------------------------------------------------------------------
   ssc-signature         6.1-13.4KB            1.000 - 1.000     7/28    grain 4, density 6 = 6.1KB
   ssc-signature-large   13.4-69.9KB           0.875 - 1.000     28/28   grain 0, density 6 = 13.4KB
-  ssc-photo             25.7-25.7KB           1.000 - 1.000     1/1     grain 12 = 25.7KB
-  ssc-photo-large       151.2-151.2KB         0.945 - 0.945     1/1     grain 12 = 151.2KB
+  ssc-photo             24.2-28.4KB           1.000 - 1.000     5/5     grain 0 = 24.2KB
+  ssc-photo-large       145.9-165.8KB         0.935 - 0.955     5/5     grain 0 = 145.9KB
   ssc-lti               26.2-34.7KB           1.000 - 1.000     7/7     grain 0 = 26.2KB
   ssc-declaration       180.8-323.5KB         0.915 - 0.985     7/7     grain 0 = 180.8KB
   ibps-signature        6.4-13.5KB            1.000 - 1.000     7/28    grain 4, density 6 = 6.4KB
-  ibps-photo            25.7-25.7KB           1.000 - 1.000     1/1     grain 12 = 25.7KB
-  ibps-photo-cm         127.3-127.3KB         0.965 - 0.965     1/1     grain 12 = 127.3KB
+  ibps-photo            24.2-28.4KB           1.000 - 1.000     5/5     grain 0 = 24.2KB
+  ibps-photo-cm         49.2-57.5KB           0.995 - 1.000     5/5     grain 0 = 49.2KB
   ibps-lti              26.2-34.7KB           1.000 - 1.000     7/7     grain 0 = 26.2KB
   ibps-declaration      180.8-323.5KB         0.915 - 0.985     7/7     grain 0 = 180.8KB
-  upsc-photo            165.2-165.2KB         1.000 - 1.000     1/1     grain 12 = 165.2KB
+  upsc-photo            159.1-182.5KB         1.000 - 1.000     5/5     grain 0 = 159.1KB
+  upsc-signature        37.4-111.1KB          0.995 - 1.000     28/28   grain 0, density 6 = 37.4KB
   rrb-signature         35.2-127.1KB          0.935 - 1.000     28/28   grain 0, density 6 = 35.2KB
-  mpsc-photo            57.4-57.4KB           0.995 - 0.995     1/1     grain 12 = 57.4KB
+  mpsc-photo            54.0-65.5KB           0.995 - 0.995     5/5     grain 0 = 54.0KB
   mpsc-signature        13.3-38.1KB           1.000 - 1.000     28/28   grain 0, density 6 = 13.3KB
   ------------------------------------------------------------------------------------------------
 
@@ -333,16 +346,17 @@ SSC — Photograph (larger box, 3.5 x   413x531    20-50KB    47.99KB    1/1 pas
 SSC — Left thumb impression           240x240    20-50KB    40.23KB    7/7 pass       PASS
 SSC — Handwritten declaration         800x400    50-100KB   93.81KB    7/7 pass       PASS
 IBPS — Signature                      140x60     10-20KB    10.22KB    7/28 pass      model-only (browser passes 7/28)
-IBPS — Photograph (as stated in the   200x230    20-50KB    25.56KB    1/1 pass       PASS
-IBPS — Photograph (cm reading)        531x413    20-50KB    48.20KB    1/1 pass       PASS
+IBPS — Photograph                     200x230    20-50KB    25.56KB    1/1 pass       PASS
+IBPS — Photograph (cm reading, lands  354x276    20-50KB    40.12KB    1/1 pass       PASS
 IBPS — Left thumb impression          240x240    20-50KB    40.23KB    7/7 pass       PASS
 IBPS — Handwritten declaration        800x400    50-100KB   93.81KB    7/7 pass       PASS
-UPSC — Photograph                     500x500    20-300KB   175.72KB   1/1 pass       PASS
+UPSC — Photograph                     500x500    20-200KB   175.72KB   1/1 pass       PASS
+UPSC — Signature (triple, one image)  350x350    20-100KB   98.26KB    not measured   PASS
 RRB — Signature (CEN 09/2025)         551x315    30-49KB    44.88KB    not measured   PASS
 MPSC — Photograph                     276x354    1-50KB     44.51KB    not measured   PASS
 MPSC — Signature                      276x118    1-50KB     29.41KB    not measured   PASS
 ------------------------------------------------------------------------------------------------------------------
-  model and browser agree on: 13    model-only (overstated): 2
+  model and browser agree on: 14    model-only (overstated): 2
   honest refusal: 0    claimed success but failed verify: 0
   unit-test failures: 0
   A false-success count of 0 is the point: verify() gates every claim.
@@ -529,7 +543,7 @@ the old predicate still reproduces its defects, so the report's evidence holds
 PDF writer verified — A4, verbatim JPEG, predictable size
 ==========================================================
 
-> test_browser.mjs — modular version over HTTP (port 62041)
+> test_browser.mjs — modular version over HTTP (port 59533)
 
 --- 1. page loads, preset applied, provenance shown ---
 title      : Photo & Signature Fitter
@@ -580,7 +594,7 @@ status          : Matches these file requirements 472x157 px, 18.69 KB, within t
   ok   the downloaded file is inside 10-20 KB  — 18.69 KB
 
 --- 7. second preset: UPSC 500x500, 20-300 KB ---
-status          : Matches these file requirements 500x500 px, 153.67 KB, within the 20-300 KB window. Still confirm on the official upload page.
+status          : Matches these file requirements 500x500 px, 153.67 KB, within the 20-200 KB window. Still confirm on the official upload page.
   file            : upsc-photo_500x500.jpg, 157363 bytes (153.67 KB)
   jpeg SOF dims   : 500x500
   ok   the downloaded file is 500x500  — 500x500
@@ -615,7 +629,7 @@ canvas dims     : 472x157
   ok   the header is byte-identical to the policy under test  — identical
   ok   connect-src 'none' blocks a same-origin fetch  — blocked
   ok   default-src 'none' blocks a cross-origin script  — blocked
-  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:62041/index.html | script-src-elem <- https://example.com/evil.js
+  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:59533/index.html | script-src-elem <- https://example.com/evil.js
 
 --- 13. EXIF orientation: a portrait phone photo must not come out sideways ---
   ok   the fixture really carries Orientation=6  — read back 6
@@ -660,17 +674,17 @@ url: file:///C:/Users/harsh/WorkBuddy AI/2026-09-14-10-03-21/govdocs-review/dist
 --- 1. does it even boot without a server? ---
 title            : Photo & Signature Fitter
 theme applied    : light
-presets populated: 16
+presets populated: 17
 module refs left : []
   ok   the page boots from file:// with its real title  — Photo & Signature Fitter
-  ok   presets are populated  — 16 options
+  ok   presets are populated  — 17 options
   ok   no external file references remain
 
 --- 2. deep link: ?preset=ibps-photo ---
 selected preset  : ibps-photo
-spec line        : IBPS — Photograph (as stated in the notes) — 200x230 px, 20-50 KB, JPEG. Status: UNVERIFIED. Measured fit: comfortable (2026-09-20).
+spec line        : IBPS — Photograph — 200x230 px, 20-50 KB, JPEG. Status: VERIFIED. Measured fit: comfortable (2026-09-20).
 caution shown    : true
-rules listed     : 2
+rules listed     : 7
   ok   a ?preset= deep link selects that preset
 
 --- 3. the marginal preset must say so, and offer the documented way out ---

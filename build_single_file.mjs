@@ -88,12 +88,18 @@ writeFileSync(outFile, result.html, 'utf8');
 
 const kb = (Buffer.byteLength(result.html) / 1024).toFixed(1);
 const verified = SPECS.filter((s) => s.status === 'VERIFIED').length;
+const derived = SPECS.filter((s) => s.status === 'DERIVED').length;
+const unverified = SPECS.filter((s) => s.status === 'UNVERIFIED').length;
 const marginal = SPECS.filter((s) => s.feasibility === 'marginal').length;
 console.log('BUILD OK');
 console.log('  output      : ' + outFile);
 console.log('  size        : ' + kb + ' KB (one file, no dependencies)');
 console.log('  modules     : ' + MODULES.join(', '));
-console.log('  registry    : ' + specCount + ' requirements, ' + verified + ' VERIFIED, ' + marginal + ' flagged marginal');
+// DERIVED and UNVERIFIED are reported separately rather than folded into one
+// "not verified" count: they are different claims, and a summary that blurs them
+// is the same mistake the status field was split up to avoid.
+console.log('  registry    : ' + specCount + ' requirements, ' + verified + ' VERIFIED, ' +
+  derived + ' DERIVED, ' + unverified + ' UNVERIFIED, ' + marginal + ' flagged marginal');
 console.log('  guard       : provenance + arithmetic checks passed');
 console.log('  local refs  : none');
 console.log('  opens from  : file:// (double-click) or any static host');

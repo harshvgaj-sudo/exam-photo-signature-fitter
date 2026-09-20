@@ -48,28 +48,71 @@ So this tool does two things most do not:
 
 ## Presets
 
-16 presets, each carrying its own provenance. The registry is deliberately honest about what has
+17 presets, each carrying its own provenance. The registry is deliberately honest about what has
 been verified against a primary source and what has not:
 
 | Status | Count | Meaning |
 |---|---|---|
-| `VERIFIED` | 7 | Checked against the official document |
-| `UNVERIFIED` | 8 | From secondary sources — treat the numbers as a starting point |
+| `VERIFIED` | 13 | The document states these pixels and this window |
+| `DERIVED` | 2 | The document states a **printed size**; the pixel box is that figure converted at a DPI this tool chose |
+| `UNVERIFIED` | 1 | Relayed second-hand and never seen in a document — treat as a starting point |
 | `CUSTOM` | 1 | You supply the dimensions and the size window |
+
+`DERIVED` exists because the old two-value model was wrong in both directions. It called a box
+"unverified" when the *requirement* was official and only the conversion was ours, which told a user
+to distrust a number the government had actually published. The guard now requires a `dpi` and a note
+from any `DERIVED` entry, so the part the document does not state is disclosed rather than buried.
 
 SSC, IBPS, UPSC, RRB and MPSC presets are included, plus a custom requirement. Each preset supports
 a deep link (`?preset=ssc-signature`) so a specific requirement can be linked directly.
 
-Three of the verified entries come from documents read in full rather than from a summary:
+Five government documents were read in full rather than summarised:
 
 | Exam | Document | Read |
 |---|---|---|
 | SSC | "Guidelines for scanning and Upload of Documents" (4 pp) | 2026-09-14 |
+| IBPS | "Guidelines for scanning and Upload of Photograph, Signature, Left-Hand Thumb Impression & Hand-Written Declaration" — Annexure-II (3 pp) | 2026-09-20 |
+| UPSC | "Instructions for Uploading the Photo & Signature" (7 pp), plus OTR FAQ Q44 | 2026-09-20 |
 | RRB | CEN No. 09/2025 (Level-1), para 16.5.1 (74 pp) | 2026-09-20 |
 | MPSC | "Instructions for Filling the Application Form" (3 pp) | 2026-09-20 |
 
 Searching for these numbers returns dozens of "photo resizer" pages, and they contradict each other
 and the government PDFs. Every number above was read out of the PDF itself.
+
+### IBPS publishes the same numbers as SSC
+
+Four IBPS entries used to be `UNVERIFIED`, each carrying a warning that the figure was *"identical to
+the SSC spec, which suggests the note copied the SSC template"*. That suspicion was reasonable and it
+was **wrong**: the IBPS guideline states exactly the same four numbers, deliberately.
+
+| | IBPS official | SSC official |
+|---|---|---|
+| Photograph | 200 × 230 px, 20–50 KB | 200 × 230 px, 20–50 KB |
+| Signature | 140 × 60 px, 10–20 KB | 140 × 60 px, 10–20 KB |
+| Thumb impression | 240 × 240 px @200 DPI, 20–50 KB | 240 × 240 px, 20–50 KB |
+| Declaration | 800 × 400 px @200 DPI, 50–100 KB | 800 × 400 px @200 DPI, 50–100 KB |
+
+Two things the notes missed entirely: IBPS requires a **live** photograph captured by webcam or QR
+code **in addition to** the scanned one (unlike SSC, where the photograph is live-capture only and
+there is nothing to prepare), and it sets a **200 DPI** minimum scan resolution.
+
+### UPSC's two official documents disagree
+
+| | Instructions PDF | OTR FAQ Q44 |
+|---|---|---|
+| Photograph | 20–200 KB | 20–300 KB |
+| Signature | 20–100 KB | 20–300 KB |
+| Dimensions | 350–500 px | 350–1000 px |
+
+Where they conflict the presets ship the **intersection**, so a file produced here cannot be refused
+for size by either document. The UPSC signature is also unlike any other requirement here: it is the
+same signature written **three times**, stacked vertically, scanned as a single image — which is why
+it is measured on a fixture that actually draws three signatures rather than one.
+
+One rule was **removed** rather than verified: the old `upsc-photo` rule "Name and date of the
+photograph must be printed at the bottom of the photo". Neither official document says it, the
+instructions' own DOs and DON'Ts list does not mention it, and the secondary sites contradict each
+other about it in both directions. It was an unsourced claim in a rules list.
 
 ### A requirement with a ceiling and no floor
 
@@ -150,7 +193,8 @@ dist/                      the built single-file versions
 bundler.mjs                the shared single-file bundler
 build_single_file.mjs      builds dist/photo-signature-fitter.html
 build_certificate_pdf.mjs  builds dist/certificate-to-pdf.html
-_verify/                   the test suites
+_verify/                   the test suites, plus the standalone probes
+_verify/fixtures.mjs       the deterministic fixture generators, shared by every suite
 ```
 
 `reference-tool/js/core.js` holds the pure logic — crop geometry, the quality search, and per-preset
@@ -177,15 +221,29 @@ render, measures text contrast against WCAG AA, and asserts no horizontal overfl
 1024 / 1440 px. It carries a negative control: it plants an external request and requires the
 detector to fire, so the check cannot silently become a no-op.
 
-Note that `check_specs.mjs` regenerates its fixtures on every run (~35 MB of generated images, all
+Note that `check_specs.mjs` regenerates its fixtures on every run (~65 MB of generated images, all
 gitignored). If you want the working tree to stay small, run the suites only when you are changing
 behaviour.
 
 The suites assert the **verdict** for each preset (`comfortable` / `marginal`), not the prose that
 describes it. To stop the prose drifting out of date, `check_specs.mjs` also prints a per-entry table
 of the measured range, the JPEG quality needed to fit, and the worst input — paste from that rather
-than from memory. `_verify/probe_rrb_box.mjs` and `_verify/probe_ink_axis.mjs` are standalone probes
-that print the raw grids behind two of the findings above.
+than from memory.
+
+Four standalone probes print the raw grids behind the findings above:
+
+| Probe | Answers |
+|---|---|
+| `_verify/probe_rrb_box.mjs` | Which scan resolution holds the RRB 30–49 KB window |
+| `_verify/probe_ink_axis.mjs` | Whether "more ink" actually produces a larger signature file |
+| `_verify/probe_upsc_sig_box.mjs` | Which square holds UPSC's triple-signature window |
+| `_verify/probe_photo_sweep.mjs` | Whether the photo presets are comfortable on a real sweep or only on one fixture |
+
+The last one exists because every photo preset declared a **one-point** sweep. `classifySweep()` says
+in its own doc comment that "a single measurement cannot separate 'marginal' from 'comfortable'",
+and the reason the sweep was one point was mechanical: `makePhoto()` had no grain parameter, so
+asking for several grain levels produced the same image several times over. It has one now. Every
+photo box turned out to be comfortable anyway — but it was an assertion before, and it is evidence now.
 
 ## Requirements
 

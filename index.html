@@ -361,7 +361,7 @@ h2.section {
         <strong>file-size window</strong>. If no quality can reach the floor, it says so and
         offers no download rather than handing you a file that will bounce.
       </p>
-      <p class="spec"><b>16 presets</b> SSC &middot; IBPS &middot; UPSC &middot; RRB &middot; MPSC &middot; custom</p>
+      <p class="spec"><b>17 presets</b> SSC &middot; IBPS &middot; UPSC &middot; RRB &middot; MPSC &middot; custom</p>
       <span class="tool-go">Open the tool <svg class="ic" aria-hidden="true"><use href="#i-arrow"></use></svg></span>
     </a>
 
@@ -419,17 +419,30 @@ h2.section {
     <h2 id="h-prov"><svg class="ic" aria-hidden="true"><use href="#i-badge-check"></use></svg>Where the numbers come from</h2>
     <p>
       Secondary websites contradict each other on these requirements &mdash; some published
-      315 &times; 157 px for a signature the official SSC document states as 140 &times; 60 px, and
-      others quote a 20 KB minimum for an MPSC photograph whose official instructions state a
-      50 KB maximum and no minimum at all. So every preset carries its own provenance, and says
-      plainly whether a primary source was read.
+      315 &times; 157 px for a signature the official SSC document states as 140 &times; 60 px, others
+      quote a 20 KB minimum for an MPSC photograph whose official instructions state a 50 KB
+      maximum and no minimum at all, and others still give a UPSC signature as 140 &times; 60 px when
+      the official instructions ask for something else entirely. So every preset carries its own
+      provenance, and says plainly whether a primary source was read.
     </p>
 
     <ul class="counts">
-      <li class="count ok"><b>7</b><span>Verified against the official document</span></li>
-      <li class="count warn"><b>8</b><span>From secondary sources &mdash; treat as a starting point</span></li>
+      <li class="count ok"><b>13</b><span>Verified against the official document</span></li>
+      <li class="count"><b>2</b><span>Official printed size &mdash; the pixel box is that figure at a chosen DPI</span></li>
+      <li class="count warn"><b>1</b><span>Relayed second-hand &mdash; treat as a starting point</span></li>
       <li class="count"><b>1</b><span>Custom &mdash; you supply the numbers</span></li>
     </ul>
+
+    <p class="callout">
+      <b>A suspicion that turned out to be wrong.</b>
+      Four IBPS presets were previously labelled &ldquo;identical to the SSC spec, which suggests the
+      note copied the SSC template&rdquo;. IBPS publishes its own guideline, and it states
+      <em>exactly</em> the same four numbers &mdash; 200 &times; 230 px / 20&ndash;50 KB for the photo,
+      140 &times; 60 px / 10&ndash;20 KB for the signature, 240 &times; 240 px for the thumb impression,
+      800 &times; 400 px / 50&ndash;100 KB for the declaration. It is the same template on purpose.
+      Learn one set of numbers and it covers both exams. What the notes missed is that IBPS also
+      requires a <em>live</em> photograph in addition to the scanned one.
+    </p>
 
     <p class="callout">
       <b>One finding worth knowing: the risk runs the other way.</b>
@@ -446,6 +459,16 @@ h2.section {
       nearly three times what the same box actually reaches. Measured at every scan resolution the
       CEN permits, the smallest one that works is <strong>400 DPI</strong> on the CEN's own 35 &times;
       20 mm scan box, which is what the preset uses.
+    </p>
+
+    <p class="callout">
+      <b>And UPSC's own two documents disagree with each other.</b>
+      The &ldquo;Instructions for Uploading the Photo &amp; Signature&rdquo; cap the photograph at
+      200 KB and the signature at 100 KB, in 350&ndash;500 px. The OTR FAQ allows 300 KB for both and
+      1000 px. Where they conflict, the presets ship the <em>intersection</em>, so a file this tool
+      produces cannot be refused for size by either document. The UPSC signature is also unlike any
+      other here: it is the <strong>same signature written three times</strong>, stacked vertically,
+      scanned as one image.
     </p>
   </section>
 

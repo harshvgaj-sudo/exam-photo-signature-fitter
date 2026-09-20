@@ -20,6 +20,7 @@ import { NO_MINIMUM_KB } from './reference-tool/js/specs.js';
 /** Bytes per pixel the minimum size demands. Above ~1.0 is at the JPEG limit. */
 export const BYTES_PER_PIXEL_LIMIT = 1.0;
 export const KNOWN_FEASIBILITY = ['comfortable', 'marginal', 'unreachable'];
+export const KNOWN_STATUS = ['VERIFIED', 'DERIVED', 'UNVERIFIED', 'CUSTOM'];
 
 /**
  * @param {Array<object>} specs
@@ -41,9 +42,30 @@ export function checkRegistry(specs) {
 
     if (!s.id) bad('registry: an entry has no id');
 
+    if (!KNOWN_STATUS.includes(s.status)) {
+      bad(`${at} has an unknown status "${s.status}"`);
+    }
+
     if (s.status === 'VERIFIED') {
       if (!s.source) bad(`${at} is VERIFIED but has no source`);
       if (!s.verifiedOn) bad(`${at} is VERIFIED but has no verifiedOn date`);
+    }
+
+    /* --------------------------------------------------- derived from a source */
+    // DERIVED means the document states the requirement as a PRINTED SIZE or a
+    // RANGE, and the pixel box is that figure converted at a resolution we chose.
+    // The claim is therefore weaker than VERIFIED, and the two things that make it
+    // honest are the source (it IS a document) and the resolution (it is NOT).
+    // Without both, a DERIVED entry is just an invented box wearing a status badge.
+    if (s.status === 'DERIVED') {
+      if (!s.source) bad(`${at} is DERIVED but has no source`);
+      if (!s.verifiedOn) bad(`${at} is DERIVED but has no verifiedOn date`);
+      if (!Number.isFinite(s.dpi) || s.dpi <= 0) {
+        bad(`${at} is DERIVED but declares no dpi; the scan resolution is the part the source does not state`);
+      }
+      if (!s.note) {
+        bad(`${at} is DERIVED but has no note; the note is where the dpi choice is disclosed`);
+      }
     }
 
     if (s.status === 'CUSTOM') continue;

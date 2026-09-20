@@ -14,7 +14,7 @@ let seed = 1;
 export const resetSeed = (s) => { seed = s; };
 const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
 
-export const SEEDS = { photo: 2002, scan: 1001, detailed: 3003, thumb: 4004, text: 5005 };
+export const SEEDS = { photo: 2002, scan: 1001, detailed: 3003, thumb: 4004, text: 5005, triple: 6006 };
 
 /* ------------------------------------------------------------------ images */
 
@@ -26,8 +26,16 @@ export const SEEDS = { photo: 2002, scan: 1001, detailed: 3003, thumb: 4004, tex
  * and left a near-flat image that compressed to a few KB. That made the fixture
  * behave nothing like a real photograph. Real scenes keep detail when reduced,
  * because the structure is large relative to the pixels.
+ *
+ * `grain` is the capture-quality axis: 0 is a clean capture, 32 a noisy phone
+ * photo. It exists because every photo preset used to declare a ONE-POINT sweep —
+ * the parameter did not exist, so a "sweep" of several grain levels produced the
+ * same image several times over. classifySweep() states the rule this violated:
+ * a single measurement cannot separate 'marginal' from 'comfortable', because
+ * input variation is the whole question. A photo is the case where that bites
+ * hardest, since the floor is a size the capture quality directly controls.
  */
-export function makePhoto(w, h) {
+export function makePhoto(w, h, grain = 12) {
   const d = Buffer.alloc(w * h * 4);
   const cx = 0.5 * w, cy = 0.44 * h, rx = 0.24 * w, ry = 0.32 * h;
 
@@ -64,8 +72,16 @@ export function makePhoto(w, h) {
       v += 10 * Math.sin(x / 3.1) * Math.cos(y / 2.7);
       v += 7 * Math.sin(x / 1.7 + y / 1.3);
 
-      // Sensor grain.
-      v += (rnd() - 0.5) * 16;
+      // Sensor grain. `grain` is the capture-quality axis, the same knob makeScan
+      // exposes, so a photo preset is measured over a sweep rather than one image.
+      //
+      // The multiplication is written as (grain * 16 / 12) rather than
+      // (grain * (16/12)) on purpose: 16/12 is not exact in binary, so the second
+      // form makes grain=12 produce 15.999999999999998 instead of 16 and silently
+      // changes every existing photo fixture by a byte or two. This form is exact
+      // integer arithmetic at the default, so grain=12 reproduces the original
+      // fixture bit for bit and every earlier photo measurement stays valid.
+      v += (rnd() - 0.5) * (grain * 16 / 12);
 
       const c = Math.max(0, Math.min(255, v));
       const i = (y * w + x) * 4;
@@ -244,6 +260,68 @@ export function makeText(w, h, lines = 8, grain = 10) {
         if (x > lineEnd) break;
       }
       x += xh * (0.5 + rnd() * 0.4);
+    }
+  }
+  return { data: d, width: w, height: h };
+}
+
+/**
+ * Three signatures stacked vertically on one sheet — UPSC's "triple signature".
+ *
+ * UPSC does not ask for a signature the way every other portal here does. It asks
+ * for the SAME signature signed three times, one below the other, with a gap
+ * between them, all three scanned as a SINGLE image. So the document this preset
+ * receives is not one signature but three, and its size is driven by roughly three
+ * times the ink.
+ *
+ * Measuring it with makeScan would understate the file by about a factor of three,
+ * and at a 20 KB floor that decides the verdict. The three bands and the vertical
+ * arrangement are stated in the source document, so they are modelled rather than
+ * approximated.
+ *
+ * Same two knobs as makeScan, for the same reason: grain is scan quality, density
+ * is how much ink each of the three signatures carries.
+ */
+export function makeTripleSign(w, h, grain = 12, density = 1) {
+  const d = Buffer.alloc(w * h * 4);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const lighting = 244 - 14 * (x / w) - 10 * (y / h);
+      const v = Math.max(0, Math.min(255, lighting + (rnd() - 0.5) * grain * 2));
+      const i = (y * w + x) * 4;
+      d[i] = v; d[i + 1] = v; d[i + 2] = v * 0.99; d[i + 3] = 255;
+    }
+  }
+  const put = (x, y) => {
+    if (x < 0 || y < 0 || x >= w || y >= h) return;
+    const i = (y * w + x) * 4;
+    d[i] = 22; d[i + 1] = 26; d[i + 2] = 90; d[i + 3] = 255;
+  };
+
+  // Strokes are scaled to a BAND, not to the sheet: each signature occupies a
+  // third of the height, so a stroke as thick as makeScan's would merge the three
+  // into one blob and compress far better than a real page of three signatures.
+  const th = Math.max(1, Math.round(h * 0.014 * (1 + (density - 1) * 0.6)));
+  const extra = Math.max(0, Math.round((density - 1) * 3));
+  const top = 0.08, bottom = 0.92;
+  const bandH = (bottom - top) / 3;
+
+  for (let i = 0; i < 3; i++) {
+    const cy = top + bandH * (i + 0.55);
+    const amp = bandH * 0.30;
+    for (let x = Math.floor(w * 0.13); x < w * 0.87; x++) {
+      const t = (x / w - 0.13) / 0.74;
+      const y1 = h * (cy + amp * Math.sin(t * Math.PI * 1.6 + i * 0.9));
+      const y2 = h * (cy + amp * 0.62 * Math.sin(t * Math.PI * 2.2 + i * 1.3 + 1.1));
+      for (let k = 0; k < th; k++) { put(x, Math.round(y1) + k); put(x, Math.round(y2) + k); }
+      for (let e = 0; e < extra; e++) {
+        const y3 = h * (cy + amp * 0.85 * Math.sin(t * Math.PI * (1.3 + e * 0.6) + e + i * 0.5));
+        for (let k = 0; k < th; k++) put(x, Math.round(y3) + k);
+      }
+    }
+    // The underline people habitually add under a signature.
+    for (let x = Math.floor(w * 0.15); x < w * 0.78; x++) {
+      put(x, Math.round(h * (cy + bandH * 0.36)));
     }
   }
   return { data: d, width: w, height: h };

@@ -37,7 +37,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { SPECS } from '../reference-tool/js/specs.js';
-import { makePhoto, makeScan, makeThumb, makeText, writeJpeg, resetSeed, SEEDS } from './fixtures.mjs';
+import { makePhoto, makeScan, makeThumb, makeText, makeTripleSign, writeJpeg, resetSeed, SEEDS } from './fixtures.mjs';
 import { serve, TOOL, HERE } from './server.mjs';
 
 export const FIXTURE_DIR = join(HERE, 'fixtures');
@@ -59,13 +59,16 @@ export function makeFixture(fixture, grain, density) {
   switch (fixture) {
     case 'photo':
       resetSeed(SEEDS.photo);
-      return writeJpeg(null, makePhoto(4032, 3024), 92);
+      return writeJpeg(null, makePhoto(4032, 3024, grain), 92);
     case 'thumb':
       resetSeed(SEEDS.thumb);
       return writeJpeg(null, makeThumb(1200, 1200, grain), 90);
     case 'text':
       resetSeed(SEEDS.text);
       return writeJpeg(null, makeText(2400, 1200, 8, grain), 90);
+    case 'triple':
+      resetSeed(SEEDS.triple);
+      return writeJpeg(null, makeTripleSign(1500, 1500, grain, density ?? 1), 90);
     case 'scan':
     default:
       resetSeed(SEEDS.scan);

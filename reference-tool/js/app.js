@@ -4,7 +4,7 @@
  * Flow: pick requirement -> load image -> frame it -> fit -> VERIFY -> offer download.
  * The download button only ever appears after verify() passes.
  */
-import { SPECS, getSpec, DECLARATION_TEXT } from './specs.js';
+import { SPECS, getSpec } from './specs.js';
 import { coverRect, clampCrop, searchQuality, verify, explainFailure, describeWindow } from './core.js';
 import { CHANNEL, shareLinks } from './config.js';
 
@@ -147,6 +147,19 @@ function applySpec() {
     els.provenance.innerHTML =
       '<b>Custom requirement</b>Only the numbers you entered are checked. ' +
       'This tool cannot confirm that they match any real portal.';
+  } else if (state.spec.status === 'DERIVED') {
+    els.provenance.className = 'provenance';
+    // Deliberately NOT worded like the VERIFIED path. The requirement is official
+    // and the pixels are not, and a user who cannot tell those apart is being
+    // misled by the interface rather than by the registry.
+    els.provenance.innerHTML =
+      `<b>Requirement read from the official source document on ${state.spec.verifiedOn}</b>` +
+      `Source: ${state.spec.source}` +
+      `<br><b>The pixel box is not a quotation.</b> The document states this requirement as a ` +
+      `printed size or a range rather than as pixels, so ${state.spec.width} &times; ` +
+      `${state.spec.height} px is that figure read at ${state.spec.dpi} dpi — a resolution this ` +
+      `tool chose, not one the document states.` +
+      (state.spec.note ? `<br>${state.spec.note}` : '');
   } else if (state.spec.status === 'VERIFIED') {
     els.provenance.className = 'provenance';
     // The note is shown here too, not only on the unverified path. It is where the
@@ -229,10 +242,15 @@ function applySpec() {
   }
 
   /* ------------------------------------------------ the declaration, verbatim */
-  const isSscDeclaration =
-    state.spec.document === 'Declaration' && state.spec.status === 'VERIFIED';
-  els.declarationBox.hidden = !isSscDeclaration;
-  if (isSscDeclaration) els.declarationText.textContent = `\u201C${DECLARATION_TEXT}\u201D`;
+  // Keyed off the entry's own declarationText rather than its status. It used to be
+  // `document === 'Declaration' && status === 'VERIFIED'`, which was fine while SSC
+  // was the only verified declaration — but the IBPS guideline gives a DIFFERENT
+  // wording, so the moment ibps-declaration became VERIFIED that gate would have
+  // printed the SSC text under an IBPS heading. Which wording is right is a fact
+  // about the requirement, so it belongs on the requirement.
+  const declText = state.spec.declarationText || null;
+  els.declarationBox.hidden = !declText;
+  if (declText) els.declarationText.textContent = `\u201C${declText}\u201D`;
 
   // A live-capture requirement cannot be satisfied by any file we could produce.
   // Refuse before the user invests any effort, rather than after.

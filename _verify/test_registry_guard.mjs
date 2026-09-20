@@ -57,6 +57,57 @@ expect('minimal valid entry', [base()], false);
 console.log('\nProvenance rules:');
 expect('VERIFIED with no source', [base({ status: 'VERIFIED', source: '', verifiedOn: '2026-01-01' })], true, 'no source');
 expect('VERIFIED with no verifiedOn', [base({ status: 'VERIFIED', verifiedOn: null })], true, 'no verifiedOn');
+expect('an unknown status value', [base({ status: 'PROBABLY_FINE' })], true, 'unknown status');
+
+console.log('\nA box derived from a printed size rather than stated in pixels:');
+// DERIVED claims less than VERIFIED: the requirement is from a document, the pixel
+// box is not. The two fields that keep that honest are the source and the dpi, so
+// both are tested in both directions.
+expect(
+  'DERIVED with no source',
+  [base({ status: 'DERIVED', source: '', verifiedOn: '2026-01-01', dpi: 200, note: 'derived' })],
+  true,
+  'no source'
+);
+expect(
+  'DERIVED with no verifiedOn',
+  [base({ status: 'DERIVED', verifiedOn: null, dpi: 200, note: 'derived' })],
+  true,
+  'no verifiedOn'
+);
+// The dpi is the one part of a DERIVED entry the source does NOT state. An entry
+// without it is asserting a pixel box it cannot account for, which is the exact
+// thing the status exists to prevent.
+expect(
+  'DERIVED with no dpi, hiding the fact that the resolution is ours',
+  [base({ status: 'DERIVED', verifiedOn: '2026-01-01', note: 'derived' })],
+  true,
+  'no dpi'
+);
+expect(
+  'DERIVED with a non-numeric dpi',
+  [base({ status: 'DERIVED', verifiedOn: '2026-01-01', dpi: 'high', note: 'derived' })],
+  true,
+  'no dpi'
+);
+expect(
+  'DERIVED with no note, so the dpi choice is never disclosed',
+  [base({ status: 'DERIVED', verifiedOn: '2026-01-01', dpi: 200 })],
+  true,
+  'no note'
+);
+expect(
+  'a correctly declared DERIVED entry passes',
+  [base({ status: 'DERIVED', verifiedOn: '2026-01-01', dpi: 200, note: 'the source states a printed size, not pixels' })],
+  false
+);
+// VERIFIED must not be reachable by simply dropping the dpi: if the pixels were
+// really stated by the document it is VERIFIED, and if they were not it is DERIVED.
+expect(
+  'a VERIFIED entry carrying a dpi is still fine, it just does not need one',
+  [base({ status: 'VERIFIED', verifiedOn: '2026-01-01', dpi: 200 })],
+  false
+);
 
 console.log('\nThe claim must carry its evidence:');
 expect('no feasibility declared', [base({ feasibility: undefined })], true, 'no feasibility');
