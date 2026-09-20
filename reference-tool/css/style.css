@@ -13,6 +13,11 @@
   --ok-bg: #e7f6ec; --ok-br: #2f9e5f; --ok-tx: #14532d;
   --warn-bg: #fff5e6; --warn-br: #c47f17; --warn-tx: #6b4406;
   --bad-bg: #fdecec; --bad-br: #d64545; --bad-tx: #7a1c1c;
+  /* The middle level. A DERIVED requirement is official, so it must NOT look like
+     the amber warning given to an unverified one — but the pixel box is our
+     conversion, so it must not look like a verbatim quotation either. Blue reads
+     as "this is a note", which is what it is. */
+  --info-bg: #eaf2ff; --info-br: #1f6feb; --info-tx: #0b3d91;
   --radius: 10px;
 }
 
@@ -28,6 +33,7 @@
   --ok-bg: #10261a; --ok-br: #2f9e5f; --ok-tx: #a7e8c2;
   --warn-bg: #2a2113; --warn-br: #c47f17; --warn-tx: #f3d79a;
   --bad-bg: #2a1414; --bad-br: #d64545; --bad-tx: #f7b4b4;
+  --info-bg: #12203a; --info-br: #4c8dff; --info-tx: #cfe0ff;
 }
 
 * { box-sizing: border-box; }
@@ -118,6 +124,11 @@ button { font: inherit; cursor: pointer; border-radius: 8px; }
 /* ----------------------------------------------------------- provenance */
 .provenance { margin-top: 14px; padding: 12px 14px; border-radius: 8px; font-size: 13.5px; border: 1px solid var(--border); background: var(--surface-2); }
 .provenance.warn { background: var(--warn-bg); border-color: var(--warn-br); color: var(--warn-tx); }
+/* Distinct from BOTH of the others. Until this existed, a DERIVED entry rendered in
+   the same neutral box as a VERIFIED one and the only thing separating them was a
+   paragraph the user had to actually read — which made the status model invisible
+   exactly where it matters most. */
+.provenance.derived { background: var(--info-bg); border-color: var(--info-br); color: var(--info-tx); }
 .provenance b { display: block; margin-bottom: 4px; }
 
 /* ---------------------------------------------------------------- stage */

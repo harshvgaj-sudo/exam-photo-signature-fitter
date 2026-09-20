@@ -144,6 +144,20 @@ export function checkRegistry(specs) {
       bad(`${at} declares a riskNote but its feasibility is "comfortable"`);
     }
 
+    /* --------------------------------------------- liveCaptureNote coupling */
+    // `liveCaptureOnly` makes the tool REFUSE to produce a file, so it is the most
+    // user-visible flag in the registry. The refusal sentence is built from
+    // `group` + `liveCaptureNote`; without the note the UI would print the exam
+    // name followed by "undefined" and refuse without saying why. Tested in both
+    // directions because a note on an entry that is NOT live-capture-only is dead
+    // text that reads like a requirement the tool does not actually enforce.
+    if (s.liveCaptureOnly && !s.liveCaptureNote) {
+      bad(`${at} is liveCaptureOnly but has no liveCaptureNote explaining the mechanism`);
+    }
+    if (!s.liveCaptureOnly && s.liveCaptureNote) {
+      bad(`${at} carries a liveCaptureNote but is not liveCaptureOnly`);
+    }
+
     /* ------------------------- cheap independent arithmetic cross-check */
     // This is the rule that catches the original bug class: a pixel box too small
     // to hold its own size window, marked as if it were fine.

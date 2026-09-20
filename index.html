@@ -40,6 +40,7 @@
   --link: #1a5fd0;
   --ok-bg: #e7f6ec; --ok-br: #2f9e5f; --ok-tx: #14532d;
   --warn-bg: #fff5e6; --warn-br: #c47f17; --warn-tx: #6b4406;
+  --info-bg: #eaf2ff; --info-br: #1f6feb; --info-tx: #0b3d91;
   --bad-bg: #fdecec; --bad-br: #d64545; --bad-tx: #7a1c1c;
   --radius: 10px;
   --shadow: 0 1px 2px rgba(20, 24, 31, .05), 0 6px 18px -8px rgba(20, 24, 31, .12);
@@ -57,6 +58,7 @@
   --link: #7db2ff;
   --ok-bg: #10261a; --ok-br: #2f9e5f; --ok-tx: #a7e8c2;
   --warn-bg: #2a2113; --warn-br: #c47f17; --warn-tx: #f3d79a;
+  --info-bg: #12203a; --info-br: #4c8dff; --info-tx: #cfe0ff;
   --bad-bg: #2a1414; --bad-br: #d64545; --bad-tx: #f7b4b4;
   --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 18px -8px rgba(0, 0, 0, .6);
 }
@@ -217,6 +219,11 @@ h2.section {
 .count.ok b, .count.ok span { color: var(--ok-tx); }
 .count.warn { background: var(--warn-bg); border-color: var(--warn-br); }
 .count.warn b, .count.warn span { color: var(--warn-tx); }
+/* The middle level, matching the tool's .provenance.derived. A DERIVED
+   requirement is official, so it is not a warning — but the pixel box is our
+   conversion, so it is not a plain quotation either. */
+.count.info { background: var(--info-bg); border-color: var(--info-br); }
+.count.info b, .count.info span { color: var(--info-tx); }
 
 .callout {
   margin: 0; padding: 14px 16px; border-radius: 8px; font-size: 13.5px;
@@ -428,7 +435,7 @@ h2.section {
 
     <ul class="counts">
       <li class="count ok"><b>13</b><span>Verified against the official document</span></li>
-      <li class="count"><b>2</b><span>Official printed size &mdash; the pixel box is that figure at a chosen DPI</span></li>
+      <li class="count info"><b>2</b><span>Official printed size &mdash; the pixel box is that figure at a chosen DPI</span></li>
       <li class="count warn"><b>1</b><span>Relayed second-hand &mdash; treat as a starting point</span></li>
       <li class="count"><b>1</b><span>Custom &mdash; you supply the numbers</span></li>
     </ul>

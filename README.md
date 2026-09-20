@@ -210,7 +210,7 @@ Run everything:
 node _verify/run_all.mjs
 ```
 
-Thirteen suites, including one that measures every registry claim **in a real browser** and fails if a
+Fifteen suites, including one that measures every registry claim **in a real browser** and fails if a
 declared feasibility does not match the measurement. `_verify/full_run.txt` is the captured
 transcript.
 
@@ -220,6 +220,19 @@ CSP from `netlify.toml` to prove the deployment does not break it. It also check
 render, measures text contrast against WCAG AA, and asserts no horizontal overflow at 375 / 768 /
 1024 / 1440 px. It carries a negative control: it plants an external request and requires the
 detector to fire, so the check cannot silently become a no-op.
+
+`_verify/test_docs_consistency.mjs` exists because the registry has grown twice and the copy was left
+behind both times — once telling visitors "8 from secondary sources" when the true number was 1, and
+once "16 presets" when the registry held 17. A count is a claim about the code, so this suite compares
+every number printed in `index.html` and this README against the registry and fails on any mismatch, in
+both directions (a card for a status that no longer exists fails too). It needs no browser and no
+fixtures, so it runs in well under a second after any registry edit.
+
+`_verify/test_provenance_levels.mjs` guards the other half of the same idea. The three provenance
+levels only mean something if a user can tell them apart, and for a while `DERIVED` rendered in the
+identical neutral box as `VERIFIED` — the wording differed, the appearance did not, so the distinction
+lived only in a paragraph. The suite asserts three distinct backgrounds and a WCAG AA contrast ratio for
+each, in both themes. It fails if a level is ever collapsed back onto another.
 
 Note that `check_specs.mjs` regenerates its fixtures on every run (~65 MB of generated images, all
 gitignored). If you want the working tree to stay small, run the suites only when you are changing

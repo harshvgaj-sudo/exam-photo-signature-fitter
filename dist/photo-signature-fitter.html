@@ -23,6 +23,11 @@
   --ok-bg: #e7f6ec; --ok-br: #2f9e5f; --ok-tx: #14532d;
   --warn-bg: #fff5e6; --warn-br: #c47f17; --warn-tx: #6b4406;
   --bad-bg: #fdecec; --bad-br: #d64545; --bad-tx: #7a1c1c;
+  /* The middle level. A DERIVED requirement is official, so it must NOT look like
+     the amber warning given to an unverified one — but the pixel box is our
+     conversion, so it must not look like a verbatim quotation either. Blue reads
+     as "this is a note", which is what it is. */
+  --info-bg: #eaf2ff; --info-br: #1f6feb; --info-tx: #0b3d91;
   --radius: 10px;
 }
 
@@ -38,6 +43,7 @@
   --ok-bg: #10261a; --ok-br: #2f9e5f; --ok-tx: #a7e8c2;
   --warn-bg: #2a2113; --warn-br: #c47f17; --warn-tx: #f3d79a;
   --bad-bg: #2a1414; --bad-br: #d64545; --bad-tx: #f7b4b4;
+  --info-bg: #12203a; --info-br: #4c8dff; --info-tx: #cfe0ff;
 }
 
 * { box-sizing: border-box; }
@@ -128,6 +134,11 @@ button { font: inherit; cursor: pointer; border-radius: 8px; }
 /* ----------------------------------------------------------- provenance */
 .provenance { margin-top: 14px; padding: 12px 14px; border-radius: 8px; font-size: 13.5px; border: 1px solid var(--border); background: var(--surface-2); }
 .provenance.warn { background: var(--warn-bg); border-color: var(--warn-br); color: var(--warn-tx); }
+/* Distinct from BOTH of the others. Until this existed, a DERIVED entry rendered in
+   the same neutral box as a VERIFIED one and the only thing separating them was a
+   paragraph the user had to actually read — which made the status model invisible
+   exactly where it matters most. */
+.provenance.derived { background: var(--info-bg); border-color: var(--info-br); color: var(--info-tx); }
 .provenance b { display: block; margin-bottom: 4px; }
 
 /* ---------------------------------------------------------------- stage */
@@ -499,6 +510,12 @@ function shareLinks(url, text = CHANNEL.shareText) {
  *   liveCaptureOnly: true — the portal requires a live webcam capture and no
  *     prepared file can satisfy it. The tool must refuse and explain, never
  *     produce a file that is guaranteed to be rejected.
+ *   liveCaptureNote — mandatory with liveCaptureOnly, and forbidden without it.
+ *     The refusal sentence is built as `group` + this note, so the mechanism
+ *     lives on the requirement instead of in the UI. The UI used to hardcode
+ *     "SSC requires ... the webcam ... or the QR code", which both contradicted
+ *     the entry's own `rules` (which say the MySSC app) and would have printed
+ *     "SSC" under any other exam needing a live capture.
  *   preferLarger — id of a documented larger-box reading of the same requirement,
  *     offered when this box cannot hold the window.
  *   noLargerReading — the explicit statement that no larger reading is documented.
@@ -715,6 +732,16 @@ const SPECS = [
     // MySSC app. No prepared file can satisfy that, so the tool must refuse
     // rather than quietly produce something that will be rejected.
     liveCaptureOnly: true,
+    // The MECHANISM, in the requirement's own words, so the refusal message cannot
+    // drift from the rules below it. The UI used to hardcode "SSC requires ... the
+    // webcam on the portal, or by scanning the QR code" — which was already wrong
+    // against the rules text two lines down (MySSC app, not a QR code), and would
+    // have become a plain lie the moment a second exam needed a live capture. Both
+    // facts here are SSC's; a different exam supplies its own.
+    liveCaptureNote:
+      'requires the photograph to be captured <em>live</em> — through the webcam on the portal, ' +
+      'or in the MySSC mobile app. No uploaded image can satisfy that, so this tool will not ' +
+      'produce one. Use the live capture step on the portal itself.',
     rules: [
       'Plain light-coloured background, preferably white.',
       'No caps, no masks, and no spectacles — even if you wear them daily.',
@@ -1704,7 +1731,10 @@ function applySpec() {
       '<b>Custom requirement</b>Only the numbers you entered are checked. ' +
       'This tool cannot confirm that they match any real portal.';
   } else if (state.spec.status === 'DERIVED') {
-    els.provenance.className = 'provenance';
+    // 'derived' is a third visual level, not a synonym for either neighbour. The
+    // wording was always distinct from VERIFIED, but the styling was not, so the
+    // two rendered identically and the distinction lived only in a paragraph.
+    els.provenance.className = 'provenance derived';
     // Deliberately NOT worded like the VERIFIED path. The requirement is official
     // and the pixels are not, and a user who cannot tell those apart is being
     // misled by the interface rather than by the registry.
@@ -1810,14 +1840,15 @@ function applySpec() {
 
   // A live-capture requirement cannot be satisfied by any file we could produce.
   // Refuse before the user invests any effort, rather than after.
+  // The exam name and the mechanism both come from the entry. This block used to
+  // hardcode "SSC ... webcam ... QR code", which (a) contradicted the entry's own
+  // `rules`, and (b) would have printed "SSC" under any other exam that needs a
+  // live capture. A refusal that names the wrong body is worse than no refusal.
   if (state.spec.liveCaptureOnly) {
     els.liveCaptureWarn.hidden = false;
     els.liveCaptureWarn.innerHTML =
       '<b>This requirement cannot be met with a prepared file</b>' +
-      'SSC requires the photograph to be captured <em>live</em> — through the webcam on the ' +
-      'portal, or by scanning the QR code to open the capture page on your phone. No uploaded ' +
-      'image can satisfy that, so this tool will not produce one. Use the live capture step on ' +
-      'the portal itself.';
+      `${state.spec.group} ${state.spec.liveCaptureNote}`;
   } else {
     els.liveCaptureWarn.hidden = true;
   }

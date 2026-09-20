@@ -81,6 +81,19 @@ results.push(['test_landing.mjs', await run('test_landing.mjs')]);
 console.log('\n> shot_report.mjs — the report itself renders, with no broken anchors or clipped output');
 results.push(['shot_report.mjs', await run('shot_report.mjs')]);
 
+// 4. The three provenance levels must be VISIBLY different, not just differently
+// worded. DERIVED used to render in the same neutral box as VERIFIED, so the
+// status model was invisible to anyone who did not read the paragraph.
+console.log('\n> test_provenance_levels.mjs — VERIFIED / DERIVED / UNVERIFIED render as three distinct, legible levels');
+results.push(['test_provenance_levels.mjs', await run('test_provenance_levels.mjs')]);
+
+// 5. The prose states counts, and a count is a claim about the code. The registry
+// has grown twice and the copy was left behind both times — once telling visitors
+// "8 from secondary sources" when the true number was 1. Runs last because it is
+// the cheapest, and it is the one that guards every number printed above.
+console.log('\n> test_docs_consistency.mjs — every count in index.html and README.md equals the registry');
+results.push(['test_docs_consistency.mjs', await run('test_docs_consistency.mjs')]);
+
 console.log('\n' + '='.repeat(62));
 console.log('SUMMARY');
 console.log('='.repeat(62));

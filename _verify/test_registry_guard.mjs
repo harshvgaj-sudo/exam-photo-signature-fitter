@@ -152,6 +152,34 @@ expect(
   false
 );
 
+// The refusal sentence is `group + liveCaptureNote`. Without the note the tool
+// refuses to produce a file and never says why — the worst possible failure, since
+// the user cannot tell a deliberate refusal from a broken page.
+console.log('\nA requirement the tool must refuse to satisfy (live capture only):');
+expect(
+  'liveCaptureOnly with no liveCaptureNote, so the refusal prints "undefined"',
+  [base({ liveCaptureOnly: true })],
+  true,
+  'no liveCaptureNote'
+);
+expect(
+  'liveCaptureOnly with an empty liveCaptureNote',
+  [base({ liveCaptureOnly: true, liveCaptureNote: '' })],
+  true,
+  'no liveCaptureNote'
+);
+expect(
+  'a liveCaptureNote on an entry the tool does NOT refuse, so the note reads as a rule that is not enforced',
+  [base({ liveCaptureNote: 'requires a live capture' })],
+  true,
+  'not liveCaptureOnly'
+);
+expect(
+  'a correctly declared liveCaptureOnly entry passes',
+  [base({ liveCaptureOnly: true, liveCaptureNote: 'requires the photograph to be captured live' })],
+  false
+);
+
 console.log('\nA ceiling-only requirement (MPSC states a maximum and no minimum):');
 expect(
   'noMinimum carrying a real floor, which would hide an invented minimum',

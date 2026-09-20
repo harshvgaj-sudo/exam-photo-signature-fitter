@@ -3,7 +3,7 @@ Photo & Signature Fitter — full verification
 > building single-file bundles
 BUILD OK
   output      : C:\Users\harsh\WorkBuddy AI\2026-09-14-10-03-21\govdocs-review\dist\photo-signature-fitter.html
-  size        : 95.5 KB (one file, no dependencies)
+  size        : 97.8 KB (one file, no dependencies)
   modules     : js/config.js, js/specs.js, js/core.js, js/app.js
   registry    : 17 requirements, 13 VERIFIED, 2 DERIVED, 1 UNVERIFIED, 2 flagged marginal
   guard       : provenance + arithmetic checks passed
@@ -72,6 +72,12 @@ Consistency between the declared fields:
   ok    comfortable with a riskNote
   ok    a riskNote on a marginal entry passes
 
+A requirement the tool must refuse to satisfy (live capture only):
+  ok    liveCaptureOnly with no liveCaptureNote, so the refusal prints "undefined"
+  ok    liveCaptureOnly with an empty liveCaptureNote
+  ok    a liveCaptureNote on an entry the tool does NOT refuse, so the note reads as a rule that is not enforced
+  ok    a correctly declared liveCaptureOnly entry passes
+
 A ceiling-only requirement (MPSC states a maximum and no minimum):
   ok    noMinimum carrying a real floor, which would hide an invented minimum
   ok    noMinimum with no note explaining the missing floor
@@ -92,7 +98,7 @@ Arithmetic and shape:
   ok    missing id
 
 ====================================================================================================
-  passed: 43    failed: 0
+  passed: 47    failed: 0
   Every guard rule fires on a broken entry, and stays silent on a good one.
 ====================================================================================================
 
@@ -149,7 +155,7 @@ A box is 'comfortable' when EVERY input clears the floor by at least 1.15x.
   fixtures: 75 JPEG file(s), 65.2 MB total
   jobs    : 226 measurement(s) across 16 registry entries
   browser : Chrome/153.0.0.0 (real system Chrome)
-  measured : 2026-09-20T10:20:31.521Z
+  measured : 2026-09-20T10:37:28.308Z
 
 SPEC                  BOX        WINDOW      q1.0 OVER THE SWEEP PASS    DECLARED     MEASURED     RESULT
 ----------------------------------------------------------------------------------------------------------------
@@ -543,7 +549,7 @@ the old predicate still reproduces its defects, so the report's evidence holds
 PDF writer verified — A4, verbatim JPEG, predictable size
 ==========================================================
 
-> test_browser.mjs — modular version over HTTP (port 59533)
+> test_browser.mjs — modular version over HTTP (port 57450)
 
 --- 1. page loads, preset applied, provenance shown ---
 title      : Photo & Signature Fitter
@@ -603,7 +609,7 @@ status          : Matches these file requirements 500x500 px, 153.67 KB, within 
 --- 8. the live-capture requirement refuses before the user invests any effort ---
   ok   a live-capture warning is shown up front
   ok   the process button is disabled for it
-warning         : This requirement cannot be met with a prepared file SSC requires the photograph to be captured live — through the webcam on the portal, or by scanning the QR code to open
+warning         : This requirement cannot be met with a prepared file SSC requires the photograph to be captured live — through the webcam on the portal, or in the MySSC mobile app. No upl
 
 --- 9. custom requirement with a genuinely impossible window must refuse ---
 status class    : status bad
@@ -629,7 +635,7 @@ canvas dims     : 472x157
   ok   the header is byte-identical to the policy under test  — identical
   ok   connect-src 'none' blocks a same-origin fetch  — blocked
   ok   default-src 'none' blocks a cross-origin script  — blocked
-  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:59533/index.html | script-src-elem <- https://example.com/evil.js
+  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:57450/index.html | script-src-elem <- https://example.com/evil.js
 
 --- 13. EXIF orientation: a portrait phone photo must not come out sideways ---
   ok   the fixture really carries Orientation=6  — read back 6
@@ -939,6 +945,68 @@ screenshots:
 report renders correctly
 ====================================================
 
+> test_provenance_levels.mjs — VERIFIED / DERIVED / UNVERIFIED render as three distinct, legible levels
+
+=== LIGHT ===
+  VERIFIED  ssc-photo             cls=provenance          contrast=15.87:1  AA
+  DERIVED   ssc-photo-large       cls=provenance derived  contrast=8.92:1  AA
+  UNVERIFIED ssc-signature-large  cls=provenance warn     contrast=7.93:1  AA
+  three distinct backgrounds: YES
+
+=== DARK ===
+  VERIFIED  ssc-photo             cls=provenance          contrast=13.45:1  AA
+  DERIVED   ssc-photo-large       cls=provenance derived  contrast=12.18:1  AA
+  UNVERIFIED ssc-signature-large  cls=provenance warn     contrast=11.32:1  AA
+  three distinct backgrounds: YES
+
+all three levels distinct and >= 4.5:1 in both themes
+
+> test_docs_consistency.mjs — every count in index.html and README.md equals the registry
+====================================================================================================
+DOCS CONSISTENCY — every stated count must equal the registry
+====================================================================================================
+
+  registry: 17 entries  VERIFIED=13  UNVERIFIED=1  DERIVED=2  CUSTOM=1
+  groups  : SSC, IBPS, UPSC, RRB, MPSC, Custom
+
+index.html — the landing page count cards
+  ok   the counts list is present and parseable  — 4 cards
+  ok   landing page states VERIFIED = 13  — card says 13
+  ok   landing page states DERIVED = 2  — card says 2
+  ok   landing page states UNVERIFIED = 1  — card says 1
+  ok   landing page states CUSTOM = 1  — card says 1
+  ok   landing card "Verified against the official document" maps to a real status
+  ok   landing card "Official printed size — the pixel box is" maps to a real status
+  ok   landing card "Relayed second-hand — treat as a startin" maps to a real status
+  ok   landing card "Custom — you supply the numbers" maps to a real status
+  ok   landing page states the exact total  — says 17, registry holds 17
+  ok   landing page lists the SSC group
+  ok   landing page lists the IBPS group
+  ok   landing page lists the UPSC group
+  ok   landing page lists the RRB group
+  ok   landing page lists the MPSC group
+  ok   landing page lists the Custom group
+
+README.md — the provenance table
+  ok   the provenance table is present and parseable  — 4 rows
+  ok   README states VERIFIED = 13  — table says 13
+  ok   README states DERIVED = 2  — table says 2
+  ok   README states UNVERIFIED = 1  — table says 1
+  ok   README states CUSTOM = 1  — table says 1
+  ok   README has a row for VERIFIED
+  ok   README has a row for UNVERIFIED
+  ok   README has a row for DERIVED
+  ok   README has a row for CUSTOM
+  ok   README states the exact total  — says 17, registry holds 17
+
+The weak-bound bug this also closes
+  ok   test_single_file still uses a lower bound (documented, not a defect)  — >= 13
+  ok   the exact total is asserted HERE, so the bound cannot hide a stale count
+
+====================================================================================================
+  Every stated count matches the registry.
+====================================================================================================
+
 ==============================================================
 SUMMARY
 ==============================================================
@@ -955,5 +1023,7 @@ SUMMARY
   PASS  test_certificate_tool.mjs
   PASS  test_landing.mjs
   PASS  shot_report.mjs
+  PASS  test_provenance_levels.mjs
+  PASS  test_docs_consistency.mjs
 ==============================================================
 All suites passed.

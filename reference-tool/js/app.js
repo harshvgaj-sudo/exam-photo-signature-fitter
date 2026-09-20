@@ -148,7 +148,10 @@ function applySpec() {
       '<b>Custom requirement</b>Only the numbers you entered are checked. ' +
       'This tool cannot confirm that they match any real portal.';
   } else if (state.spec.status === 'DERIVED') {
-    els.provenance.className = 'provenance';
+    // 'derived' is a third visual level, not a synonym for either neighbour. The
+    // wording was always distinct from VERIFIED, but the styling was not, so the
+    // two rendered identically and the distinction lived only in a paragraph.
+    els.provenance.className = 'provenance derived';
     // Deliberately NOT worded like the VERIFIED path. The requirement is official
     // and the pixels are not, and a user who cannot tell those apart is being
     // misled by the interface rather than by the registry.
@@ -254,14 +257,15 @@ function applySpec() {
 
   // A live-capture requirement cannot be satisfied by any file we could produce.
   // Refuse before the user invests any effort, rather than after.
+  // The exam name and the mechanism both come from the entry. This block used to
+  // hardcode "SSC ... webcam ... QR code", which (a) contradicted the entry's own
+  // `rules`, and (b) would have printed "SSC" under any other exam that needs a
+  // live capture. A refusal that names the wrong body is worse than no refusal.
   if (state.spec.liveCaptureOnly) {
     els.liveCaptureWarn.hidden = false;
     els.liveCaptureWarn.innerHTML =
       '<b>This requirement cannot be met with a prepared file</b>' +
-      'SSC requires the photograph to be captured <em>live</em> — through the webcam on the ' +
-      'portal, or by scanning the QR code to open the capture page on your phone. No uploaded ' +
-      'image can satisfy that, so this tool will not produce one. Use the live capture step on ' +
-      'the portal itself.';
+      `${state.spec.group} ${state.spec.liveCaptureNote}`;
   } else {
     els.liveCaptureWarn.hidden = true;
   }

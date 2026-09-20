@@ -56,6 +56,12 @@
  *   liveCaptureOnly: true — the portal requires a live webcam capture and no
  *     prepared file can satisfy it. The tool must refuse and explain, never
  *     produce a file that is guaranteed to be rejected.
+ *   liveCaptureNote — mandatory with liveCaptureOnly, and forbidden without it.
+ *     The refusal sentence is built as `group` + this note, so the mechanism
+ *     lives on the requirement instead of in the UI. The UI used to hardcode
+ *     "SSC requires ... the webcam ... or the QR code", which both contradicted
+ *     the entry's own `rules` (which say the MySSC app) and would have printed
+ *     "SSC" under any other exam needing a live capture.
  *   preferLarger — id of a documented larger-box reading of the same requirement,
  *     offered when this box cannot hold the window.
  *   noLargerReading — the explicit statement that no larger reading is documented.
@@ -272,6 +278,16 @@ export const SPECS = [
     // MySSC app. No prepared file can satisfy that, so the tool must refuse
     // rather than quietly produce something that will be rejected.
     liveCaptureOnly: true,
+    // The MECHANISM, in the requirement's own words, so the refusal message cannot
+    // drift from the rules below it. The UI used to hardcode "SSC requires ... the
+    // webcam on the portal, or by scanning the QR code" — which was already wrong
+    // against the rules text two lines down (MySSC app, not a QR code), and would
+    // have become a plain lie the moment a second exam needed a live capture. Both
+    // facts here are SSC's; a different exam supplies its own.
+    liveCaptureNote:
+      'requires the photograph to be captured <em>live</em> — through the webcam on the portal, ' +
+      'or in the MySSC mobile app. No uploaded image can satisfy that, so this tool will not ' +
+      'produce one. Use the live capture step on the portal itself.',
     rules: [
       'Plain light-coloured background, preferably white.',
       'No caps, no masks, and no spectacles — even if you wear them daily.',
