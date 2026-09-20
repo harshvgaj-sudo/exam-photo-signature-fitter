@@ -68,6 +68,12 @@ results.push(['test_single_file.mjs', await run('test_single_file.mjs')]);
 console.log('\n> test_certificate_tool.mjs — the second tool, end to end from file://');
 results.push(['test_certificate_tool.mjs', await run('test_certificate_tool.mjs')]);
 
+// The landing page is the front door to both tools, so it holds the same two
+// promises they do: no network requests, and it works from file:// with no
+// server. Runs after the builds so it links against current output.
+console.log('\n> test_landing.mjs — the landing page: no network, file://, both themes, responsive');
+results.push(['test_landing.mjs', await run('test_landing.mjs')]);
+
 // 3. The report is a deliverable too, so it gets checked the same way: opened in a
 // real browser, with every table-of-contents anchor and the captured output blocks
 // verified. A report that renders broken is not evidence of anything.

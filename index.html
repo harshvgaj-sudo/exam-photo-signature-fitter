@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam Document Tools — fit photos, signatures and certificates to the exact requirement</title>
+<meta name="description" content="Free browser tools that resize an exam photo or signature to the exact pixel size AND the exact file-size window an Indian government portal asks for — and verify their own output before offering it. Nothing is uploaded. No install, no account, no internet after the page loads.">
+<meta name="theme-color" content="#1f6feb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6feb'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'%3EED%3C/text%3E%3C/svg%3E">
+<style>
+/* Exam Document Tools — the front door for the two tools.
+   Deliberately the same design language as reference-tool/css/style.css and
+   tools/certificate-pdf/css/style.css (identical tokens), because the three
+   pages have to read as one site.
+
+   Two hard constraints inherited from the tools, both deliberate:
+     1. No external requests. No webfont, no CDN, no analytics. The deployed
+        CSP in reference-tool/netlify.toml is `default-src 'none'` with
+        font-src not granted at all, so a Google Font would simply not load.
+        The system stack below is the same one the tools use.
+     2. One file. No build step, no dependencies — it has to work when opened
+        straight from disk or a USB stick, exactly like dist/*.html does. */
+
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f0f2f5;
+  --border: #d6dae1;
+  --text: #14181f;
+  --muted: #5b6472;
+  --accent: #1f6feb;
+  --accent-text: #ffffff;
+  /* Text/link blue, deliberately NOT --accent. The accent at #1f6feb measures
+     4.32:1 on this background — under WCAG AA's 4.5:1 for body text. It is fine
+     as a FILL (white on it is 4.9:1) and as a focus ring, so the two roles are
+     split rather than the brand colour being darkened everywhere. Measured:
+     #1a5fd0 is 5.32:1. Asserted in _verify/test_landing.mjs. */
+  --link: #1a5fd0;
+  --ok-bg: #e7f6ec; --ok-br: #2f9e5f; --ok-tx: #14532d;
+  --warn-bg: #fff5e6; --warn-br: #c47f17; --warn-tx: #6b4406;
+  --bad-bg: #fdecec; --bad-br: #d64545; --bad-tx: #7a1c1c;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(20, 24, 31, .05), 0 6px 18px -8px rgba(20, 24, 31, .12);
+}
+
+[data-theme="dark"] {
+  --bg: #0e1116;
+  --surface: #161a21;
+  --surface-2: #1d222b;
+  --border: #2b323d;
+  --text: #e8ecf1;
+  --muted: #9aa4b2;
+  --accent: #4c8dff;
+  --accent-text: #06101f;
+  --link: #7db2ff;
+  --ok-bg: #10261a; --ok-br: #2f9e5f; --ok-tx: #a7e8c2;
+  --warn-bg: #2a2113; --warn-br: #c47f17; --warn-tx: #f3d79a;
+  --bad-bg: #2a1414; --bad-br: #d64545; --bad-tx: #f7b4b4;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 18px -8px rgba(0, 0, 0, .6);
+}
+
+* { box-sizing: border-box; }
+
+/* A class that sets `display` outranks the UA rule for [hidden], so the
+   attribute silently stops working. Make it authoritative. Same fix as the
+   tools — the bug is easy to reintroduce. */
+[hidden] { display: none !important; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Icons are inline SVG from Lucide, sized by the surrounding text. Never an
+   emoji — emoji render differently on every OS and cannot inherit colour. */
+.ic { width: 1.15em; height: 1.15em; flex: none; stroke-width: 2; }
+
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; color: var(--muted); }
+
+a { color: var(--link); }
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px;
+}
+
+/* ---------------------------------------------------------------- topbar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 20;
+}
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.brand-mark {
+  flex: none; width: 38px; height: 38px; border-radius: 9px;
+  background: var(--accent); color: var(--accent-text);
+  display: grid; place-items: center; font-weight: 700; letter-spacing: .5px;
+}
+.brand strong { display: block; font-size: 16px; }
+.brand-sub { display: block; font-size: 12.5px; color: var(--muted); }
+.topbar-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+
+.sub-btn {
+  display: inline-block; padding: 9px 14px; font-size: 14px; font-weight: 600;
+  text-decoration: none; white-space: nowrap;
+  background: #e62117; color: #fff; border: 1px solid transparent; border-radius: 8px;
+}
+.sub-btn:hover { filter: brightness(1.08); }
+
+.ghost-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 9px 14px; font: inherit; font-size: 14px; cursor: pointer;
+  background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 8px; text-decoration: none;
+}
+.ghost-btn:hover { border-color: var(--accent); }
+
+/* ------------------------------------------------------------------ main */
+main { max-width: 900px; margin: 0 auto; padding: 18px; display: grid; gap: 16px; }
+
+/* ------------------------------------------------------------------ hero */
+.hero { padding: 22px 4px 6px; }
+.eyebrow {
+  margin: 0 0 12px; font-size: 12.5px; font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--muted);
+}
+.hero h1 {
+  margin: 0 0 14px; font-size: clamp(1.65rem, 4.6vw, 2.6rem); line-height: 1.15;
+  letter-spacing: -.02em; font-weight: 700;
+}
+.hero h1 em { font-style: normal; color: var(--link); }
+.lede { margin: 0; font-size: clamp(1rem, 1.6vw, 1.1rem); color: var(--muted); max-width: 60ch; }
+.lede strong { color: var(--text); }
+
+.trust {
+  display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 18px 0 0;
+  padding: 0; list-style: none; font-size: 13.5px; color: var(--muted);
+}
+.trust li { display: flex; align-items: center; gap: 7px; }
+.trust .ic { color: var(--ok-br); }
+
+/* ----------------------------------------------------------------- tools */
+h2.section {
+  margin: 6px 0 0; font-size: 13px; font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--muted);
+}
+
+.grid2 { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 700px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+
+.tool-card {
+  display: flex; flex-direction: column; gap: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  text-decoration: none; color: var(--text);
+  transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-2px); }
+.tool-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.tool-head { display: flex; align-items: center; gap: 12px; }
+.tool-ic {
+  flex: none; width: 40px; height: 40px; border-radius: 9px;
+  display: grid; place-items: center;
+  background: var(--surface-2); border: 1px solid var(--border); color: var(--link);
+}
+.tool-ic .ic { width: 21px; height: 21px; }
+.tool-card h3 { margin: 0; font-size: 16.5px; }
+
+.tool-card p { margin: 0; font-size: 14px; color: var(--muted); }
+.tool-card p strong { color: var(--text); }
+
+.spec {
+  display: flex; align-items: baseline; gap: 9px; margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px; color: var(--muted);
+}
+.spec b { color: var(--text); font-weight: 600; }
+
+.tool-go {
+  margin-top: auto; padding-top: 12px; border-top: 1px dashed var(--border);
+  display: flex; align-items: center; gap: 7px;
+  font-size: 14px; font-weight: 600; color: var(--link);
+}
+.tool-card:hover .tool-go .ic { transform: translateX(3px); }
+.tool-go .ic { transition: transform .18s ease; }
+
+/* ------------------------------------------------------------------ card */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+}
+.card h2 { margin: 0 0 14px; font-size: 17px; }
+.card h2 .ic { vertical-align: -2px; margin-right: 7px; color: var(--link); }
+
+.points { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+.points li { display: flex; gap: 12px; }
+.points .ic { margin-top: 3px; color: var(--link); }
+.points b { display: block; font-size: 14.5px; }
+.points span { font-size: 13.5px; color: var(--muted); }
+
+/* ------------------------------------------------------------ provenance */
+.counts { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; padding: 0; list-style: none; }
+.count {
+  flex: 1 1 150px; padding: 12px 14px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface-2);
+}
+.count b { display: block; font-size: 22px; line-height: 1.2; }
+.count span { font-size: 12.5px; color: var(--muted); }
+.count.ok { background: var(--ok-bg); border-color: var(--ok-br); }
+.count.ok b, .count.ok span { color: var(--ok-tx); }
+.count.warn { background: var(--warn-bg); border-color: var(--warn-br); }
+.count.warn b, .count.warn span { color: var(--warn-tx); }
+
+.callout {
+  margin: 0; padding: 14px 16px; border-radius: 8px; font-size: 13.5px;
+  background: var(--warn-bg); border: 1px solid var(--warn-br); color: var(--warn-tx);
+}
+.callout b { display: block; margin-bottom: 5px; }
+
+.card > p { margin: 0 0 12px; font-size: 14px; color: var(--muted); }
+.card > p:last-child { margin-bottom: 0; }
+.card > p strong { color: var(--text); }
+
+/* ------------------------------------------------------------------ foot */
+.foot { color: var(--muted); font-size: 13px; padding: 4px 2px 28px; }
+.foot p { margin: 0 0 10px; }
+.foot strong { color: var(--text); }
+
+.share-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 12px; }
+.share-row a { text-decoration: none; }
+
+/* ------------------------------------------------------------ small phones */
+@media (max-width: 400px) {
+  main { padding: 14px; }
+  .card, .tool-card { padding: 16px; }
+  .brand-sub { display: none; }
+  .topbar { padding: 12px 14px; gap: 10px; }
+  .hero { padding: 16px 2px 4px; }
+  .foot { font-size: 12.5px; }
+}
+
+/* Touch targets. Material asks for 48dp and Apple for 44pt; the defaults come
+   out around 38px, which is small enough to mis-tap. Any coarse pointer, plus
+   narrow screens as a fallback. */
+@media (max-width: 480px), (pointer: coarse) {
+  .ghost-btn, .sub-btn, .share-row a { min-height: 44px; }
+  .trust { font-size: 14px; }
+}
+
+/* Respect a user who has asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* Print: people do print these requirement checklists. */
+@media print {
+  .topbar, .share-row { display: none !important; }
+  body { background: #fff; color: #000; }
+  .tool-card { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<!-- Lucide icon sprite (ISC licence, lucide.dev). Inlined so the page makes
+     zero network requests; <use> is not a fetch, so the deployed CSP still
+     holds. Each symbol is a verbatim Lucide path. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-crop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/>
+  </symbol>
+  <symbol id="i-file-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="m9 15 2 2 4-4"/>
+  </symbol>
+  <symbol id="i-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>
+  </symbol>
+  <symbol id="i-badge-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m16 9-5.5 5.5L8 12"/>
+  </symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>
+  </symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+  </symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+  </symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/>
+  </symbol>
+  <symbol id="i-ruler" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/>
+  </symbol>
+  <symbol id="i-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+  </symbol>
+  <symbol id="i-wifi-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/>
+  </symbol>
+</svg>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">ED</span>
+    <div>
+      <strong>Exam Document Tools</strong>
+      <span class="brand-sub">Runs entirely in your browser. Nothing is uploaded.</span>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <a id="subscribeBtn" class="sub-btn" target="_blank" rel="noopener" href="https://www.youtube.com/@TechTipsDhanwalaMH?sub_confirmation=1">Subscribe</a>
+    <button id="themeToggle" class="ghost-btn" type="button" aria-label="Switch between light and dark">
+      <svg class="ic" id="themeIcon" aria-hidden="true"><use href="#i-moon"></use></svg>
+      <span id="themeLabel">Dark</span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -------------------------------------------------------------- -->
+  <section class="hero" aria-labelledby="h-hero">
+    <p class="eyebrow">For Indian government exam portals</p>
+    <h1 id="h-hero">Fit your document to the <em>exact</em> requirement &mdash; then verify it.</h1>
+    <p class="lede">
+      Most &ldquo;compress your photo&rdquo; tools only enforce a <strong>maximum</strong>.
+      Exam portals ask for a <strong>window</strong> &mdash; and a file that is too small is rejected
+      just as surely as one that is too big. These tools search for a size that lands
+      <em>inside</em> the window, then re-read the finished file to confirm it.
+    </p>
+
+    <ul class="trust">
+      <li><svg class="ic" aria-hidden="true"><use href="#i-shield-check"></use></svg> Nothing is uploaded &mdash; there is no server</li>
+      <li><svg class="ic" aria-hidden="true"><use href="#i-wifi-off"></use></svg> No install, no account &mdash; works offline</li>
+      <li><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Reads JPEG and PNG</li>
+    </ul>
+  </section>
+
+  <!-- THE TWO TOOLS ----------------------------------------------------- -->
+  <h2 class="section" id="h-tools">Pick a tool</h2>
+
+  <div class="grid2" role="list" aria-labelledby="h-tools">
+
+    <a class="tool-card" role="listitem" href="dist/photo-signature-fitter.html">
+      <span class="tool-head">
+        <span class="tool-ic"><svg class="ic" aria-hidden="true"><use href="#i-crop"></use></svg></span>
+        <h3>Photo &amp; Signature Fitter</h3>
+      </span>
+      <p>
+        Resizes a photograph or signature to the <strong>exact pixel dimensions</strong> a portal
+        demands, then searches for the JPEG quality that lands inside its
+        <strong>file-size window</strong>. If no quality can reach the floor, it says so and
+        offers no download rather than handing you a file that will bounce.
+      </p>
+      <p class="spec"><b>13 presets</b> SSC &middot; IBPS &middot; UPSC &middot; custom</p>
+      <span class="tool-go">Open the tool <svg class="ic" aria-hidden="true"><use href="#i-arrow"></use></svg></span>
+    </a>
+
+    <a class="tool-card" role="listitem" href="dist/certificate-to-pdf.html">
+      <span class="tool-head">
+        <span class="tool-ic"><svg class="ic" aria-hidden="true"><use href="#i-file-check"></use></svg></span>
+        <h3>Certificate to PDF</h3>
+      </span>
+      <p>
+        Turns certificate photos into a <strong>PDF, A4, under a size ceiling</strong> &mdash; the
+        format SSC requires for the 10th standard certificate. The JPEG goes in
+        <strong>byte-for-byte</strong>, so the small print stays sharp instead of being
+        decoded and re-compressed.
+      </p>
+      <p class="spec"><b>~700 bytes</b> added overhead &mdash; PDF size &asymp; JPEG size</p>
+      <span class="tool-go">Open the tool <svg class="ic" aria-hidden="true"><use href="#i-arrow"></use></svg></span>
+    </a>
+
+  </div>
+
+  <!-- WHY IT IS DIFFERENT ------------------------------------------------ -->
+  <section class="card" aria-labelledby="h-why">
+    <h2 id="h-why"><svg class="ic" aria-hidden="true"><use href="#i-ruler"></use></svg>Why these behave differently</h2>
+    <ul class="points">
+      <li>
+        <svg class="ic" aria-hidden="true"><use href="#i-ruler"></use></svg>
+        <div>
+          <b>Pixel size is a hard constraint. File size is a window.</b>
+          <span>SSC&rsquo;s signature is 140 &times; 60 px <em>and</em> between 10 KB and 20 KB. A tool
+          that only caps the maximum will happily produce 6 KB for a 10 KB floor and print
+          &ldquo;Success!&rdquo;. This one refuses, with a reason.</span>
+        </div>
+      </li>
+      <li>
+        <svg class="ic" aria-hidden="true"><use href="#i-badge-check"></use></svg>
+        <div>
+          <b>It verifies its own output.</b>
+          <span>The finished file&rsquo;s dimensions are re-read from its own JPEG header before you
+          are offered the download, rather than trusting the tool&rsquo;s own report.</span>
+        </div>
+      </li>
+      <li>
+        <svg class="ic" aria-hidden="true"><use href="#i-shield-check"></use></svg>
+        <div>
+          <b>Nothing leaves your device.</b>
+          <span>The tools make no network requests at all once loaded. They can be copied to a USB
+          stick and opened with no internet connection.</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- PROVENANCE --------------------------------------------------------- -->
+  <section class="card" aria-labelledby="h-prov">
+    <h2 id="h-prov"><svg class="ic" aria-hidden="true"><use href="#i-badge-check"></use></svg>Where the numbers come from</h2>
+    <p>
+      Secondary websites contradict each other on these requirements &mdash; some published
+      315 &times; 157 px for a signature the official SSC document states as 140 &times; 60 px. So every
+      preset carries its own provenance, and says plainly whether a primary source was read.
+    </p>
+
+    <ul class="counts">
+      <li class="count ok"><b>4</b><span>Verified against the official document</span></li>
+      <li class="count warn"><b>8</b><span>From secondary sources &mdash; treat as a starting point</span></li>
+      <li class="count"><b>1</b><span>Custom &mdash; you supply the numbers</span></li>
+    </ul>
+
+    <p class="callout">
+      <b>One finding worth knowing: the risk runs the other way.</b>
+      The official SSC signature box is 140 &times; 60 px with a 10&ndash;20 KB window. Measured across
+      28 realistic signature scans, only <strong>7</strong> could reach the 10 KB floor at all. Telling
+      someone to &ldquo;shrink the signature&rdquo; is exactly the wrong advice there &mdash; so that
+      preset carries a caution and offers the larger documented box (472 &times; 157) instead.
+    </p>
+  </section>
+
+  <!-- WHAT IT DOES NOT CLAIM --------------------------------------------- -->
+  <section class="card" aria-labelledby="h-not">
+    <h2 id="h-not"><svg class="ic" aria-hidden="true"><use href="#i-alert"></use></svg>What these tools do not claim</h2>
+    <p>
+      They confirm that a file <strong>meets the stated requirements</strong>. They do
+      <strong>not</strong> claim the portal will accept it &mdash; that depends on the live portal, and
+      only you can confirm it. Always check on the official upload page before you rely on it.
+    </p>
+    <p>
+      Some requirements cannot be met by uploading a file at all. Where a portal demands a
+      <strong>live photograph</strong> captured on its own site or app, the tool explains the rule and
+      disables the upload rather than producing a file you cannot use.
+    </p>
+    <p>
+      <strong>HEIC is not supported.</strong> iPhone photos are usually HEIC by default and no browser
+      other than Safari can decode it &mdash; convert to JPEG first. The tool says so rather than
+      failing silently.
+    </p>
+    <p>
+      Not affiliated with SSC, IBPS, UPSC or any government body.
+    </p>
+  </section>
+
+  <!-- FOOTER -------------------------------------------------------------- -->
+  <footer class="foot">
+    <div class="share-row">
+      <a id="shareWhatsapp" class="ghost-btn" target="_blank" rel="noopener">Share on WhatsApp</a>
+      <a id="shareTelegram" class="ghost-btn" target="_blank" rel="noopener">Share on Telegram</a>
+      <a id="channelLink" class="ghost-btn" target="_blank" rel="noopener" href="https://www.youtube.com/@TechTipsDhanwalaMH">@TechTipsDhanwalaMH</a>
+    </div>
+    <p class="mono" id="shareStatus" role="status"></p>
+    <p>
+      Free tools for exam candidates. Requirements are transcribed from official guidelines where a
+      primary source was available, and marked otherwise.
+    </p>
+  </footer>
+
+</main>
+
+<script>
+/* ------------------------------------------------------------------ theme
+   localStorage throws on some file:// origins and in private mode, so every
+   access is guarded — same approach as the tools. The landing page also
+   mirrors the choice into the keys the two tools read (psf-theme, cpdf-theme)
+   so picking a theme here carries through to whichever tool you open next. */
+(function () {
+  var KEYS = ['edt-theme', 'psf-theme', 'cpdf-theme'];
+  var store = {
+    get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } }
+  };
+
+  var root = document.documentElement;
+  var saved = null;
+  for (var i = 0; i < KEYS.length && !saved; i++) saved = store.get(KEYS[i]);
+
+  var prefersDark = false;
+  try { prefersDark = matchMedia('(prefers-color-scheme: dark)').matches; } catch (e) { /* ignore */ }
+
+  function apply(theme) {
+    root.setAttribute('data-theme', theme);
+    var dark = theme === 'dark';
+    document.getElementById('themeIcon').firstElementChild.setAttribute('href', dark ? '#i-sun' : '#i-moon');
+    document.getElementById('themeLabel').textContent = dark ? 'Light' : 'Dark';
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', dark ? '#0e1116' : '#1f6feb');
+  }
+
+  apply(saved || (prefersDark ? 'dark' : 'light'));
+
+  document.getElementById('themeToggle').addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    apply(next);
+    for (var j = 0; j < KEYS.length; j++) store.set(KEYS[j], next);
+  });
+})();
+
+/* ------------------------------------------------------------------ share
+   Built at click time from the current URL, so the link is correct whether
+   this is opened from disk, from GitHub Pages, or from any future host. */
+(function () {
+  var TEXT = 'Free browser tools that resize exam photos, signatures and certificates to the exact '
+           + 'requirement — and check their own output. Nothing is uploaded.';
+  var url = location.href;
+  var u = encodeURIComponent(url), t = encodeURIComponent(TEXT);
+  document.getElementById('shareWhatsapp').href = 'https://wa.me/?text=' + t + '%20' + u;
+  document.getElementById('shareTelegram').href = 'https://t.me/share/url?url=' + u + '&text=' + t;
+
+  if (location.protocol === 'file:') {
+    document.getElementById('shareStatus').textContent =
+      'Opened from a file — the share links point at a local path. They work once this page is hosted.';
+  }
+})();
+</script>
+</body>
+</html>

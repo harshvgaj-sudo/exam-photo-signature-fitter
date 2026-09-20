@@ -15,7 +15,9 @@ use, and no network access at runtime.
 
 ## Quick start
 
-Open the file you need from `dist/`. That is the whole tool.
+Open `index.html` for the front page, or open the file you need directly from `dist/`.
+Each tool is one self-contained file — that file *is* the whole tool. The front page is
+one file too: no build step, no dependencies, no network requests.
 
 ## Why these exist
 
@@ -79,6 +81,7 @@ the upload rather than producing a file that cannot be used.
 ## Development
 
 ```
+index.html                 the landing page — one self-contained file, links into dist/
 reference-tool/            the photo & signature tool (index.html, css/, js/core.js, js/specs.js, js/app.js)
 tools/certificate-pdf/     the certificate tool (index.html, css/, js/pdf.js, js/app.js)
 dist/                      the built single-file versions
@@ -101,9 +104,16 @@ Run everything:
 node _verify/run_all.mjs
 ```
 
-Eleven suites, including one that measures every registry claim **in a real browser** and fails if a
+Twelve suites, including one that measures every registry claim **in a real browser** and fails if a
 declared feasibility does not match the measurement. `_verify/full_run.txt` is the captured
 transcript.
+
+The landing page has its own suite (`_verify/test_landing.mjs`). It opens the page from `file://`
+with no server, asserts that it makes **zero external requests**, then re-loads it under the exact
+CSP from `netlify.toml` to prove the deployment does not break it. It also checks both themes
+render, measures text contrast against WCAG AA, and asserts no horizontal overflow at 375 / 768 /
+1024 / 1440 px. It carries a negative control: it plants an external request and requires the
+detector to fire, so the check cannot silently become a no-op.
 
 Note that `check_specs.mjs` regenerates its fixtures on every run (~90 MB of generated images, all
 gitignored). If you want the working tree to stay small, run the suites only when you are changing
