@@ -11,7 +11,7 @@
  * the guard must catch them.
  */
 import { checkRegistry } from '../registry_guard.mjs';
-import { SPECS } from '../reference-tool/js/specs.js';
+import { SPECS, NO_MINIMUM_KB } from '../reference-tool/js/specs.js';
 
 let pass = 0;
 let fail = 0;
@@ -98,6 +98,31 @@ expect('comfortable with a riskNote', [base({ riskNote: 'sometimes fails' })], t
 expect(
   'a riskNote on a marginal entry passes',
   [base({ feasibility: 'marginal', riskNote: 'a compact signature falls short', noLargerReading: 'none documented' })],
+  false
+);
+
+console.log('\nA ceiling-only requirement (MPSC states a maximum and no minimum):');
+expect(
+  'noMinimum carrying a real floor, which would hide an invented minimum',
+  [base({ minKB: 20, noMinimum: true, note: 'source states a maximum only' })],
+  true,
+  'sentinel'
+);
+expect(
+  'noMinimum with no note explaining the missing floor',
+  [base({ minKB: NO_MINIMUM_KB, noMinimum: true })],
+  true,
+  'ceiling only'
+);
+expect(
+  'the no-minimum sentinel used without declaring noMinimum',
+  [base({ minKB: NO_MINIMUM_KB })],
+  true,
+  'noMinimum: true'
+);
+expect(
+  'a correctly declared ceiling-only entry passes',
+  [base({ minKB: NO_MINIMUM_KB, noMinimum: true, note: 'the source states a maximum and no minimum' })],
   false
 );
 

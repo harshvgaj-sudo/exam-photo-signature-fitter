@@ -15,10 +15,10 @@
  * The BEHAVIOURAL half lives in _verify/check_specs.mjs, which measures every
  * entry in a real browser. Both must pass before a release.
  */
+import { NO_MINIMUM_KB } from './reference-tool/js/specs.js';
 
 /** Bytes per pixel the minimum size demands. Above ~1.0 is at the JPEG limit. */
 export const BYTES_PER_PIXEL_LIMIT = 1.0;
-
 export const KNOWN_FEASIBILITY = ['comfortable', 'marginal', 'unreachable'];
 
 /**
@@ -86,6 +86,29 @@ export function checkRegistry(specs) {
     // no explanation is the thing that makes a viewer leave.
     if (['marginal', 'unreachable'].includes(s.feasibility) && !s.preferLarger && !s.noLargerReading) {
       bad(`${at} is ${s.feasibility} but offers no alternative and no stated reason`);
+    }
+
+    /* ---------------------------------------- a ceiling with no stated floor */
+    // MPSC states a maximum and no minimum at all. Every downstream check — the
+    // search, verify(), the sweep classifier — is written against a floor, so such
+    // an entry carries the NO_MINIMUM_KB sentinel. Pinning the flag to the sentinel
+    // is the whole point: it stops a below-any-real-JPEG placeholder from silently
+    // becoming a claim about a floor the source never stated, and it stops a real
+    // floor from being hidden behind the flag.
+    if (s.noMinimum) {
+      if (s.minKB !== NO_MINIMUM_KB) {
+        bad(
+          `${at} declares noMinimum but sets minKB=${s.minKB}; a source with no stated minimum ` +
+          `must use the ${NO_MINIMUM_KB} KB sentinel`
+        );
+      }
+      if (!s.note) {
+        bad(`${at} declares noMinimum but has no note saying the source states a ceiling only`);
+      }
+    } else if (s.minKB === NO_MINIMUM_KB) {
+      bad(
+        `${at} uses the ${NO_MINIMUM_KB} KB no-minimum sentinel without declaring noMinimum: true`
+      );
     }
 
     /* --------------------------------------------------- riskNote coupling */

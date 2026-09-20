@@ -27,6 +27,7 @@ function run(script, env = {}) {
 
 const SUITES = [
   ['test_registry_guard.mjs', 'the guard itself: every rule must fire on a deliberately broken entry'],
+  ['test_bundler.mjs', 'the module-syntax stripper: no export/import survives, and the safety net fires'],
   ['check_specs.mjs', 'every registry claim measured in a REAL BROWSER, over each entry\'s declared sweep'],
   ['test_mutation.mjs', 'prove the chain can fail: a wrong registry must be caught, statically or by measurement'],
   ['test_core.mjs', 'the corrected core: crop geometry, size search, per-preset compliance'],

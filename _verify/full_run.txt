@@ -1,11 +1,11 @@
 Photo & Signature Fitter — full verification
 
-> building single-file bundle
+> building single-file bundles
 BUILD OK
   output      : C:\Users\harsh\WorkBuddy AI\2026-09-14-10-03-21\govdocs-review\dist\photo-signature-fitter.html
-  size        : 66.5 KB (one file, no dependencies)
+  size        : 77.2 KB (one file, no dependencies)
   modules     : js/config.js, js/specs.js, js/core.js, js/app.js
-  registry    : 13 requirements, 4 VERIFIED, 2 flagged marginal
+  registry    : 16 requirements, 7 VERIFIED, 2 flagged marginal
   guard       : provenance + arithmetic checks passed
   local refs  : none
   opens from  : file:// (double-click) or any static host
@@ -13,6 +13,15 @@ BUILD OK
   Behavioural verification is separate and must also pass:
     node _verify/check_specs.mjs      (every registry claim measured)
     node _verify/run_all.mjs          (all suites)
+BUILD OK
+  output      : C:\Users\harsh\WorkBuddy AI\2026-09-14-10-03-21\govdocs-review\dist\certificate-to-pdf.html
+  size        : 35.5 KB (one file, no dependencies)
+  modules     : ..\..\reference-tool\js\config.js, js\pdf.js, js\app.js
+  local refs  : none
+  opens from  : file:// (double-click) or any static host
+
+  Behavioural verification:
+    node _verify/test_certificate_pdf.mjs   (writer: A4, verbatim JPEG, size)
 
 > test_registry_guard.mjs — the guard itself: every rule must fire on a deliberately broken entry
 ====================================================================================================
@@ -53,6 +62,12 @@ Consistency between the declared fields:
   ok    comfortable with a riskNote
   ok    a riskNote on a marginal entry passes
 
+A ceiling-only requirement (MPSC states a maximum and no minimum):
+  ok    noMinimum carrying a real floor, which would hide an invented minimum
+  ok    noMinimum with no note explaining the missing floor
+  ok    the no-minimum sentinel used without declaring noMinimum
+  ok    a correctly declared ceiling-only entry passes
+
 THE HEADLINE CASE — the exact bug this project exists to fix:
   ok    140x60 box with a 10 KB floor marked "comfortable"
   ok    the same box correctly marked "marginal" passes
@@ -67,19 +82,53 @@ Arithmetic and shape:
   ok    missing id
 
 ====================================================================================================
-  passed: 31    failed: 0
+  passed: 35    failed: 0
   Every guard rule fires on a broken entry, and stays silent on a good one.
 ====================================================================================================
+
+> test_bundler.mjs — the module-syntax stripper: no export/import survives, and the safety net fires
+================================================================================================
+BUNDLER — module syntax must not survive into the single-file build
+================================================================================================
+
+The forms the stripper must handle:
+  ok    line-anchored const
+  ok    line-anchored function
+  ok    async function
+  ok    bare export braces
+  ok    single-line import
+  ok    doc comment sharing the line
+
+The safety net must fire on what the stripper cannot inline:
+  ok    export default, which has no name to bind — unit: unhandled export statement
+  ok    export *, which re-exports another module — unit: unhandled export statement
+  ok    a multi-line import the strip cannot match — unit: unhandled import statement (is it multi-line?)
+
+And it must stay silent on code that only mentions the words:
+  ok    a string containing the keyword
+  ok    a word that merely starts with it
+
+THE INVARIANT — every module the builds inline, stripped clean:
+  ok    reference-tool/js/config.js — no module syntax survives
+  ok    reference-tool/js/specs.js — no module syntax survives
+  ok    reference-tool/js/core.js — no module syntax survives
+  ok    reference-tool/js/app.js — no module syntax survives
+  ok    tools/certificate-pdf/js/pdf.js — no module syntax survives
+  ok    tools/certificate-pdf/js/app.js — no module syntax survives
+
+================================================================================================
+THE BUNDLER IS SOUND: every inlineable form is stripped, and the net catches the rest.
+================================================================================================
 
 > check_specs.mjs — every registry claim measured in a REAL BROWSER, over each entry's declared sweep
 ================================================================================================================
 PART 1 — STATIC REGISTRY GUARD
 The same rules the build enforces, run against the shipping registry.
 ================================================================================================================
-  ok    all 13 entries satisfy the registry guard
-  ok    4 of 13 entries are VERIFIED: ssc-signature, ssc-photo, ssc-lti, ssc-declaration
-  ok    12 of 13 entries declare a measurement sweep
-  ok    117 measurement points in total
+  ok    all 16 entries satisfy the registry guard
+  ok    7 of 16 entries are VERIFIED: ssc-signature, ssc-photo, ssc-lti, ssc-declaration, rrb-signature, mpsc-photo, mpsc-signature
+  ok    15 of 16 entries declare a measurement sweep
+  ok    174 measurement points in total
 
 ================================================================================================================
 PART 2 — FEASIBILITY, MEASURED IN A REAL BROWSER
@@ -88,9 +137,9 @@ A box is 'comfortable' when EVERY input clears the floor by at least 1.15x.
 'marginal' means some inputs clear it and some do not — input-dependent by definition.
 ================================================================================================================
   fixtures: 43 JPEG file(s), 33.9 MB total
-  jobs    : 117 measurement(s) across 12 registry entries
-  browser : Chrome/152.0.0.0 (real system Chrome)
-  measured : 2026-09-15T04:44:34.371Z
+  jobs    : 174 measurement(s) across 15 registry entries
+  browser : Chrome/153.0.0.0 (real system Chrome)
+  measured : 2026-09-20T10:00:22.680Z
 
 SPEC                  BOX        WINDOW      q1.0 OVER THE SWEEP PASS    DECLARED     MEASURED     RESULT
 ----------------------------------------------------------------------------------------------------------------
@@ -118,6 +167,12 @@ ibps-lti              240x240    20-50KB     26.2-34.7KB         7/7     comfort
 ibps-declaration      800x400    50-100KB    180.8-323.5KB       7/7     comfortable  comfortable  ok
   ok    upsc-photo: 'comfortable' confirmed — 165.2-165.2KB over 1 inputs, 1 pass
 upsc-photo            500x500    20-300KB    165.2-165.2KB       1/1     comfortable  comfortable  ok
+  ok    rrb-signature: 'comfortable' confirmed — 35.2-127.1KB over 28 inputs, 28 pass
+rrb-signature         551x315    30-49KB     35.2-127.1KB        28/28   comfortable  comfortable  ok
+  ok    mpsc-photo: 'comfortable' confirmed — 57.4-57.4KB over 1 inputs, 1 pass
+mpsc-photo            276x354    1-50KB      57.4-57.4KB         1/1     comfortable  comfortable  ok
+  ok    mpsc-signature: 'comfortable' confirmed — 13.3-38.1KB over 28 inputs, 28 pass
+mpsc-signature        276x118    1-50KB      13.3-38.1KB         28/28   comfortable  comfortable  ok
 ----------------------------------------------------------------------------------------------------------------
 
 ================================================================================================================
@@ -126,7 +181,27 @@ The official PDF requires the image to be "clearly visible". Any produced file t
 JPEG quality below 0.3 to fit its window fails that requirement.
 ================================================================================================================
   ok    every produced file kept JPEG quality at or above 0.3
-  ok    quality range across all 75 produced files: 0.875 - 1.000
+  ok    quality range across all 132 produced files: 0.875 - 1.000
+
+  Per-entry measured range, for the registry comments:
+  SPEC                  q1.0 RANGE            QUALITY TO FIT    PASS    WORST INPUT
+  ------------------------------------------------------------------------------------------------
+  ssc-signature         6.1-13.4KB            1.000 - 1.000     7/28    grain 4, density 6 = 6.1KB
+  ssc-signature-large   13.4-69.9KB           0.875 - 1.000     28/28   grain 0, density 6 = 13.4KB
+  ssc-photo             25.7-25.7KB           1.000 - 1.000     1/1     grain 12 = 25.7KB
+  ssc-photo-large       151.2-151.2KB         0.945 - 0.945     1/1     grain 12 = 151.2KB
+  ssc-lti               26.2-34.7KB           1.000 - 1.000     7/7     grain 0 = 26.2KB
+  ssc-declaration       180.8-323.5KB         0.915 - 0.985     7/7     grain 0 = 180.8KB
+  ibps-signature        6.4-13.5KB            1.000 - 1.000     7/28    grain 4, density 6 = 6.4KB
+  ibps-photo            25.7-25.7KB           1.000 - 1.000     1/1     grain 12 = 25.7KB
+  ibps-photo-cm         127.3-127.3KB         0.965 - 0.965     1/1     grain 12 = 127.3KB
+  ibps-lti              26.2-34.7KB           1.000 - 1.000     7/7     grain 0 = 26.2KB
+  ibps-declaration      180.8-323.5KB         0.915 - 0.985     7/7     grain 0 = 180.8KB
+  upsc-photo            165.2-165.2KB         1.000 - 1.000     1/1     grain 12 = 165.2KB
+  rrb-signature         35.2-127.1KB          0.935 - 1.000     28/28   grain 0, density 6 = 35.2KB
+  mpsc-photo            57.4-57.4KB           0.995 - 0.995     1/1     grain 12 = 57.4KB
+  mpsc-signature        13.3-38.1KB           1.000 - 1.000     28/28   grain 0, density 6 = 13.3KB
+  ------------------------------------------------------------------------------------------------
 
 ================================================================================================================
 PART 4 — CROSS-CHECK: THE NODE MODEL vs THE BROWSER  (informational)
@@ -138,8 +213,10 @@ SPEC                  BOX        NODE MODEL    BROWSER     MODEL ERROR
 ssc-signature         140x60     10.23 KB      8.76 KB     +16.9%
 ssc-signature-large   472x157    61.48 KB      48.32 KB    +27.2%
 ibps-signature        140x60     10.23 KB      8.71 KB     +17.5%
+rrb-signature         551x315    131.85 KB     96.50 KB    +36.6%
+mpsc-signature        276x118    30.01 KB      23.98 KB    +25.1%
 ----------------------------------------------------------------------------------------------------------------
-The model is optimistic by 20.5% on average. That is why it cannot decide
+The model is optimistic by 24.7% on average. That is why it cannot decide
 feasibility: at a 10 KB boundary an overstatement of that size is the difference
 between "passes" and "refuses". It is retained only as a fast pre-screen.
 
@@ -184,6 +261,10 @@ STATIC RULES (registry_guard.mjs, enforced by the build)
         caught: registry: ssc-lti is VERIFIED but has no source
   ok    preferLarger pointing at a requirement that does not exist
         caught: registry: ssc-signature points at a missing preferLarger "ssc-signature-does-not-exist"
+  ok    a ceiling-only requirement carrying an invented minimum
+        caught: registry: mpsc-photo declares noMinimum but sets minKB=20; a source with no stated minimum must use the 1 KB sentinel
+  ok    the no-minimum sentinel used without declaring why
+        caught: registry: mpsc-signature uses the 1 KB no-minimum sentinel without declaring noMinimum: true
 
 MEASURED RULES (check_specs.mjs, enforced by the browser)
 These mutations satisfy every static rule. Only measurement can find them.
@@ -196,7 +277,7 @@ These mutations satisfy every static rule. Only measurement can find them.
         caught: declared comfortable, browser measured marginal (6.1-13.4 KB, 7/28 pass); static rules also fired 1
 
 ========================================================================================================
-  mutations caught: 10    mutations missed: 0
+  mutations caught: 12    mutations missed: 0
   Every deliberate defect was caught, by the static rules or by measurement.
   The chain can fail, so a green run means something.
 ========================================================================================================
@@ -257,8 +338,11 @@ IBPS — Photograph (cm reading)        531x413    20-50KB    48.20KB    1/1 pas
 IBPS — Left thumb impression          240x240    20-50KB    40.23KB    7/7 pass       PASS
 IBPS — Handwritten declaration        800x400    50-100KB   93.81KB    7/7 pass       PASS
 UPSC — Photograph                     500x500    20-300KB   175.72KB   1/1 pass       PASS
+RRB — Signature (CEN 09/2025)         551x315    30-49KB    44.88KB    not measured   PASS
+MPSC — Photograph                     276x354    1-50KB     44.51KB    not measured   PASS
+MPSC — Signature                      276x118    1-50KB     29.41KB    not measured   PASS
 ------------------------------------------------------------------------------------------------------------------
-  model and browser agree on: 10    model-only (overstated): 2
+  model and browser agree on: 13    model-only (overstated): 2
   honest refusal: 0    claimed success but failed verify: 0
   unit-test failures: 0
   A false-success count of 0 is the point: verify() gates every claim.
@@ -403,13 +487,55 @@ The reproduction must still show the old build's defects:
 the old predicate still reproduces its defects, so the report's evidence holds
 ==============================================================
 
-> test_browser.mjs — modular version over HTTP (port 53985)
+> test_certificate_pdf.mjs — the PDF writer: A4 pages, JPEG embedded byte-for-byte, predictable size
+=== CERTIFICATE PDF WRITER ===
+
+1. a single-page A4 PDF from a real JPEG
+   jpeg     : 324210 bytes (316.6 KB)
+   pdf      : 324916 bytes (317.3 KB)
+   overhead : 706 bytes
+  ok   the PDF is structurally valid  — no problems
+  ok   it reports PDF version  — 1.4
+  ok   it has exactly one page  — 1
+  ok   that page is A4  — 1 of 1
+
+2. the JPEG is embedded BYTE-FOR-BYTE (the reason for a hand-built writer)
+  ok   the entire original JPEG appears verbatim inside the PDF  — found at byte 408
+  ok   no second, re-encoded copy is present
+  ok   the PDF declares DCTDecode passthrough
+  ok   overhead is fixed and small  — 703 bytes
+
+3. multiple certificates -> multiple A4 pages
+   pages    : 3, size 469.3 KB
+  ok   three pages are produced  — 3
+  ok   every page is A4  — 3
+  ok   all three JPEGs are embedded verbatim
+  ok   the landscape image is centred inside the portrait page
+
+4. the size is predictable, which is what makes a 500 KB ceiling searchable
+  ok   overhead is under 1 KB regardless of image size  — 706 bytes
+  ok   so PDF size ~= JPEG size, and a JPEG budget IS a PDF budget
+
+5. the writer refuses input it cannot represent
+  ok   rejects an empty page list
+  ok   rejects a page with no JPEG bytes
+  ok   rejects a page with no pixel size
+
+6. inspectPdf can actually FAIL — a corrupted file must be caught
+  ok   a truncated PDF is rejected  — missing %%EOF trailer; missing startxref
+  ok   a corrupted header is rejected  — missing %PDF header
+
+==========================================================
+PDF writer verified — A4, verbatim JPEG, predictable size
+==========================================================
+
+> test_browser.mjs — modular version over HTTP (port 62041)
 
 --- 1. page loads, preset applied, provenance shown ---
 title      : Photo & Signature Fitter
 preset     : ssc-signature
-provenance : Read from the official source document on 2026-09-14 Source: SSC "Guidelines for scanning and Upload of Documents" (official PDF, 4 pages)
-footer note: SSC — Signature — 140x60 px, 10-20 KB, JPEG. Status: VERIFIED. Measured fit: marginal (2026-09-14).
+provenance : Read from the official source document on 2026-09-14 Source: SSC "Guidelines for scanning and Upload of Documents" (official PDF, 4 pages) The officia
+footer note: SSC — Signature — 140x60 px, 10-20 KB, JPEG. Status: VERIFIED. Measured fit: marginal (2026-09-20).
   ok   custom fields are hidden on a preset
 
 --- 2. upload a real 4032x3024 phone photo against the SSC signature spec ---
@@ -489,7 +615,7 @@ canvas dims     : 472x157
   ok   the header is byte-identical to the policy under test  — identical
   ok   connect-src 'none' blocks a same-origin fetch  — blocked
   ok   default-src 'none' blocks a cross-origin script  — blocked
-  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:53985/index.html | script-src-elem <- https://example.com/evil.js
+  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:62041/index.html | script-src-elem <- https://example.com/evil.js
 
 --- 13. EXIF orientation: a portrait phone photo must not come out sideways ---
   ok   the fixture really carries Orientation=6  — read back 6
@@ -534,15 +660,15 @@ url: file:///C:/Users/harsh/WorkBuddy AI/2026-09-14-10-03-21/govdocs-review/dist
 --- 1. does it even boot without a server? ---
 title            : Photo & Signature Fitter
 theme applied    : light
-presets populated: 13
+presets populated: 16
 module refs left : []
   ok   the page boots from file:// with its real title  — Photo & Signature Fitter
-  ok   presets are populated  — 13 options
+  ok   presets are populated  — 16 options
   ok   no external file references remain
 
 --- 2. deep link: ?preset=ibps-photo ---
 selected preset  : ibps-photo
-spec line        : IBPS — Photograph (as stated in the notes) — 200x230 px, 20-50 KB, JPEG. Status: UNVERIFIED. Measured fit: comfortable (2026-09-14).
+spec line        : IBPS — Photograph (as stated in the notes) — 200x230 px, 20-50 KB, JPEG. Status: UNVERIFIED. Measured fit: comfortable (2026-09-20).
 caution shown    : true
 rules listed     : 2
   ok   a ?preset= deep link selects that preset
@@ -558,7 +684,7 @@ rules for this   : Sign on plain white paper with a BLACK ink pen. / NOT in capi
 
 --- 3b. switching to the larger box must change the requirement ---
 preset now       : ssc-signature-large
-spec line        : SSC — Signature (larger box, 6.0 x 2.0 cm) — 472x157 px, 10-20 KB, JPEG. Status: UNVERIFIED. Measured fit: comfortable (2026-09-14).
+spec line        : SSC — Signature (larger box, 6.0 x 2.0 cm) — 472x157 px, 10-20 KB, JPEG. Status: UNVERIFIED. Measured fit: comfortable (2026-09-20).
 url synced       : preset=ssc-signature-large
   ok   the button switches to the larger box
   ok   the caution clears, because the larger box is comfortable
@@ -647,6 +773,117 @@ none
 all assertions passed
 ==============================================================
 
+> test_certificate_tool.mjs — the second tool, end to end from file://
+=== CERTIFICATE TO PDF — end to end in a real browser ===
+
+1. one 12 MP phone photo -> one A4 PDF under 500 KB
+   status   : Ready — and verified A 359.5 KB PDF, 1 A4 page(s), read back from the file itself.
+  ok   the build succeeded  — Ready — and verified A 359.5 KB PDF, 1 A4 page(s), read back from the file itself.
+   Requirement   : SSC — 10th standard / SSLC certificate
+   Pages         : 1
+   Page size     : A4 (all pages)
+   File size     : 359.5 KB of 500 KB allowed
+   Resolution    : 200 dpi
+   Quality       : 0.85
+   Format check  : valid PDF, read back from its own bytes
+  ok   it reports one page  — 1
+  ok   it reports A4 for every page  — A4 (all pages)
+  ok   the format check passed  — valid PDF, read back from its own bytes
+  ok   a download fired  — ssc-certificate.pdf
+   downloaded: ssc-certificate.pdf, 359.5 KB
+  ok   the downloaded file is a valid PDF  — no problems
+  ok   it has exactly one page  — 1
+  ok   the page really is A4 (595.276 x 841.89 pt)  — 1
+  ok   it is under the 500 KB ceiling  — 359.5 KB
+  ok   it is named .pdf  — ssc-certificate.pdf
+  ok   the embedded image is smaller than the 12 MP original (it was downscaled to fit)  — 359 KB vs 3517 KB
+
+2. two certificates -> two A4 pages, still one file
+  ok   the build succeeded  — Ready — and verified A 439.6 KB PDF, 2 A4 page(s), read back from the file itself.
+  ok   it reports two pages  — 2
+  ok   a download fired
+   downloaded: 439.6 KB, 2 pages
+  ok   the PDF has two pages  — 2
+  ok   both pages are A4  — 2
+  ok   it is still under 500 KB  — 439.6 KB
+
+3. an impossible ceiling is REFUSED, with no download
+   status   : This cannot be made to fit Even at the lowest setting the images come to 85.4 KB, and the ceiling is 40 KB. Reduce the number of pages, or use a light
+  ok   the tool refuses rather than shipping a file over the limit  — This cannot be made to fit Even at the lowest setting the images come to 85.4 KB, and the ceiling is 40 KB. Reduce the n
+  ok   the refusal says what the best achievable size was  — mentions a size
+  ok   no download is offered for a file that would be rejected
+
+4. a file the browser cannot decode is explained, not silently dropped
+   status   : None of those files could be opened This tool reads JPEG and PNG. iPhone photos are often HEIC, which browsers other than Safari cannot open — convert to JPEG f
+  ok   it refuses clearly
+  ok   it names the formats that do work  — says JPEG and PNG
+  ok   it warns about HEIC rather than leaving the user guessing  — mentions HEIC
+  ok   no download is offered
+
+5. the tool makes no external request and logs no errors
+  ok   nothing is requested from the network at load  — no external requests
+  ok   no console or page errors, even after deliberately bad input  — none
+
+============================================================
+certificate tool verified end to end
+============================================================
+
+> test_landing.mjs — the landing page: no network, file://, both themes, responsive
+=== TEST L: landing page ===
+
+--- 1. opened from file://, no server ---
+  ok   title is the real title, not a browser error page  — "Exam Document Tools — fit photos, signatures and certificate"
+  ok   h1 rendered
+  ok   both tool cards present
+  ok   no external request on load  — none
+  ok   no console error / page error  — none
+  ok   no asset reference with an unknown scheme  — none
+
+--- 2. every link points at something that exists ---
+  ok   local links found  — dist/photo-signature-fitter.html dist/certificate-to-pdf.html
+  ok     exists: dist/photo-signature-fitter.html
+  ok     exists: dist/certificate-to-pdf.html
+  ok   remote links all target the channel  — https://www.youtube.com/@TechTipsDhanwalaMH?sub_confirmation=1 https://wa.me/?text=Free%20browser%20tools%20that%20resize%20exam%20photos%2C%20signatures%20and%20certificates%20to%20the%20exact%20requirement%20%E2%80%94%20and%20check%20their%20own%20output.%20Nothing%20is%20uploaded.%20file%3A%2F%2F%2FC%3A%2FUsers%2Fharsh%2FWorkBuddy%2520AI%2F2026-09-14-10-03-21%2Fgovdocs-review%2Findex.html https://t.me/share/url?url=file%3A%2F%2F%2FC%3A%2FUsers%2Fharsh%2FWorkBuddy%2520AI%2F2026-09-14-10-03-21%2Fgovdocs-review%2Findex.html&text=Free%20browser%20tools%20that%20resize%20exam%20photos%2C%20signatures%20and%20certificates%20to%20the%20exact%20requirement%20%E2%80%94%20and%20check%20their%20own%20output.%20Nothing%20is%20uploaded. https://www.youtube.com/@TechTipsDhanwalaMH
+
+--- 3. icons: inline SVG, never emoji ---
+  ok   inline SVG icons used  — 14 icons / 11 symbols defined
+  ok   every <use> resolves to a defined symbol
+  ok   no emoji in the rendered text  — none
+
+--- 4. theme toggle ---
+  ok   theme flips  — light -> dark
+  ok   icon follows the theme  — #i-moon -> #i-sun
+  ok   label follows the theme
+  ok   mirrored into the two tool keys
+  ok   body background actually changed  — rgb(246, 247, 249) -> rgb(14, 17, 22)
+
+--- 5. responsive: no horizontal overflow at any width ---
+  ok   phone 375px: no h-overflow  — overflow 0px
+  ok   tablet 768px: no h-overflow  — overflow 0px
+  ok   small-desktop 1024px: no h-overflow  — overflow 0px
+  ok   desktop 1440px: no h-overflow  — overflow 0px
+  ok   dark: every text pair is at least 4.5:1  — body=7.50 muted=7.50 card=15.94 accent=8.72
+  ok   light: every text pair is at least 4.5:1  — body=5.58 muted=5.58 card=16.60 accent=5.45
+
+--- 6. touch targets and keyboard ---
+  ok   every control is at least 44px tall  — all >= 44px
+  ok   focus is visible on the first tab stop  — {"tag":"A","outline":"2px","style":"solid"}
+  ok   reduced-motion is honoured
+
+--- 7. served with the netlify.toml CSP (the real deployment) ---
+  ok   served 200  — 200
+  ok   CSP header present
+  ok   no CSP violation  — none
+  ok   no external request under CSP  — none
+  ok   no console error under CSP  — none
+  ok   styles survived the CSP (inline style allowed)
+  ok   icons survived the CSP
+
+--- 8. negative control: can the "external request" detector fail? ---
+  ok   CONTROL: a planted external request IS detected  — before=0 after=1
+
+PASS — 0 failing assertion(s)
+
 > shot_report.mjs — the report itself renders, with no broken anchors or clipped output
 === REPORT RENDER CHECK ===
 title    : Code Review & Build Plan — Dhanwala Citizen & Exam Shield
@@ -692,13 +929,17 @@ report renders correctly
 SUMMARY
 ==============================================================
   PASS  test_registry_guard.mjs
+  PASS  test_bundler.mjs
   PASS  check_specs.mjs
   PASS  test_mutation.mjs
   PASS  test_core.mjs
   PASS  test_old_algorithm.mjs
   PASS  test_verifier.mjs
+  PASS  test_certificate_pdf.mjs
   PASS  test_browser.mjs
   PASS  test_single_file.mjs
+  PASS  test_certificate_tool.mjs
+  PASS  test_landing.mjs
   PASS  shot_report.mjs
 ==============================================================
 All suites passed.

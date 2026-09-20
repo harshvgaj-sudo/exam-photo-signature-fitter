@@ -5,7 +5,7 @@
  * The download button only ever appears after verify() passes.
  */
 import { SPECS, getSpec, DECLARATION_TEXT } from './specs.js';
-import { coverRect, clampCrop, searchQuality, verify, explainFailure } from './core.js';
+import { coverRect, clampCrop, searchQuality, verify, explainFailure, describeWindow } from './core.js';
 import { CHANNEL, shareLinks } from './config.js';
 
 /* ------------------------------------------------------------------ theme */
@@ -149,8 +149,16 @@ function applySpec() {
       'This tool cannot confirm that they match any real portal.';
   } else if (state.spec.status === 'VERIFIED') {
     els.provenance.className = 'provenance';
+    // The note is shown here too, not only on the unverified path. It is where the
+    // registry records what the source document actually says — including the two
+    // places where an official document contradicts itself (the RRB 140x60 box
+    // against its own 30 KB floor, and the MPSC signature section headed
+    // "Photograph size"). That analysis is the point of the entry; leaving it in a
+    // field nothing renders would be doing the work and throwing it away.
     els.provenance.innerHTML =
-      `<b>Read from the official source document on ${state.spec.verifiedOn}</b>Source: ${state.spec.source}`;
+      `<b>Read from the official source document on ${state.spec.verifiedOn}</b>` +
+      `Source: ${state.spec.source}` +
+      (state.spec.note ? `<br>${state.spec.note}` : '');
   } else {
     els.provenance.className = 'provenance warn';
     els.provenance.innerHTML =
@@ -159,7 +167,7 @@ function applySpec() {
   }
 
   els.presetNote.textContent =
-    `${state.spec.label} — ${state.spec.width}x${state.spec.height} px, ${state.spec.minKB}-${state.spec.maxKB} KB, ` +
+    `${state.spec.label} — ${state.spec.width}x${state.spec.height} px, ${describeWindow(state.spec)}, ` +
     `JPEG. Status: ${state.spec.status}. ` +
     (state.spec.feasibility
       ? `Measured fit: ${state.spec.feasibility}${state.spec.measuredOn ? ` (${state.spec.measuredOn})` : ''}.`
@@ -488,7 +496,7 @@ els.processBtn.addEventListener('click', async () => {
       'ok',
       'Matches these file requirements',
       ` ${els.preview.width}x${els.preview.height} px, ${(blob.size / 1024).toFixed(2)} KB, within the ` +
-      `${spec.minKB}-${spec.maxKB} KB window. Still confirm on the official upload page.`
+      `${describeWindow(spec)} window. Still confirm on the official upload page.`
     );
     els.download.hidden = false;
   } catch (err) {

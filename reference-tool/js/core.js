@@ -160,6 +160,24 @@ export function verify(spec, actual) {
   return { pass: problems.length === 0, problems };
 }
 
+/**
+ * How this requirement's size window should be described to the user.
+ *
+ * Most requirements state a floor and a ceiling, and the window reads "10-20 KB".
+ * Some state a ceiling only: MPSC says "Maximum size 50KB" and gives no minimum.
+ * Those entries carry the internal NO_MINIMUM_KB sentinel so the search and the
+ * sweep classifier keep working, but printing that sentinel would show the user a
+ * "1-50 KB" range — a floor the official document never stated, and exactly the
+ * kind of invented number this project exists to avoid. So a ceiling-only
+ * requirement is described as a ceiling only.
+ *
+ * @param {{noMinimum?: boolean, minKB: number, maxKB: number}} spec
+ */
+export function describeWindow(spec) {
+  if (spec.noMinimum) return `under ${spec.maxKB} KB (no minimum is stated)`;
+  return `${spec.minKB}-${spec.maxKB} KB`;
+}
+
 /** Human-readable failure text. Never a bare "Success!". */
 export function explainFailure(result, spec, largerSpec) {
   switch (result.reason) {

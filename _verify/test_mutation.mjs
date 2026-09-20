@@ -83,6 +83,16 @@ const staticMutations = [
     mutate: () => ({ ...get('ssc-signature'), preferLarger: 'ssc-signature-does-not-exist' }),
     expect: 'missing preferLarger',
   },
+  {
+    label: 'a ceiling-only requirement carrying an invented minimum',
+    mutate: () => ({ ...get('mpsc-photo'), minKB: 20, noMinimum: true }),
+    expect: 'sentinel',
+  },
+  {
+    label: 'the no-minimum sentinel used without declaring why',
+    mutate: () => ({ ...get('mpsc-signature'), noMinimum: undefined }),
+    expect: 'noMinimum: true',
+  },
 ];
 
 for (const m of staticMutations) {

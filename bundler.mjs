@@ -21,6 +21,13 @@ export function stripModuleSyntax(code, name, problems) {
   // Single-line `import ... from '...';`
   out = out.replace(/^\s*import\s+[^;\n]*?from\s+['"][^'"]+['"]\s*;?\s*$/gm, '');
 
+  // A declaration can share a line with the doc comment above it
+  // (`/** ... */export function f()`), which is easy to introduce by accident when
+  // editing. Every strip below is line-anchored, so the keyword would survive into
+  // the bundle and the page would die with "Unexpected token 'export'". Put it back
+  // at the start of a line first.
+  out = out.replace(/\*\/([^\S\n]*)(export\b)/g, '*/\n$2');
+
   // `export const|let|var|function|class|async function`
   out = out.replace(/^(\s*)export\s+(const|let|var|function|class|async\s+function)\b/gm, '$1$2');
 
@@ -29,7 +36,17 @@ export function stripModuleSyntax(code, name, problems) {
 
   // Anything left means the bundler would silently produce a broken file.
   if (/^\s*import\s/m.test(out)) problems.push(`${name}: unhandled import statement (is it multi-line?)`);
-  if (/^\s*export\s/m.test(out)) problems.push(`${name}: unhandled export statement`);
+  // Deliberately NOT anchored to the line start, and deliberately WIDER than the
+  // strip above. Anchoring it the same way as the strip is what let a same-line
+  // `*/export function` through both at once: the bundle shipped with a live
+  // `export` keyword and the page died with "Unexpected token 'export'" while the
+  // build reported success. It also covers `export default` and `export *`, which
+  // the strip cannot inline into a shared scope and therefore must refuse rather
+  // than drop. A false positive here fails the build loudly, which is the safe
+  // direction; a false negative ships a broken tool.
+  if (/(^|[^\w$.'"`])export\s+(const|let|var|function|class|async\s+function|\{|default|\*)/m.test(out)) {
+    problems.push(`${name}: unhandled export statement`);
+  }
 
   return out;
 }
@@ -55,9 +72,10 @@ export function checkCollisions(units, problems) {
  * @param {string} opts.cssFile     stylesheet path relative to srcDir
  * @param {string} opts.indexPath   the HTML entry point (absolute)
  * @param {object} opts.manifest    web-app manifest, inlined as a data: URL
+ * @param {string} [opts.banner]    comment to place at the top of the bundled script
  * @returns {{ok: boolean, problems: string[], html: string}}
  */
-export function bundle({ srcDir, modules, cssFile, indexPath, manifest }) {
+export function bundle({ srcDir, modules, cssFile, indexPath, manifest, banner }) {
   const problems = [];
 
   const units = modules.map((rel) => {
@@ -82,7 +100,7 @@ export function bundle({ srcDir, modules, cssFile, indexPath, manifest }) {
   if (!jsTag.test(html)) problems.push('index.html: module script tag not found (expected exactly one)');
   if (problems.length) return { ok: false, problems, html: '' };
 
-  const js = ["'use strict';", ...units.map((u) => u.code)].join('\n\n');
+  const js = [banner, "'use strict';", ...units.map((u) => u.code)].filter(Boolean).join('\n\n');
   const wrapped = `(function () {\n${js}\n})();`;
 
   html = html.replace(cssLink, `<style>\n${safeCss}\n</style>`);

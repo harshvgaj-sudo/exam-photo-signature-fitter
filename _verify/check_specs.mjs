@@ -157,6 +157,38 @@ if (legibility.length) {
   ok(`quality range across all ${qs.length} produced files: ${Math.min(...qs).toFixed(3)} - ${Math.max(...qs).toFixed(3)}`);
 }
 
+/*
+ * The per-entry numbers, printed so they can be pasted straight into the registry
+ * comments instead of being recalled. Those comments quote measured ranges, and
+ * nothing checked them against the measurement: the suite verifies the VERDICT
+ * ('comfortable' / 'marginal'), so three comments had quietly drifted out of date
+ * by the time this table was added. Printing the range next to the entry makes the
+ * drift visible in the run output rather than only in a stale sentence.
+ */
+console.log('');
+console.log('  Per-entry measured range, for the registry comments:');
+console.log('  ' + 'SPEC'.padEnd(22) + 'q1.0 RANGE'.padEnd(22) + 'QUALITY TO FIT'.padEnd(18) +
+  'PASS'.padEnd(8) + 'WORST INPUT');
+console.log('  ' + '-'.repeat(96));
+for (const { spec, samples, passed, rs } of report) {
+  const q = passed.map((r) => r.quality);
+  const qTxt = q.length ? `${Math.min(...q).toFixed(3)} - ${Math.max(...q).toFixed(3)}` : 'n/a';
+  // The riskNote on a marginal entry has to name which inputs fall short, so the
+  // harness names the worst one. That is the sentence a user reads before deciding
+  // whether to trust the preset, and it should not be recall.
+  const worst = rs.reduce((a, b) => (b.atMax < a.atMax ? b : a), rs[0]);
+  const worstTxt = `grain ${worst.grain}${worst.density === null ? '' : `, density ${worst.density}`} ` +
+    `= ${(worst.atMax / 1024).toFixed(1)}KB`;
+  console.log(
+    '  ' + spec.id.padEnd(22) +
+    `${(Math.min(...samples) / 1024).toFixed(1)}-${(Math.max(...samples) / 1024).toFixed(1)}KB`.padEnd(22) +
+    qTxt.padEnd(18) +
+    `${passed.length}/${samples.length}`.padEnd(8) +
+    worstTxt
+  );
+}
+console.log('  ' + '-'.repeat(96));
+
 /* ============================== PART 4: how wrong is the old Node model? */
 console.log('');
 bar();

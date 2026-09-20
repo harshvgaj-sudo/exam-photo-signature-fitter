@@ -48,19 +48,41 @@ So this tool does two things most do not:
 
 ## Presets
 
-13 presets, each carrying its own provenance. The registry is deliberately honest about what has
+16 presets, each carrying its own provenance. The registry is deliberately honest about what has
 been verified against a primary source and what has not:
 
 | Status | Count | Meaning |
 |---|---|---|
-| `VERIFIED` | 4 | Checked against the official document |
+| `VERIFIED` | 7 | Checked against the official document |
 | `UNVERIFIED` | 8 | From secondary sources — treat the numbers as a starting point |
 | `CUSTOM` | 1 | You supply the dimensions and the size window |
 
-SSC, IBPS and UPSC presets are included, plus a custom requirement. Each preset supports a deep
-link (`?preset=ssc-signature`) so a specific requirement can be linked directly.
+SSC, IBPS, UPSC, RRB and MPSC presets are included, plus a custom requirement. Each preset supports
+a deep link (`?preset=ssc-signature`) so a specific requirement can be linked directly.
 
-## One finding worth knowing
+Three of the verified entries come from documents read in full rather than from a summary:
+
+| Exam | Document | Read |
+|---|---|---|
+| SSC | "Guidelines for scanning and Upload of Documents" (4 pp) | 2026-09-14 |
+| RRB | CEN No. 09/2025 (Level-1), para 16.5.1 (74 pp) | 2026-09-20 |
+| MPSC | "Instructions for Filling the Application Form" (3 pp) | 2026-09-20 |
+
+Searching for these numbers returns dozens of "photo resizer" pages, and they contradict each other
+and the government PDFs. Every number above was read out of the PDF itself.
+
+### A requirement with a ceiling and no floor
+
+MPSC says "Maximum size 50KB" and stops — there is no minimum. The tool needs a two-sided window, so
+such an entry carries a sentinel and a `noMinimum` flag that the registry guard pins together, and
+the interface prints **"under 50 KB (no minimum is stated)"** rather than a "1–50 KB" range. The
+secondary sites that quote "20–50 KB" have invented the 20.
+
+## Findings worth knowing
+
+Every one of these was measured, not reasoned about, and each is reproducible from `_verify/`.
+
+### The SSC signature box cannot hold its own minimum
 
 The official SSC signature box is **140 × 60 px with a 10–20 KB window**. Measured across a sweep of
 realistic signature scans, only **7 of 28** inputs could reach the 10 KB floor at all.
@@ -69,14 +91,54 @@ The risk for this preset is being **under** 10 KB, not over 20 KB. Telling a can
 signature" is exactly the wrong advice there — so the preset carries a caution, and offers the
 larger documented box (472 × 157) when the compact one cannot hold the window.
 
+A second, less intuitive result came out of the same sweep: the size is **not monotonic in ink**. The
+largest files came from a moderately elaborate signature (~13.4 KB), while the *densest* one measured
+**smallest** (~6.1 KB) — at 140 × 60 a heavy signature downscales towards a solid block, and JPEG
+encodes flat areas cheaply. So "write a denser signature" is not a reliable fix at that box, and the
+preset no longer says so. See `_verify/probe_ink_axis.mjs`.
+
+### RRB's stated minimum box contradicts RRB's stated minimum file size
+
+CEN No. 09/2025, para 16.5.1 asks for a signature of **30–49 KB** with dimensions of **"Minimum 140
+pixels (width) × 60 pixels (height)"**, a **minimum scan resolution of 100 DPI**, and a scan box of
+**35 mm × 20 mm**. Those do not agree, and the disagreement is measurable:
+
+| Scan resolution | Box | Best achievable over 28 inputs | Verdict |
+|---|---|---|---|
+| 100 DPI (the stated minimum) | 138 × 79 | 7.2 – 14.7 KB | **unreachable** |
+| 200 DPI | 276 × 157 | 16.0 – 43.4 KB | marginal |
+| 300 DPI | 413 × 236 | 25.4 – 86.2 KB | marginal |
+| **400 DPI** | **551 × 315** | **35.2 – 127.1 KB** | **comfortable** |
+| 500 DPI | 689 × 394 | 47.1 – 199.5 KB | comfortable |
+| 600 DPI | 827 × 472 | 58.9 – 277.1 KB | comfortable |
+
+At 140 × 60 the box is 8,400 pixels, so a 30 KB floor demands **3.66 bytes per pixel** — past what
+JPEG can produce. The same box tops out near 13.4 KB on the SSC sweep, under half the floor. And at
+the CEN's own minimum of 100 DPI its own 35 mm box is **137.8 px** wide — two pixels under its own
+140 px minimum — producing at most 14.7 KB.
+
+So the preset ships the reading that actually works: the CEN's own scan box at **400 DPI**, the
+smallest resolution at which every one of 28 realistic inputs clears 30 KB (worst case 35.2 KB),
+needing only JPEG quality 0.935–1.000 to stay under 49 KB. `_verify/probe_rrb_box.mjs` prints the
+whole table above.
+
+### The RRB photograph is not uploaded at all
+
+Para 16.5 lists only two documents to keep ready for upload: the signature, and the SC/ST
+certificate. The photograph is **captured live** by the portal's application module, and an
+application carrying a photograph of a printed or on-screen image is *"summarily rejected"*. There is
+therefore no RRB photo preset — the tool cannot produce a file for a requirement that does not accept
+one.
+
 ## What this tool does not claim
 
 It confirms that a file **meets the stated requirements**. It does **not** claim the portal will
 accept it — that depends on the live portal, and only you can confirm it.
 
 Some requirements cannot be met by uploading a file at all. SSC requires a **live photograph**
-captured on the portal or via its app; for those presets the tool explains the rule and disables
-the upload rather than producing a file that cannot be used.
+captured on the portal or via its app, and RRB captures the photograph live in its application
+module; for those the tool explains the rule and disables the upload rather than producing a file
+that cannot be used.
 
 ## Development
 
@@ -104,7 +166,7 @@ Run everything:
 node _verify/run_all.mjs
 ```
 
-Twelve suites, including one that measures every registry claim **in a real browser** and fails if a
+Thirteen suites, including one that measures every registry claim **in a real browser** and fails if a
 declared feasibility does not match the measurement. `_verify/full_run.txt` is the captured
 transcript.
 
@@ -115,9 +177,15 @@ render, measures text contrast against WCAG AA, and asserts no horizontal overfl
 1024 / 1440 px. It carries a negative control: it plants an external request and requires the
 detector to fire, so the check cannot silently become a no-op.
 
-Note that `check_specs.mjs` regenerates its fixtures on every run (~90 MB of generated images, all
+Note that `check_specs.mjs` regenerates its fixtures on every run (~35 MB of generated images, all
 gitignored). If you want the working tree to stay small, run the suites only when you are changing
 behaviour.
+
+The suites assert the **verdict** for each preset (`comfortable` / `marginal`), not the prose that
+describes it. To stop the prose drifting out of date, `check_specs.mjs` also prints a per-entry table
+of the measured range, the JPEG quality needed to fit, and the worst input — paste from that rather
+than from memory. `_verify/probe_rrb_box.mjs` and `_verify/probe_ink_axis.mjs` are standalone probes
+that print the raw grids behind two of the findings above.
 
 ## Requirements
 
@@ -128,6 +196,6 @@ it — convert to JPEG first. The tool says so rather than failing silently.
 
 ## Licence and attribution
 
-Not affiliated with SSC, IBPS, UPSC or any government body. Requirements are transcribed from the
-official guidelines where a primary source was available, and marked otherwise. Always confirm the
-current requirement on the official portal before uploading.
+Not affiliated with SSC, IBPS, UPSC, RRB, MPSC or any government body. Requirements are transcribed
+from the official guidelines where a primary source was available, and marked otherwise. Always
+confirm the current requirement on the official portal before uploading.
