@@ -17,6 +17,7 @@
  * failed requests, and drives the crop drag with genuine touch input.
  */
 import { chromium } from 'file:///C:/Users/harsh/.workbuddy-ai/binaries/node/workspace/node_modules/playwright-core/index.mjs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { HERE } from './server.mjs';
 
@@ -145,6 +146,127 @@ console.log('\n--- 2. the deployed photo tool: real touch drag ---');
 
   assert('no failed requests on the tool page', failed.length === 0, failed.join(' | '), 'none');
   assert('no page errors on the tool page', errors.length === 0, errors.join(' | '), 'none');
+  await ctx.close();
+}
+
+/* --------------------- 3. the last mile: is the DOWNLOADED file correct? */
+/*
+ * Everything above stops at the UI. But the file the viewer walks away with has
+ * never been opened and measured — and the filename is itself a claim:
+ * `ssc-signature_140x60.jpg` asserts the bytes inside are 140x60. If they are
+ * not, the tool has produced a file that lies about itself and the exam portal
+ * rejects it, with the user having no way to tell why.
+ *
+ * So this completes the journey on the DEPLOYED build and parses the JPEG's own
+ * header — the authoritative dimensions, not what the canvas claimed.
+ */
+const jpegSize = (buf) => {
+  let i = 2; // skip SOI
+  while (i < buf.length - 1) {
+    if (buf[i] !== 0xff) { i++; continue; }
+    const marker = buf[i + 1];
+    // SOF0..SOF15 carry the frame dimensions; C4/C8/CC are not SOF markers.
+    if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+      return { height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7) };
+    }
+    if (marker === 0xd8 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) { i += 2; continue; }
+    i += 2 + buf.readUInt16BE(i + 2);
+  }
+  return null;
+};
+
+// The SSC signature requirement, from the official PDF (_verify/pdf_text.txt):
+// 140x60 px, 10-20 KB. Deliberately written out rather than read from the
+// registry — if someone changes the registry, this check must fail and force a
+// deliberate decision, not silently follow it.
+const EXPECT = { id: 'ssc-signature', width: 140, height: 60, minKB: 10, maxKB: 20 };
+
+// Two real viewer journeys. The second is the product's whole differentiator, so
+// it gets asserted as hard as the first.
+//
+// At 140x60 a clean signature scan can fall UNDER the 10 KB floor — the risk on
+// this preset is being too small, not too big. The tool must REFUSE rather than
+// hand over a file the portal will reject. The original bug this project exists
+// to fix printed "Success!" on a 6.53 KB file, so a refusal here is the feature
+// working, not a failure. Measured on this machine: _d2 density clears the floor
+// at ~13.4 KB, while g12_d1 tops out at 8.88 KB.
+const JOURNEYS = [
+  ['scan_g0_d2.jpg', 'produced'],
+  ['scan_g12_d1.jpg', 'refused'],
+];
+
+console.log('\n--- 3. the full journey on the deployed site: process, download, measure ---');
+for (const [fixture, expectation] of JOURNEYS) {
+  console.log(`\n  [${fixture}]  expected outcome: ${expectation}`);
+  const ctx = await browser.newContext({ ...PHONE, acceptDownloads: true });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
+  p.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
+
+  await p.goto(`${SITE}/dist/photo-signature-fitter.html`, { waitUntil: 'load' });
+  await p.selectOption('#presetSelect', EXPECT.id);
+  await p.setInputFiles('#fileInput', join(HERE, 'fixtures', fixture));
+  await p.waitForFunction(() => {
+    const el = document.querySelector('#cropBox');
+    return el && el.offsetWidth > 0;
+  }, null, { timeout: 30000 });
+
+  await p.click('#processBtn');
+  // The button is hidden until verify() passes, so its appearance IS the tool's
+  // own claim that the file meets the requirement.
+  let produced = true;
+  try {
+    await p.waitForSelector('#downloadBtn:not([hidden])', { timeout: 60000 });
+  } catch { produced = false; }
+
+  const status = (await p.locator('#status').innerText()).replace(/\s+/g, ' ').trim();
+  console.log(`  tool said: ${status.slice(0, 170)}`);
+
+  if (expectation === 'refused') {
+    assert('the tool refused rather than shipping an out-of-window file', !produced,
+      'it offered a download for a file that cannot meet the requirement');
+    assert('the refusal explains why, in plain words', /KB/.test(status) && status.length > 40,
+      `the message does not explain the cause: "${status.slice(0, 120)}"`);
+  } else {
+    assert('the deployed tool produced a file', produced,
+      `the download button never appeared. Tool said: ${status.slice(0, 200)}`);
+
+    if (produced) {
+      const [download] = await Promise.all([
+        p.waitForEvent('download', { timeout: 30000 }),
+        p.click('#downloadBtn'),
+      ]);
+      const name = download.suggestedFilename();
+      const bytes = readFileSync(await download.path());
+      const dims = jpegSize(bytes);
+      const kb = bytes.length / 1024;
+
+      console.log(`  downloaded: ${name}  (${bytes.length} bytes, ${kb.toFixed(2)} KB)`);
+      console.log(`  JPEG header: ${dims ? `${dims.width}x${dims.height}` : 'unparseable'}`);
+
+      assert('the downloaded file is a real JPEG with a readable header', dims !== null,
+        'no SOF marker found — the bytes are not a usable JPEG');
+      if (dims) {
+        assert(`the actual pixels are ${EXPECT.width}x${EXPECT.height}, as the requirement states`,
+          dims.width === EXPECT.width && dims.height === EXPECT.height,
+          `measured ${dims.width}x${dims.height}`);
+        // The filename is a promise the user reads off their own disk. It must
+        // match the bytes, or the file lies about itself.
+        const claimed = name.match(/_(\d+)x(\d+)\.jpg$/);
+        assert('the filename states the dimensions the file actually has',
+          Boolean(claimed) && Number(claimed[1]) === dims.width && Number(claimed[2]) === dims.height,
+          `filename claims ${claimed ? claimed[1] + 'x' + claimed[2] : 'nothing'}, bytes are ${dims.width}x${dims.height}`);
+      }
+      assert(`the file size is inside the ${EXPECT.minKB}-${EXPECT.maxKB} KB window`,
+        kb >= EXPECT.minKB && kb <= EXPECT.maxKB,
+        `${kb.toFixed(2)} KB is outside ${EXPECT.minKB}-${EXPECT.maxKB} KB`);
+      assert('the download arrived with a usable filename',
+        name.endsWith('.jpg') && name.length > 4, `filename was "${name}"`);
+    }
+  }
+
+  assert('no page errors during the journey', errors.length === 0, errors.join(' | '), 'none');
   await ctx.close();
 }
 
