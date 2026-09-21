@@ -262,8 +262,12 @@ button { font: inherit; cursor: pointer; border-radius: 8px; }
   .share-row a { min-height: 44px; display: inline-flex; align-items: center; }
   .field > span { font-size: 14px; }
   select, input[type="text"], input[type="number"], input[type="file"] { min-height: 46px; }
-  /* A range input is a hard drag target on a phone; give it room. */
-  input[type="range"] { height: 32px; }
+  /* A range input is a hard drag target on a phone, so it gets the same 44px as
+     every other control. It was 32px, under a comment claiming to "give it room" —
+     which was 32px against the 44px this project asserts for the landing page, and
+     the tool is where the dragging actually happens. The visual track stays thin;
+     only the input's hit box grows. */
+  input[type="range"] { height: 44px; }
 }
 
 /* Keep the crop stage usable in landscape on a phone, where height is scarce. */

@@ -3,7 +3,7 @@ Photo & Signature Fitter — full verification
 > building single-file bundles
 BUILD OK
   output      : C:\Users\harsh\WorkBuddy AI\2026-09-14-10-03-21\govdocs-review\dist\photo-signature-fitter.html
-  size        : 98.1 KB (one file, no dependencies)
+  size        : 98.4 KB (one file, no dependencies)
   modules     : js/config.js, js/specs.js, js/core.js, js/app.js
   registry    : 17 requirements, 13 VERIFIED, 2 DERIVED, 1 UNVERIFIED, 2 flagged marginal
   guard       : provenance + arithmetic checks passed
@@ -155,7 +155,7 @@ A box is 'comfortable' when EVERY input clears the floor by at least 1.15x.
   fixtures: 75 JPEG file(s), 65.2 MB total
   jobs    : 226 measurement(s) across 16 registry entries
   browser : Chrome/153.0.0.0 (real system Chrome)
-  measured : 2026-09-21T06:51:09.768Z
+  measured : 2026-09-21T10:06:46.048Z
 
 SPEC                  BOX        WINDOW      q1.0 OVER THE SWEEP PASS    DECLARED     MEASURED     RESULT
 ----------------------------------------------------------------------------------------------------------------
@@ -551,7 +551,7 @@ the old predicate still reproduces its defects, so the report's evidence holds
 PDF writer verified — A4, verbatim JPEG, predictable size
 ==========================================================
 
-> test_browser.mjs — modular version over HTTP (port 50344)
+> test_browser.mjs — modular version over HTTP (port 56058)
 
 --- 1. page loads, preset applied, provenance shown ---
 title      : Photo & Signature Fitter
@@ -637,7 +637,7 @@ canvas dims     : 472x157
   ok   the header is byte-identical to the policy under test  — identical
   ok   connect-src 'none' blocks a same-origin fetch  — blocked
   ok   default-src 'none' blocks a cross-origin script  — blocked
-  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:50344/index.html | script-src-elem <- https://example.com/evil.js
+  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:56058/index.html | script-src-elem <- https://example.com/evil.js
 
 --- 13. EXIF orientation: a portrait phone photo must not come out sideways ---
   ok   the fixture really carries Orientation=6  — read back 6
@@ -999,6 +999,79 @@ certificate tool  (tools\certificate-pdf\index.html)
   Every page has one h1, no skipped levels, and no dangling id references.
 ====================================================================================================
 
+> test_mobile_touch.mjs — the crop drag under real touch input, on a phone
+====================================================================================================
+MOBILE TOUCH — the crop drag under real touch input, on a 390x844 phone
+====================================================================================================
+
+--- 1. touch drag: ssc-photo (photo) ---
+  frame      {"left":81,"top":14,"w":166,"h":191}  ->  {"left":101,"top":14,"w":166,"h":191}
+  image      328x191 rendered; frame free on x=true y=false
+  touch      from (195, 422) viewport-relative, 20x60px over 10 steps
+  moved      dx=20 dy=0   readout: source crop 1217x1400 px
+  ok   the frame moved under touch
+  ok   it tracked the drag vertically  — no vertical room
+  ok   it tracked the drag horizontally wherever x is free  — dx=20
+  ok   the page did not scroll during the drag (touch-action: none is doing its job)  — 0px of scroll
+
+--- 1. touch drag: ssc-signature (signature) ---
+  frame      {"left":0,"top":39,"w":328,"h":141}  ->  {"left":0,"top":65,"w":328,"h":141}
+  image      328x191 rendered; frame free on x=false y=true (full-width crop)
+  touch      from (195, 422) viewport-relative, 20x60px over 10 steps
+  moved      dx=0 dy=26   readout: source crop 2400x1029 px
+  ok   the frame moved under touch
+  ok   it tracked the drag vertically  — dy=26
+  ok   it tracked the drag horizontally wherever x is free  — x is pinned: the crop is full-width (328px of 328px)
+  ok   the page did not scroll during the drag (touch-action: none is doing its job)  — 0px of scroll
+  ok   ssc-signature really is a full-width crop, which is why its x axis cannot move
+  ok   ssc-photo is NOT full-width, so it exercises the horizontal axis
+
+--- 2. negative control: a touch on empty stage must NOT move the frame ---
+  point (40, 100) hit-tests to "stage"
+  ok   the control touch landed on the stage, not the frame
+  ok   the frame did not move when the touch missed it  — dx=0 dy=0
+
+--- 3. every control on the tool is at least 44px tall ---
+  ok   every visible control is at least 44px tall  — all >= 44px
+  ok   no horizontal overflow at phone width  — 0px
+  ok   no page or console errors  — none
+
+--- 4. negative control: without touch-action: none the page must scroll ---
+  frame moved dy=18 (was 26px with touch-action: none)
+  page scrolled -73px
+  ok   removing touch-action: none makes the page scroll instead of dragging  — the page scrolled -73px
+
+--- 5. negative control: shrinking the slider back to 32px must be reported ---
+  controls under 44px: zoom 326x32
+  ok   the 44px check fails when a control is shrunk below it
+  ok   it names the range input specifically
+
+====================================================================================================
+THE SINGLE-FILE BUILD — the same gesture on the artifact a visitor downloads
+====================================================================================================
+
+  file:///C:/Users/harsh/WorkBuddy AI/2026-09-14-10-03-21/govdocs-review/dist/photo-signature-fitter.html
+
+--- touch drag: ssc-photo (photo) ---
+  frame {"left":81,"top":14}  ->  {"left":101,"top":14}  (dx=20 dy=0)
+  ok   the frame moved under touch
+  ok   it tracked the drag vertically  — no vertical room
+  ok   it tracked the drag horizontally wherever x is free  — dx=20
+  ok   the page did not scroll during the drag  — 0px of scroll
+
+--- touch drag: ssc-signature (signature) ---
+  frame {"left":0,"top":39}  ->  {"left":0,"top":65}  (dx=0 dy=26)
+  ok   the frame moved under touch
+  ok   it tracked the drag vertically  — dy=26
+  ok   it tracked the drag horizontally wherever x is free  — x is pinned: full-width crop
+  ok   the page did not scroll during the drag  — 0px of scroll
+  ok   every visible control is at least 44px tall  — all >= 44px
+  ok   no page or console errors  — none
+
+====================================================================================================
+  The crop drag works under real touch input, on both artifacts, on both axes, and the controls are finger-sized.
+====================================================================================================
+
 > test_docs_consistency.mjs — every count in index.html and README.md equals the registry
 ====================================================================================================
 DOCS CONSISTENCY — every stated count must equal the registry
@@ -1063,6 +1136,7 @@ SUMMARY
   PASS  shot_report.mjs
   PASS  test_provenance_levels.mjs
   PASS  test_page_structure.mjs
+  PASS  test_mobile_touch.mjs
   PASS  test_docs_consistency.mjs
 ==============================================================
 All suites passed.
