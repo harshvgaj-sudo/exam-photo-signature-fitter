@@ -87,7 +87,13 @@ results.push(['shot_report.mjs', await run('shot_report.mjs')]);
 console.log('\n> test_provenance_levels.mjs — VERIFIED / DERIVED / UNVERIFIED render as three distinct, legible levels');
 results.push(['test_provenance_levels.mjs', await run('test_provenance_levels.mjs')]);
 
-// 5. The prose states counts, and a count is a claim about the code. The registry
+// 5. Static structural invariants of all three pages. Both TOOL pages had no h1 at
+// all — the title was a <strong> — so the outline began at the h2 steps. An h2 that
+// should be an h1 renders identically, so nothing looked wrong.
+console.log('\n> test_page_structure.mjs — one h1 per page, no skipped heading levels, no dangling id refs');
+results.push(['test_page_structure.mjs', await run('test_page_structure.mjs')]);
+
+// 6. The prose states counts, and a count is a claim about the code. The registry
 // has grown twice and the copy was left behind both times — once telling visitors
 // "8 from secondary sources" when the true number was 1. Runs last because it is
 // the cheapest, and it is the one that guards every number printed above.

@@ -210,7 +210,7 @@ Run everything:
 node _verify/run_all.mjs
 ```
 
-Fifteen suites, including one that measures every registry claim **in a real browser** and fails if a
+Sixteen suites, including one that measures every registry claim **in a real browser** and fails if a
 declared feasibility does not match the measurement. `_verify/full_run.txt` is the captured
 transcript.
 
@@ -233,6 +233,13 @@ levels only mean something if a user can tell them apart, and for a while `DERIV
 identical neutral box as `VERIFIED` — the wording differed, the appearance did not, so the distinction
 lived only in a paragraph. The suite asserts three distinct backgrounds and a WCAG AA contrast ratio for
 each, in both themes. It fails if a level is ever collapsed back onto another.
+
+`_verify/test_page_structure.mjs` checks all three pages have exactly one `h1`, skip no heading level,
+and resolve every `aria-labelledby` / `aria-describedby` / `label for` target. Both tool pages used to
+have **no `h1` at all** — the title was a `<strong>` — so the outline began at the first `h2` step and a
+screen-reader user could not identify the page. Nothing looked wrong, because an `h2` that should be an
+`h1` renders identically; only a machine catches that class of defect. The title now renders
+pixel-identically as an `h1` (same font, weight, margins and box geometry, verified by measurement).
 
 Note that `check_specs.mjs` regenerates its fixtures on every run (~65 MB of generated images, all
 gitignored). If you want the working tree to stay small, run the suites only when you are changing

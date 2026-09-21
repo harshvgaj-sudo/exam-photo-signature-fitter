@@ -3,7 +3,7 @@ Photo & Signature Fitter — full verification
 > building single-file bundles
 BUILD OK
   output      : C:\Users\harsh\WorkBuddy AI\2026-09-14-10-03-21\govdocs-review\dist\photo-signature-fitter.html
-  size        : 97.8 KB (one file, no dependencies)
+  size        : 98.1 KB (one file, no dependencies)
   modules     : js/config.js, js/specs.js, js/core.js, js/app.js
   registry    : 17 requirements, 13 VERIFIED, 2 DERIVED, 1 UNVERIFIED, 2 flagged marginal
   guard       : provenance + arithmetic checks passed
@@ -15,7 +15,7 @@ BUILD OK
     node _verify/run_all.mjs          (all suites)
 BUILD OK
   output      : C:\Users\harsh\WorkBuddy AI\2026-09-14-10-03-21\govdocs-review\dist\certificate-to-pdf.html
-  size        : 35.5 KB (one file, no dependencies)
+  size        : 35.8 KB (one file, no dependencies)
   modules     : ..\..\reference-tool\js\config.js, js\pdf.js, js\app.js
   local refs  : none
   opens from  : file:// (double-click) or any static host
@@ -155,7 +155,7 @@ A box is 'comfortable' when EVERY input clears the floor by at least 1.15x.
   fixtures: 75 JPEG file(s), 65.2 MB total
   jobs    : 226 measurement(s) across 16 registry entries
   browser : Chrome/153.0.0.0 (real system Chrome)
-  measured : 2026-09-20T10:37:28.308Z
+  measured : 2026-09-21T06:51:09.768Z
 
 SPEC                  BOX        WINDOW      q1.0 OVER THE SWEEP PASS    DECLARED     MEASURED     RESULT
 ----------------------------------------------------------------------------------------------------------------
@@ -535,6 +535,8 @@ the old predicate still reproduces its defects, so the report's evidence holds
 4. the size is predictable, which is what makes a 500 KB ceiling searchable
   ok   overhead is under 1 KB regardless of image size  — 706 bytes
   ok   so PDF size ~= JPEG size, and a JPEG budget IS a PDF budget
+  ok   the landing page states an overhead figure  — ~700 bytes
+  ok   the stated "~700 bytes" matches the measured 706  — page says ~700, measurement says 706
 
 5. the writer refuses input it cannot represent
   ok   rejects an empty page list
@@ -549,7 +551,7 @@ the old predicate still reproduces its defects, so the report's evidence holds
 PDF writer verified — A4, verbatim JPEG, predictable size
 ==========================================================
 
-> test_browser.mjs — modular version over HTTP (port 57450)
+> test_browser.mjs — modular version over HTTP (port 50344)
 
 --- 1. page loads, preset applied, provenance shown ---
 title      : Photo & Signature Fitter
@@ -635,7 +637,7 @@ canvas dims     : 472x157
   ok   the header is byte-identical to the policy under test  — identical
   ok   connect-src 'none' blocks a same-origin fetch  — blocked
   ok   default-src 'none' blocks a cross-origin script  — blocked
-  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:57450/index.html | script-src-elem <- https://example.com/evil.js
+  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:50344/index.html | script-src-elem <- https://example.com/evil.js
 
 --- 13. EXIF orientation: a portrait phone photo must not come out sideways ---
   ok   the fixture really carries Orientation=6  — read back 6
@@ -961,6 +963,42 @@ report renders correctly
 
 all three levels distinct and >= 4.5:1 in both themes
 
+> test_page_structure.mjs — one h1 per page, no skipped heading levels, no dangling id refs
+====================================================================================================
+PAGE STRUCTURE — heading outline and id references
+====================================================================================================
+
+landing page  (index.html)
+  ok   has at least one heading  — 7 found
+  ok   has exactly one h1  — "Fit your document to the exact requirement &mdas"
+  ok   the first heading is the h1  — first is h1
+  ok   no heading level is skipped
+    outline: h1 h2 h3 h3 h2 h2 h2
+  ok   every id reference resolves
+    5 id references checked
+
+photo & signature tool  (reference-tool\index.html)
+  ok   has at least one heading  — 5 found
+  ok   has exactly one h1  — "Photo &amp; Signature Fitter"
+  ok   the first heading is the h1  — first is h1
+  ok   no heading level is skipped
+    outline: h1 h2 h2 h2 h2
+  ok   every id reference resolves
+    4 id references checked
+
+certificate tool  (tools\certificate-pdf\index.html)
+  ok   has at least one heading  — 4 found
+  ok   has exactly one h1  — "Certificate to PDF"
+  ok   the first heading is the h1  — first is h1
+  ok   no heading level is skipped
+    outline: h1 h2 h2 h2
+  ok   every id reference resolves
+    3 id references checked
+
+====================================================================================================
+  Every page has one h1, no skipped levels, and no dangling id references.
+====================================================================================================
+
 > test_docs_consistency.mjs — every count in index.html and README.md equals the registry
 ====================================================================================================
 DOCS CONSISTENCY — every stated count must equal the registry
@@ -1024,6 +1062,7 @@ SUMMARY
   PASS  test_landing.mjs
   PASS  shot_report.mjs
   PASS  test_provenance_levels.mjs
+  PASS  test_page_structure.mjs
   PASS  test_docs_consistency.mjs
 ==============================================================
 All suites passed.

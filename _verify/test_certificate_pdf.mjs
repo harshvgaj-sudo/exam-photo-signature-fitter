@@ -14,7 +14,10 @@
  * Runs in Node against the real module. No browser needed.
  */
 import jpeg from 'file:///C:/Users/harsh/.workbuddy-ai/binaries/node/workspace/node_modules/jpeg-js/index.js';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { buildPdf, inspectPdf, A4 } from '../tools/certificate-pdf/js/pdf.js';
+import { ROOT } from './server.mjs';
 
 let failures = 0;
 const assert = (label, cond, detail = '') => {
@@ -133,6 +136,22 @@ console.log('\n4. the size is predictable, which is what makes a 500 KB ceiling 
   assert('overhead is under 1 KB regardless of image size', overhead < 1024, `${overhead} bytes`);
   assert('so PDF size ~= JPEG size, and a JPEG budget IS a PDF budget',
     Math.abs(pdf.length - jpegBytes.length) < 1024);
+
+  // The landing page quotes this figure to visitors. The bound above (< 1 KB) would
+  // still pass at 900 bytes while the page kept saying "~700", so the stated number
+  // is pinned to the measurement rather than left to drift. The claim is written
+  // with a "~", so the tolerance is generous — it catches a wrong figure, not
+  // ordinary jitter.
+  const landing = readFileSync(join(ROOT, 'index.html'), 'utf8');
+  const claim = landing.match(/<b>~(\d+) bytes<\/b>/);
+  assert('the landing page states an overhead figure', claim !== null,
+    claim ? `~${claim[1]} bytes` : 'no "<b>~N bytes</b>" found');
+  if (claim) {
+    const stated = Number(claim[1]);
+    assert(`the stated "~${stated} bytes" matches the measured ${overhead}`,
+      Math.abs(overhead - stated) <= 100,
+      `page says ~${stated}, measurement says ${overhead}`);
+  }
 }
 
 console.log('\n5. the writer refuses input it cannot represent');
