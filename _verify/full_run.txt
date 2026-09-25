@@ -3,7 +3,7 @@ Photo & Signature Fitter — full verification
 > building single-file bundles
 BUILD OK
   output      : C:\Users\harsh\WorkBuddy AI\2026-09-14-10-03-21\govdocs-review\dist\photo-signature-fitter.html
-  size        : 98.4 KB (one file, no dependencies)
+  size        : 100.7 KB (one file, no dependencies)
   modules     : js/config.js, js/specs.js, js/core.js, js/app.js
   registry    : 17 requirements, 13 VERIFIED, 2 DERIVED, 1 UNVERIFIED, 2 flagged marginal
   guard       : provenance + arithmetic checks passed
@@ -154,8 +154,8 @@ A box is 'comfortable' when EVERY input clears the floor by at least 1.15x.
 ================================================================================================================
   fixtures: 75 JPEG file(s), 65.2 MB total
   jobs    : 226 measurement(s) across 16 registry entries
-  browser : Chrome/153.0.0.0 (real system Chrome)
-  measured : 2026-09-21T10:06:46.048Z
+  browser : Chrome/154.0.0.0 (real system Chrome)
+  measured : 2026-09-25T14:04:04.686Z
 
 SPEC                  BOX        WINDOW      q1.0 OVER THE SWEEP PASS    DECLARED     MEASURED     RESULT
 ----------------------------------------------------------------------------------------------------------------
@@ -551,7 +551,7 @@ the old predicate still reproduces its defects, so the report's evidence holds
 PDF writer verified — A4, verbatim JPEG, predictable size
 ==========================================================
 
-> test_browser.mjs — modular version over HTTP (port 56058)
+> test_browser.mjs — modular version over HTTP (port 53496)
 
 --- 1. page loads, preset applied, provenance shown ---
 title      : Photo & Signature Fitter
@@ -637,7 +637,7 @@ canvas dims     : 472x157
   ok   the header is byte-identical to the policy under test  — identical
   ok   connect-src 'none' blocks a same-origin fetch  — blocked
   ok   default-src 'none' blocks a cross-origin script  — blocked
-  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:56058/index.html | script-src-elem <- https://example.com/evil.js
+  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:53496/index.html | script-src-elem <- https://example.com/evil.js
 
 --- 13. EXIF orientation: a portrait phone photo must not come out sideways ---
   ok   the fixture really carries Orientation=6  — read back 6
@@ -1038,8 +1038,8 @@ MOBILE TOUCH — the crop drag under real touch input, on a 390x844 phone
 
 --- 4. negative control: without touch-action: none the page must scroll ---
   frame moved dy=18 (was 26px with touch-action: none)
-  page scrolled -73px
-  ok   removing touch-action: none makes the page scroll instead of dragging  — the page scrolled -73px
+  page scrolled -166px
+  ok   removing touch-action: none makes the page scroll instead of dragging  — the page scrolled -166px
 
 --- 5. negative control: shrinking the slider back to 32px must be reported ---
   controls under 44px: zoom 326x32
@@ -1070,6 +1070,35 @@ THE SINGLE-FILE BUILD — the same gesture on the artifact a visitor downloads
 
 ====================================================================================================
   The crop drag works under real touch input, on both artifacts, on both axes, and the controls are finger-sized.
+====================================================================================================
+
+> test_image_swap.mjs — a second photograph is measured, not the first
+====================================================================================================
+IMAGE SWAP — is the second photograph measured, or the first?
+====================================================================================================
+
+--- 1. the two fixtures genuinely disagree, so the test means something ---
+  first  (g0_d2)  : MATCHES  — Matches these file requirements 140x60 px, 13.42 KB, within the 10-20 KB window. Still con
+  ok   the first photograph fits the window
+
+--- 2. choosing a new file must disable Fit until that file is loaded ---
+  ok   Fit is disabled at the moment a new file is chosen  — disabled
+
+--- 3. the second photograph is judged on its own contents ---
+  second (g12_d1) : NOT-PRODUCED  — Not produced This image cannot reach 10 KB at 140x60 even at maximum quality (best achieved: 8.88 KB). The picture content is too simple to 
+  ok   the second photograph gets its own verdict, not the first one's
+  ok   the contradictory "Produced, but it failed its own check" message is gone
+  ok   the refusal still tells the user what to do
+  ok   no download is offered for the refused file
+
+--- 4. pressing Fit the instant a file is chosen must not corrupt the verdict ---
+  ok   round 1: the verdict is still about the second file  — NOT-PRODUCED
+  ok   round 2: the verdict is still about the second file  — NOT-PRODUCED
+  ok   round 3: the verdict is still about the second file  — NOT-PRODUCED
+  ok   no page or console errors  — none
+
+====================================================================================================
+  A second photograph is judged on its own contents, and Fit cannot be pressed mid-decode.
 ====================================================================================================
 
 > test_docs_consistency.mjs — every count in index.html and README.md equals the registry
@@ -1137,6 +1166,7 @@ SUMMARY
   PASS  test_provenance_levels.mjs
   PASS  test_page_structure.mjs
   PASS  test_mobile_touch.mjs
+  PASS  test_image_swap.mjs
   PASS  test_docs_consistency.mjs
 ==============================================================
 All suites passed.
