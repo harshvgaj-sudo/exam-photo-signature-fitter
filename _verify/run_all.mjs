@@ -102,7 +102,16 @@ results.push(['test_page_structure.mjs', await run('test_page_structure.mjs')]);
 console.log('\n> test_mobile_touch.mjs — the crop drag under real touch input, on a phone');
 results.push(['test_mobile_touch.mjs', await run('test_mobile_touch.mjs')]);
 
-// 7. The prose states counts, and a count is a claim about the code. The registry
+// 7. A second photograph must be judged on its own contents. Found while checking
+// the video script: a Fit pressed while a new photo was still decoding measured
+// the PREVIOUS one, so the search reported a size for a file the user was no
+// longer looking at. Every earlier suite missed it because they all wait ~250ms
+// — roughly human reaction time — while the window is under 50ms on a fast
+// machine and far wider on a phone decoding a multi-megapixel photo.
+console.log('\n> test_image_swap.mjs — a second photograph is measured, not the first');
+results.push(['test_image_swap.mjs', await run('test_image_swap.mjs')]);
+
+// 8. The prose states counts, and a count is a claim about the code. The registry
 // has grown twice and the copy was left behind both times — once telling visitors
 // "8 from secondary sources" when the true number was 1. Runs last because it is
 // the cheapest, and it is the one that guards every number printed above.

@@ -287,12 +287,32 @@ function applySpec() {
 }
 
 /* ------------------------------------------------------------ image load */
+
+// Guards against a decode finishing out of order: choose file A, then quickly
+// choose file B, and A's decode can land after B's. The newest choice must win.
+let loadToken = 0;
+
 els.file.addEventListener('change', async (e) => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
+  const token = ++loadToken;
+
   els.fileInfo.textContent = `Reading ${file.name} (${(file.size / 1024).toFixed(0)} KB)...`;
+
+  // Decoding is asynchronous, and until it finishes `state.img` still holds the
+  // PREVIOUS photograph. The crop card is already on screen from that previous
+  // file, so nothing about the UI signals "not ready yet" — and a Fit pressed in
+  // this window measures the old image. That is exactly how the tool came to
+  // report a size its own final check then disagreed with ("Produced, but it
+  // failed its own check"). Measured on a fast desktop the window is under 50ms,
+  // but on a phone decoding a multi-megapixel photo it is long enough to tap.
+  // So Fit is disabled until the new image is genuinely in place.
+  els.processBtn.disabled = true;
+
   try {
-    state.img = await loadBitmap(file);
+    const img = await loadBitmap(file);
+    if (token !== loadToken) return;          // superseded by a newer choice
+    state.img = img;
     state.imgW = state.img.width;
     state.imgH = state.img.height;
     els.stageImg.src = state.img instanceof HTMLImageElement ? state.img.src : '';
@@ -313,6 +333,7 @@ els.file.addEventListener('change', async (e) => {
     resetCrop();
     refresh();
   } catch (err) {
+    if (token !== loadToken) return;
     // A file the browser cannot decode is an EXPECTED input — HEIC, a truncated
     // download, a renamed file — not an application error. Logging it at error
     // level made "the console is clean" impossible to test, and told anyone who
@@ -322,6 +343,10 @@ els.file.addEventListener('change', async (e) => {
     els.fileInfo.textContent = '';
     showStatus('bad', 'That file could not be opened',
       'This tool reads JPEG and PNG. iPhone photos are usually HEIC, which browsers other than Safari cannot open — convert it to JPEG first. A truncated or renamed file gives this same message.');
+  } finally {
+    if (token === loadToken) {
+      els.processBtn.disabled = Boolean(state.spec && state.spec.liveCaptureOnly);
+    }
   }
 });
 
@@ -509,7 +534,15 @@ els.processBtn.addEventListener('click', async () => {
     els.report.hidden = false;
 
     if (!check.pass) {
-      showStatus('bad', 'Produced, but it failed its own check', check.problems.join('; '));
+      // Defence in depth just earned its keep: the search found an in-window
+      // size, but the file actually encoded does not match it, so the canvas
+      // changed mid-fit. Nothing usable was produced — yet the old wording said
+      // "Produced, but it failed its own check", which claims the opposite and
+      // left the user with no idea what to do. Say what happened, and the way out.
+      showStatus('bad', 'Not produced',
+        `The size measured during the search does not match the file produced (${check.problems.join('; ')}). ` +
+        'This happens if Fit is pressed while a photograph is still loading. ' +
+        'Wait for the preview to appear, then press Fit again.');
       return;
     }
 
