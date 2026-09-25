@@ -54,8 +54,21 @@ const cardText = (p) =>
  */
 async function clickFit(p) {
   await p.waitForSelector('#processBtn:not([disabled])', { timeout: 30000 });
-  await clickFit(p);
+  await p.click('#processBtn');
 }
+
+// A failure below must not leave Chrome running. An open browser keeps the event
+// loop alive, so anything that goes wrong without throwing cleanly — a helper
+// that never resolves, say — hangs the script with no output at all. That is not
+// theoretical: a blanket find-and-replace once rewrote this file's own click line
+// into `await clickFit(p)`, and the resulting self-recursion ran silently for nine
+// minutes. This turns any such failure into a clean, loud exit.
+const bail = (err) => {
+  console.error('\nFAILED: ' + (err && err.message ? err.message : String(err)));
+  browser.close().finally(() => process.exit(1));
+};
+process.on('unhandledRejection', bail);
+process.on('uncaughtException', bail);
 
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 const ctx = await browser.newContext(PHONE);
