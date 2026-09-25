@@ -119,7 +119,15 @@ results.push(['test_image_swap.mjs', await run('test_image_swap.mjs')]);
 console.log('\n> test_certificate_swap.mjs — a running build owns its inputs');
 results.push(['test_certificate_swap.mjs', await run('test_certificate_swap.mjs')]);
 
-// 9. The prose states counts, and a count is a claim about the code. The registry
+// 9. The registry covers five exam bodies; everything else goes through Custom,
+// where the numbers are the USER'S and the tool has no document to check them
+// against. The battle sheet tells the presenter to say the tool covers "a custom
+// mode for anything else", so that mode is a claim in the script. This checks it
+// honours what was typed, and refuses a window it cannot reach.
+console.log('\n> test_custom_mode.mjs — the custom escape hatch honours what the user types');
+results.push(['test_custom_mode.mjs', await run('test_custom_mode.mjs')]);
+
+// 10. The prose states counts, and a count is a claim about the code. The registry
 // has grown twice and the copy was left behind both times — once telling visitors
 // "8 from secondary sources" when the true number was 1. Runs last because it is
 // the cheapest, and it is the one that guards every number printed above.

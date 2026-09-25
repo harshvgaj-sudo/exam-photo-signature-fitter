@@ -155,7 +155,7 @@ A box is 'comfortable' when EVERY input clears the floor by at least 1.15x.
   fixtures: 75 JPEG file(s), 65.2 MB total
   jobs    : 226 measurement(s) across 16 registry entries
   browser : Chrome/154.0.0.0 (real system Chrome)
-  measured : 2026-09-25T14:27:20.706Z
+  measured : 2026-09-25T14:54:18.919Z
 
 SPEC                  BOX        WINDOW      q1.0 OVER THE SWEEP PASS    DECLARED     MEASURED     RESULT
 ----------------------------------------------------------------------------------------------------------------
@@ -551,7 +551,7 @@ the old predicate still reproduces its defects, so the report's evidence holds
 PDF writer verified — A4, verbatim JPEG, predictable size
 ==========================================================
 
-> test_browser.mjs — modular version over HTTP (port 58136)
+> test_browser.mjs — modular version over HTTP (port 55700)
 
 --- 1. page loads, preset applied, provenance shown ---
 title      : Photo & Signature Fitter
@@ -637,7 +637,7 @@ canvas dims     : 472x157
   ok   the header is byte-identical to the policy under test  — identical
   ok   connect-src 'none' blocks a same-origin fetch  — blocked
   ok   default-src 'none' blocks a cross-origin script  — blocked
-  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:58136/index.html | script-src-elem <- https://example.com/evil.js
+  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:55700/index.html | script-src-elem <- https://example.com/evil.js
 
 --- 13. EXIF orientation: a portrait phone photo must not come out sideways ---
   ok   the fixture really carries Orientation=6  — read back 6
@@ -1038,8 +1038,8 @@ MOBILE TOUCH — the crop drag under real touch input, on a 390x844 phone
 
 --- 4. negative control: without touch-action: none the page must scroll ---
   frame moved dy=18 (was 26px with touch-action: none)
-  page scrolled -72px
-  ok   removing touch-action: none makes the page scroll instead of dragging  — the page scrolled -72px
+  page scrolled -136px
+  ok   removing touch-action: none makes the page scroll instead of dragging  — the page scrolled -136px
 
 --- 5. negative control: shrinking the slider back to 32px must be reported ---
   controls under 44px: zoom 326x32
@@ -1140,6 +1140,38 @@ CERTIFICATE TOOL — changing the inputs during a build
   A running build owns its inputs, and a change mid-build cannot corrupt it.
 ====================================================================================================
 
+> test_custom_mode.mjs — the custom escape hatch honours what the user types
+====================================================================================================
+CUSTOM MODE — the escape hatch for any exam not in the registry
+====================================================================================================
+
+--- 1. the custom fields appear only when Custom is selected ---
+  ok   the custom fields are hidden for a registry preset
+  ok   the custom fields appear for the Custom preset
+
+--- 2. a custom 300x400 / 20-50 KB requirement is honoured exactly ---
+  status: Matches these file requirements 300x400 px, 37.32 KB, within the 20-50 KB window. Still confirm on the official upload page.
+  ok   the tool produced a file for the custom requirement
+  downloaded: custom_300x400.jpg  (37.32 KB)  header: 300x400
+  ok   the pixels are the box the user typed
+  ok   the size is inside the window the user typed
+  ok   the filename states the dimensions the file has
+
+--- 3. an impossible custom window is refused, not fudged ---
+  status: Not produced This image cannot reach 300 KB at 300x400 even at maximum quality (best achieved: 57.35 KB). The picture content is too simple to compres
+  ok   the impossible window is refused
+  ok   the refusal states what it could reach
+
+--- 4. a zero width cannot produce a zero-width image ---
+  status: Matches these file requirements 1x400 px, 1.34 KB, within the 1-100 KB window. Still confirm on the official upload page.
+  ok   a zero width is clamped, not honoured
+  produced 1x400 — the field is clamped to 1px minimum
+  ok   no page or console errors throughout  — none
+
+====================================================================================================
+  Custom mode honours what the user types, and refuses what it cannot do.
+====================================================================================================
+
 > test_docs_consistency.mjs — every count in index.html and README.md equals the registry
 ====================================================================================================
 DOCS CONSISTENCY — every stated count must equal the registry
@@ -1207,6 +1239,7 @@ SUMMARY
   PASS  test_mobile_touch.mjs
   PASS  test_image_swap.mjs
   PASS  test_certificate_swap.mjs
+  PASS  test_custom_mode.mjs
   PASS  test_docs_consistency.mjs
 ==============================================================
 All suites passed.
