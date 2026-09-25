@@ -270,6 +270,71 @@ for (const [fixture, expectation] of JOURNEYS) {
   await ctx.close();
 }
 
+/* ------------------- 4. the second tool, end to end on the deployed build */
+/*
+ * The landing page links BOTH tools, but only the photo tool had ever been
+ * exercised live — a 200 on the certificate page proves the HTML downloads, not
+ * that it works. This runs the whole journey on the deployed build and checks
+ * the bytes it hands back are a real PDF.
+ */
+console.log('\n--- 4. the deployed certificate tool: build a PDF and inspect it ---');
+{
+  const ctx = await browser.newContext({ ...PHONE, acceptDownloads: true });
+  const p = await ctx.newPage();
+  const failed = [];
+  const errors = [];
+  p.on('requestfailed', (r) => failed.push(`${r.url()} (${r.failure()?.errorText})`));
+  p.on('response', (r) => { if (r.status() >= 400) failed.push(`${r.url()} -> HTTP ${r.status()}`); });
+  p.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
+  p.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
+
+  const url = `${SITE}/dist/certificate-to-pdf.html`;
+  const resp = await p.goto(url, { waitUntil: 'load' });
+  assert('the certificate tool returns 200', resp.status() === 200, `HTTP ${resp.status()}`, `HTTP ${resp.status()}`);
+
+  await p.selectOption('#requirement', 'ssc-certificate');
+  await p.setInputFiles('#fileInput', join(HERE, 'fixtures', 'scan_g0_d2.jpg'));
+  await p.waitForTimeout(250);
+  await p.click('#buildBtn');
+
+  let built = true;
+  try {
+    await p.waitForSelector('#downloadBtn:not([hidden])', { timeout: 120000 });
+  } catch { built = false; }
+
+  const status = (await p.locator('#status').innerText()).replace(/\s+/g, ' ').trim();
+  console.log(`  tool said: ${status.slice(0, 150)}`);
+  assert('the deployed certificate tool produced a PDF', built,
+    `the download button never appeared. Tool said: ${status.slice(0, 180)}`);
+
+  if (built) {
+    const [dl] = await Promise.all([
+      p.waitForEvent('download', { timeout: 30000 }),
+      p.click('#downloadBtn'),
+    ]);
+    const name = dl.suggestedFilename();
+    const buf = readFileSync(await dl.path());
+    const kb = buf.length / 1024;
+    const head = buf.subarray(0, 5).toString('latin1');
+    const tail = buf.subarray(-6).toString('latin1').trim();
+
+    console.log(`  downloaded: ${name}  (${buf.length} bytes, ${kb.toFixed(1)} KB)`);
+    console.log(`  header: ${JSON.stringify(head)}   trailer: ${JSON.stringify(tail)}`);
+
+    assert('it is named .pdf', name.endsWith('.pdf'), `filename was "${name}"`);
+    assert('the bytes really are a PDF', head === '%PDF-', `header was ${JSON.stringify(head)}`);
+    assert('the PDF is properly terminated', tail.includes('%%EOF'), `trailer was ${JSON.stringify(tail)}`);
+    assert('it is inside the 500 KB ceiling', kb <= 500, `${kb.toFixed(1)} KB`);
+    // The tool's own claim, checked against the file rather than taken on trust.
+    assert('the tool reports it read the file back and verified it', /verified/i.test(status),
+      `status was: ${status.slice(0, 180)}`);
+  }
+
+  assert('no failed requests on the certificate page', failed.length === 0, failed.join(' | '), 'none');
+  assert('no page errors on the certificate page', errors.length === 0, errors.join(' | '), 'none');
+  await ctx.close();
+}
+
 await browser.close();
 
 console.log('\n' + '='.repeat(100));
