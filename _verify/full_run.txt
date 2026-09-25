@@ -15,7 +15,7 @@ BUILD OK
     node _verify/run_all.mjs          (all suites)
 BUILD OK
   output      : C:\Users\harsh\WorkBuddy AI\2026-09-14-10-03-21\govdocs-review\dist\certificate-to-pdf.html
-  size        : 35.8 KB (one file, no dependencies)
+  size        : 37.8 KB (one file, no dependencies)
   modules     : ..\..\reference-tool\js\config.js, js\pdf.js, js\app.js
   local refs  : none
   opens from  : file:// (double-click) or any static host
@@ -155,7 +155,7 @@ A box is 'comfortable' when EVERY input clears the floor by at least 1.15x.
   fixtures: 75 JPEG file(s), 65.2 MB total
   jobs    : 226 measurement(s) across 16 registry entries
   browser : Chrome/154.0.0.0 (real system Chrome)
-  measured : 2026-09-25T14:04:04.686Z
+  measured : 2026-09-25T14:27:20.706Z
 
 SPEC                  BOX        WINDOW      q1.0 OVER THE SWEEP PASS    DECLARED     MEASURED     RESULT
 ----------------------------------------------------------------------------------------------------------------
@@ -551,7 +551,7 @@ the old predicate still reproduces its defects, so the report's evidence holds
 PDF writer verified — A4, verbatim JPEG, predictable size
 ==========================================================
 
-> test_browser.mjs — modular version over HTTP (port 53496)
+> test_browser.mjs — modular version over HTTP (port 58136)
 
 --- 1. page loads, preset applied, provenance shown ---
 title      : Photo & Signature Fitter
@@ -637,7 +637,7 @@ canvas dims     : 472x157
   ok   the header is byte-identical to the policy under test  — identical
   ok   connect-src 'none' blocks a same-origin fetch  — blocked
   ok   default-src 'none' blocks a cross-origin script  — blocked
-  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:53496/index.html | script-src-elem <- https://example.com/evil.js
+  ok   a securitypolicyviolation event fires, so the policy is genuinely parsed  — connect-src <- http://127.0.0.1:58136/index.html | script-src-elem <- https://example.com/evil.js
 
 --- 13. EXIF orientation: a portrait phone photo must not come out sideways ---
   ok   the fixture really carries Orientation=6  — read back 6
@@ -1038,8 +1038,8 @@ MOBILE TOUCH — the crop drag under real touch input, on a 390x844 phone
 
 --- 4. negative control: without touch-action: none the page must scroll ---
   frame moved dy=18 (was 26px with touch-action: none)
-  page scrolled -166px
-  ok   removing touch-action: none makes the page scroll instead of dragging  — the page scrolled -166px
+  page scrolled -72px
+  ok   removing touch-action: none makes the page scroll instead of dragging  — the page scrolled -72px
 
 --- 5. negative control: shrinking the slider back to 32px must be reported ---
   controls under 44px: zoom 326x32
@@ -1099,6 +1099,45 @@ IMAGE SWAP — is the second photograph measured, or the first?
 
 ====================================================================================================
   A second photograph is judged on its own contents, and Fit cannot be pressed mid-decode.
+====================================================================================================
+
+> test_certificate_swap.mjs — a running build owns its inputs
+====================================================================================================
+CERTIFICATE TOOL — changing the inputs during a build
+====================================================================================================
+
+--- 1. a running build must lock its inputs ---
+  ok   the inputs are open before a build starts
+  while building: "Reading your files… Decoding each image and applying its rotation tag."
+  ok   the file input is disabled while building
+  ok   the requirement selector is disabled while building
+  ok   Build is disabled while building
+
+--- 2. a change event mid-build must not wipe the progress or unlock Build ---
+  after the change event: status="Finding the highest quality that fits… Trying resolution and quality settings un"
+  ok   the change event actually fired
+  ok   the progress line survives a change event mid-build
+  ok   the progress line still says something
+  ok   Build stays disabled — no second concurrent build
+
+--- 3. the build still completes and offers a verified result ---
+  final status: "Ready — and verified A 454.2 KB PDF, 1 A4 page(s), read back from the file itsel"
+  ok   the result is shown
+  ok   a download is offered
+  ok   the result is reported as verified
+  ok   the inputs are re-enabled afterwards
+    Requirement   : SSC — 10th standard / SSLC certificate
+    Pages         : 1
+    Page size     : A4 (all pages)
+    File size     : 454.2 KB of 500 KB allowed
+    Resolution    : 200 dpi
+    Quality       : 0.92
+    Format check  : valid PDF, read back from its own bytes
+  ok   it produced exactly one page for one image
+  ok   no page or console errors  — none
+
+====================================================================================================
+  A running build owns its inputs, and a change mid-build cannot corrupt it.
 ====================================================================================================
 
 > test_docs_consistency.mjs — every count in index.html and README.md equals the registry
@@ -1167,6 +1206,7 @@ SUMMARY
   PASS  test_page_structure.mjs
   PASS  test_mobile_touch.mjs
   PASS  test_image_swap.mjs
+  PASS  test_certificate_swap.mjs
   PASS  test_docs_consistency.mjs
 ==============================================================
 All suites passed.
