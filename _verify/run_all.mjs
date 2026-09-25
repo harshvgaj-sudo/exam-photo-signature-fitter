@@ -111,7 +111,15 @@ results.push(['test_mobile_touch.mjs', await run('test_mobile_touch.mjs')]);
 console.log('\n> test_image_swap.mjs — a second photograph is measured, not the first');
 results.push(['test_image_swap.mjs', await run('test_image_swap.mjs')]);
 
-// 8. The prose states counts, and a count is a claim about the code. The registry
+// 8. The certificate tool had the same class of bug as the photo tool, and a
+// worse outcome: changing the file selection while a build was running wiped the
+// progress line, re-enabled Build for a second concurrent run, and left the user
+// on an empty panel with no result and no error. A running build now owns its
+// inputs. Found by asking whether the photo tool's race had a sibling here.
+console.log('\n> test_certificate_swap.mjs — a running build owns its inputs');
+results.push(['test_certificate_swap.mjs', await run('test_certificate_swap.mjs')]);
+
+// 9. The prose states counts, and a count is a claim about the code. The registry
 // has grown twice and the copy was left behind both times — once telling visitors
 // "8 from secondary sources" when the true number was 1. Runs last because it is
 // the cheapest, and it is the one that guards every number printed above.

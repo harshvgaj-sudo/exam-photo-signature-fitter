@@ -614,6 +614,12 @@ const els = {
 let picked = [];
 /** The verified PDF waiting to be downloaded, if any. */
 let ready = null;
+/* A build is in flight. While it is, nothing else may touch the status, the
+   result, or the inputs: the build owns them until it finishes. Without this,
+   changing the file selection (or the requirement) mid-build wiped the progress
+   line, re-enabled Build for a second concurrent run, and left the user looking
+   at an empty panel with no result and no error. */
+let building = false;
 
 /* ------------------------------------------------------------------- utils */
 
@@ -795,18 +801,28 @@ async function searchFit(bitmaps, maxKB) {
 /* --------------------------------------------------------------- the build */
 
 async function build() {
-  if (!picked.length) return;
+  if (building || !picked.length) return;
+
+  // Snapshot the inputs for THIS build. `picked` is reassigned whenever the file
+  // selection changes, so reading it live can mix two selections into one build.
+  const files = picked.slice();
   const req = REQUIREMENTS.find((r) => r.id === els.requirement.value) || REQUIREMENTS[0];
   const maxKB = req.id === 'custom' ? Number(els.maxKB.value) || 500 : req.maxKB;
 
+  building = true;
   els.buildBtn.disabled = true;
+  // The inputs are disabled as well, so the selection cannot change underneath a
+  // running build. Everything is restored in the finally below.
+  els.fileInput.disabled = true;
+  els.requirement.disabled = true;
+  els.maxKB.disabled = true;
   clearResult();
   clearAttempts();
   showStatus('', 'Reading your files…', 'Decoding each image and applying its rotation tag.');
 
   try {
     const bitmaps = [];
-    for (const f of picked) {
+    for (const f of files) {
       const b = await decode(f);
       if (b) bitmaps.push(b);
     }
@@ -818,9 +834,9 @@ async function build() {
       return;
     }
 
-    if (bitmaps.length < picked.length) {
-      showStatus('', `Using ${bitmaps.length} of ${picked.length} files`,
-        `${picked.length - bitmaps.length} could not be opened and were skipped.`);
+    if (bitmaps.length < files.length) {
+      showStatus('', `Using ${bitmaps.length} of ${files.length} files`,
+        `${files.length - bitmaps.length} could not be opened and were skipped.`);
     } else {
       showStatus('', 'Finding the highest quality that fits…',
         `Trying resolution and quality settings until the PDF is under ${maxKB} KB.`);
@@ -890,7 +906,11 @@ async function build() {
     showStatus('bad', 'Something went wrong while building the PDF',
       (err && err.message) || String(err));
   } finally {
-    els.buildBtn.disabled = false;
+    building = false;
+    els.fileInput.disabled = false;
+    els.requirement.disabled = false;
+    els.maxKB.disabled = false;
+    els.buildBtn.disabled = picked.length === 0;
   }
 }
 
@@ -989,6 +1009,14 @@ function init() {
   els.maxKB.addEventListener('input', () => { clearResult(); clearStatus(); });
 
   els.fileInput.addEventListener('change', (e) => {
+    // A build owns the inputs while it runs: it reads its own snapshot of the
+    // selection and reports a result for that snapshot. Accepting a new selection
+    // now would leave the panel showing one set of files beside a result computed
+    // from another — and it also wiped the progress line and re-enabled Build for
+    // a second concurrent run. The input is disabled during a build, so a real
+    // user cannot reach this; the guard is here because a change event can still
+    // be fired programmatically, which is exactly how the test drives it.
+    if (building) return;
     picked = [...(e.target.files || [])];
     describeFiles(picked);
     clearResult();
